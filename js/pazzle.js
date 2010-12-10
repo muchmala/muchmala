@@ -1,55 +1,28 @@
 $(function() {
 
     var image = new Image();
+    var viewport = $('#viewport');
 
-    image.src = 'lost.jpg';
+    image.src = 'nodejs.png';
     
     image.onload = function() {
+        buildPazzle();
+    };
+
+    function buildPazzle() {
+        
         var piceSize = 90;
         var rectSize = toInt(piceSize / 3 * 2);
         var offsetX = toInt(((image.width - (rectSize / 2)) % rectSize) / 2);
         var offsetY = toInt(((image.height - (rectSize / 2)) % rectSize) / 2);
 
         var map = generatePuzzleMap(image.width, image.height, rectSize);
-        
+
         for(var y = 0; y < map.length; y++) {
             for(var x = 0; x < map[y].length; x++) {
-                var imageX = map[y][x].x ? map[y][x].x * (piceSize - 40) + offsetX : offsetX;
-                var imageY = map[y][x].y ? map[y][x].y * (piceSize - 40) + offsetY : offsetY;
-
-                var ctx = appendCanvas(
-                    piceSize,
-                    (y ? y * (rectSize + 1) : 0),
-                    (x ? x * (rectSize + 1) : 0)
-                );
                 
-                puzzlePiceDrawer({
-                    ctx: ctx,
-                    image: image,
-                    imageX: imageX,
-                    imageY: imageY,
-                    width: piceSize,
-                    ears: {
-                        left: map[y][x].l,
-                        bottom: map[y][x].b,
-                        right: map[y][x].r,
-                        top: map[y][x].t
-                    }
-                });
             }
         }
-    };
-
-    function appendCanvas(size, top, left) {
-        var canvas = document.createElement('canvas');
-        canvas.height = size;
-        canvas.width = size;
-        canvas.style.position = 'absolute';
-        canvas.style.top = top + 'px';
-        canvas.style.left = left + 'px';
-        document.body.appendChild(canvas);
-        
-        return canvas.getContext('2d');
     }
 
     var puzzlePiceDrawer = (function() {
@@ -148,7 +121,7 @@ $(function() {
             line(step, step);
         }
 
-        return function(settings) {
+        function draw(settings) {
             var imageX = settings.imageX;
             var imageY = settings.imageY;
             var width = settings.width;
@@ -160,22 +133,86 @@ $(function() {
             drawLines(settings.ears);
             ctx.clip();
             ctx.drawImage(image, imageX, imageY, width, width, 0, 0, width, width);
-/*
-            ctx.beginPath();
-            drawLeftBottomLines(settings.ears);
+        }
 
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = 'rgb(255,255,255)';
-            ctx.stroke();
-
-            ctx.beginPath();
-            drawRightTopLines(settings.ears);
+        function outline(settings) {
+            drawLines(settings.ears);
 
             ctx.lineWidth = 1;
             ctx.strokeStyle = 'rgb(255,255,0)';
             ctx.stroke();
-*/   
+        }
+
+        return {
+            draw: draw,
+            outline: outline
         };
-        
+    })();
+
+    var puzzle = (function() {
+
+        var piceSize, rectSize, offsetX, 
+            offsetY, viewport, image;
+        var index = [];
+        var pices = [];
+
+        function init(settings) {
+            piceSize = settings.piceSize;
+            rectSize = settings.rectSize;
+            offsetX = settings.offsetX;
+            offsetY = settings.offsetY;
+            viewport = settings.viewport;
+            image = settings.image;
+        }
+
+        function addPice(settings) {
+            var pice = $.extend({
+                x: null, y: null, tx: null, ty: null,
+                l: null, b: null, r: null, t: null
+            }, settings);
+
+            pice.ix = pice.tx ? pice.tx * rectSize + offsetX : offsetX;
+            pice.iy = pice.ty ? pice.ty * rectSize + offsetY : offsetY;
+            pices.push(pice);
+        }
+
+        function drawPice(pice) {
+            puzzlePiceDrawer.draw({
+                ctx: pice.ctx,
+                image: image,
+                imageX: pice.ix,
+                imageY: pice.iy,
+                width: piceSize,
+                ears: {
+                    left: pice.l, bottom: pice.b,
+                    right: pice.r, top: pice.t
+                }
+            });
+        }
+
+        function buildPice(pice) {
+            var canvas = document.createElement('canvas');
+            canvas.height = piceSize;
+            canvas.width = piceSize;
+            canvas.style.position = 'absolute';
+            canvas.style.top = (pice.y ? pice.y * (rectSize + 1) : 0) + 'px';
+            canvas.style.left = (pice.x ? pice.x * (rectSize + 1) : 0) + 'px';
+            viewport.appendChild(canvas);
+            pice.ctx = canvas.getContext('2d');
+        }
+
+        function buildField() {
+            for(var i = 0, len = pices.length; i < len; i++) {
+                buildPice(pices[i]);
+                drawPice(pices[i]);
+            }
+        }
+
+        return {
+            init: init,
+            addPice: addPice,
+            buildField: buildField
+        };
+
     })();
 });
