@@ -51,7 +51,7 @@ function generatePuzzleMap(width, height, piceWidth) {
             };
 
             var key = ''+result[y][x].l + result[y][x].b +
-                           result[y][x].r + result[y][x].t;
+                         result[y][x].r + result[y][x].t;
 
             if (sorted[key] == null) {
                 sorted[key] = [];
