@@ -6,11 +6,10 @@ function rand(max) {
     return Math.floor(Math.random() * (max + 1));
 }
 
-function generatePuzzleMap(width, height, piceWidth) {
-    var offsetX = (piceWidth / 2) + (width - (piceWidth / 2)) % piceWidth;
-    var offsetY = (piceWidth / 2) + (height - (piceWidth / 2)) % piceWidth;
-    var countH = (width - offsetX) / piceWidth;
-    var countV = (height - offsetY) / piceWidth;
+function generatePuzzleMap(width, height, piceSize) {
+    var rectSize = toInt(piceSize/3 * 2);
+    var countH = toInt((width - rectSize/2) / rectSize);
+    var countV = toInt((height - rectSize/2) / rectSize);
 
     var result = [];
     var sorted = {};

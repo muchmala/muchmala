@@ -92,17 +92,20 @@ BorbitPuzzle.piceDrawer = function(settings) {
     }
 
     function draw(settings) {
+        var imageX = settings.x * (piceSize - step*2);
+        var imageY = settings.y * (piceSize - step*2);
+        //settings.ctx.clearRect(0, 0, piceSize, piceSize);
         drawPath(settings.ctx, settings.ears);
         settings.ctx.clip();
-        settings.ctx.drawImage(image, settings.imageX, settings.imageY,
-                               piceSize, piceSize, 0, 0, piceSize, piceSize);
+        settings.ctx.drawImage(image, imageX, imageY, piceSize, piceSize,
+                                0, 0, piceSize, piceSize);
     }
 
     function highlight(settings) {
         drawPath(settings.ctx, settings.ears);
         settings.ctx.lineWidth = 3;
-        settings.ctx.strokeStyle = 'rgb(255,0,0)';
-        settings.ctx.fillStyle = 'rgba(255,0,0,0.2)';
+        settings.ctx.strokeStyle = 'rgb(0,0,255)';
+        settings.ctx.fillStyle = 'rgba(0,0,255,0.2)';
         settings.ctx.stroke();
         settings.ctx.fill();
     }

@@ -1,23 +1,38 @@
 <html>
 <head>
     <title>PAZZLE</title>
+    <style type="text/css">
+        #display {
+            overflow:hidden;
+            height:100%;
+            width:100%;
+        }
+
+        #binder {
+            position:relative;
+        }
+
+        #viewport {
+            position:relative;
+            height:760px;
+            width:1430px;
+        }
+    </style>
 </head>
 <body style="background:#fff;margin:0;">
 
-    <style>
-        #viewport {
-            position:relative;
-            margin:150px auto 0 auto;
-            height:215px;
-            width:460px;
-        }
-    </style>
-
+    <div id="display">
+    <div id="binder">
     <div id="viewport"></div>
+    </div>
+    </div>
 
-    <script src="js/jquery.js"></script>
-    <script src="js/jquery-ui.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/jquery-ui.min.js"></script>
     <script src="js/mapGenerator.js"></script>
+    <script src="js/drawer.js"></script>
+    <script src="js/fields.js"></script>
+    <script src="js/pices.js"></script>
     <script src="js/pazzle.js"></script>
   
 </body>

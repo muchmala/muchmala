@@ -2,12 +2,15 @@ BorbitPuzzle.fileld = function(settings) {
     settings = $.extend({
         viewport: null,
         piceSize: null,
-        rectSize: null,
         indexCellSize: 60
     }, settings);
 
+    // TMP
+    settings.indexCellSize = toInt(settings.piceSize/3*2);
+
     var index = {};
-    var pices = [];
+    var pices = {};
+    var selected = false;
 
     settings.viewport.click(function(event) {
         var offset = settings.viewport.offset();
@@ -17,20 +20,61 @@ BorbitPuzzle.fileld = function(settings) {
         
         for(var i in found) {
             if(found[i].hasPoint(eventX, eventY)) {
-                found[i].select();
+                onClick(found[i]);
                 break;
             }
         }
     });
 
-    function addPice(pice) {
-        pices.push(pice);
+    function onClick(pice) {
+        if(!selected || !selected.selected && !pice.selected) {
+            pice.select();
+            selected = pice;
+        } else {
+            if(isSameType(selected, pice)) {
+                replacePices(selected, pice);
+                selected.selected = false;
+            }
+        }
+    }
+
+    function isSameType(first, second) {
+        if(first.l == second.l && first.b == second.b &&
+           first.r == second.r && first.t == second.t) {
+            return true;
+        }
+        return false;
+    }
+
+    function replacePices(first, second) {
+        var tmpX = first.tx;
+        var tmpY = first.ty;
+        first.tx = second.tx;
+        first.ty = second.ty;
+        second.tx = tmpX;
+        second.ty = tmpY;
+        second.draw();
+        first.draw();
+    }
+
+    function addPice(x, y, pice) {
+        if(pices[y] == null) {
+            pices[y] = {};
+        }
+        pices[y][x] = pice;
     }
 
     function build() {
-        for(var i = 0, len = pices.length; i < len; i++) {
-            settings.viewport.append(pices[i].build());
-            pices[i].draw();
+        var rectSize = toInt(settings.piceSize / 3 * 2);
+        
+        for(var y in pices) {
+            for(var x in pices[y]) {
+                pices[y][x].xCoord = x * (rectSize + 1);
+                pices[y][x].yCoord = y * (rectSize + 1);
+                pices[y][x].build();
+                pices[y][x].draw();
+                settings.viewport.append(pices[y][x].canvas);
+            }
         }
         
         buildIndex();
@@ -50,13 +94,12 @@ BorbitPuzzle.fileld = function(settings) {
 
     function buildIndex() {
         var piceSize = settings.piceSize;
-        var rectSize = settings.rectSize;
         var cellSize = settings.indexCellSize;
 
-        for(var i = 0, len = pices.length; i < len; i++) {
-            var pice = pices[i];
-            var xCoord = pice.x ? pice.x * (rectSize + 1) : 0;
-            var yCoord = pice.y ? pice.y * (rectSize + 1) : 0;
+        for(var y in pices) {
+        for(var x in pices[y]) {
+
+            var pice = pices[y][x];
             var cellsCount = 1;
             
             if (piceSize > cellSize) {
@@ -64,20 +107,23 @@ BorbitPuzzle.fileld = function(settings) {
             }
 
             for (var h = 0; h < cellsCount; h++) {
-                for (var v = 0; v < cellsCount; v++) {
-                    var xIndex = xCoord - (xCoord % cellSize) + (h * cellSize);
-                    var yIndex = yCoord - (yCoord % cellSize) + (v * cellSize);
+                var xIndex = pice.xCoord - (pice.xCoord % cellSize) + (h * cellSize);
 
-                    if (index[xIndex] == null) {
-                        index[xIndex] = {};
-                    }
+                if (index[xIndex] == null) {
+                    index[xIndex] = {};
+                }
+
+                for (var v = 0; v < cellsCount; v++) {
+                    var yIndex = pice.yCoord - (pice.yCoord % cellSize) + (v * cellSize);
+
                     if (index[xIndex][yIndex] == null) {
                         index[xIndex][yIndex] = [];
                     }
+                    
                     index[xIndex][yIndex].push(pice);
                 }
             }
-        }
+        }}
     }
 
     return {

@@ -1,51 +1,63 @@
 $(function() {
 
+    var viewport = $('#viewport');
+    var display = $('#display');
+    var binder = $('#binder');
+
+    function renderView() {
+        var displayHeight = display.height();
+        var displayWidth = display.width();
+        var hDiff = viewport.height() - displayHeight;
+        var wDiff = viewport.width() - displayWidth;
+
+        binder.width(displayWidth + wDiff*2);
+        binder.height(displayHeight + hDiff*2);
+
+        binder.css({
+            top: hDiff * -1,
+            left: wDiff * -1
+        });
+
+        viewport.css({
+            top: toInt(hDiff / 2),
+            left: toInt(wDiff / 2)
+        });
+    }
+
+    viewport.draggable({containment: 'parent'});
+    renderView();
+    
     var image1 = new Image();
-    image1.src = 'nodejs.png';
+    image1.src = 'lost.jpg';
     image1.onload = function() {
-        buildPazzle(image1, $('#viewport_nodejs'), 90);
+        buildPazzle(image1, viewport, 90);
     };
-
-    var image2 = new Image();
-    image2.src = 'javascript.jpg';
-    image2.onload = function() {
-        buildPazzle(image2, $('#viewport_javascript'), 60);
-    };
-
 
     function buildPazzle(image, viewport, piceSize) {
-        var rectSize = toInt(piceSize / 3 * 2);
-        var offsetX = toInt(((image.width - (rectSize / 2)) % rectSize) / 2);
-        var offsetY = toInt(((image.height - (rectSize / 2)) % rectSize) / 2);
-
+        
         var field = BorbitPuzzle.fileld({
-            viewport: viewport,
             piceSize: piceSize,
-            rectSize: rectSize,
-            indexCellSize: rectSize
+            viewport: viewport
         });
+        
         var pices = BorbitPuzzle.pices({
             piceSize: piceSize,
-            rectSize: rectSize,
             image: image
         });
 
-        var map = generatePuzzleMap(image.width, image.height, rectSize);
+        var map = generatePuzzleMap(image.width, image.height, piceSize);
 
         for(var y = 0; y < map.length; y++) {
             for(var x = 0; x < map[y].length; x++) {
 
                 var data = map[y][x];
                 var pice = pices.factory({
-                    ix: data.x ? data.x * rectSize + offsetX : offsetX,
-                    iy: data.y ? data.y * rectSize + offsetY : offsetY,
                     tx: data.x, ty: data.y,
                     l: data.l, b: data.b,
-                    r: data.r, t: data.t,
-                    x: x, y: y
+                    r: data.r, t: data.t
                 });
 
-                field.addPice(pice);
+                field.addPice(x, y, pice);
             }
         }
 

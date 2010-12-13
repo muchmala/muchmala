@@ -1,7 +1,6 @@
 BorbitPuzzle.pices = function(data) {
     var settings = $.extend({
         piceSize: null,
-        rectSize: null,
         image: null
     }, data);
 
@@ -17,14 +16,14 @@ BorbitPuzzle.pices = function(data) {
         canvas.style.position = 'absolute';
         canvas.style.top = pice.yCoord + 'px';
         canvas.style.left = pice.xCoord + 'px';
-        return canvas;
+        pice.canvas = canvas;
     }
 
     function draw(pice) {
         drawer.draw({
+            x: pice.tx,
+            y: pice.ty,
             ctx: pice.ctx,
-            imageX: pice.ix,
-            imageY: pice.iy,
             ears: {
                 left: pice.l, bottom: pice.b,
                 right: pice.r, top: pice.t
@@ -32,7 +31,7 @@ BorbitPuzzle.pices = function(data) {
         });
     }
 
-    function select(pice) {
+    function highlight(pice) {
         drawer.highlight({
             ctx: pice.ctx,
             ears: {
@@ -43,7 +42,7 @@ BorbitPuzzle.pices = function(data) {
     }
 
     function hasPoint(pice, x, y) {
-        var s = settings.rectSize / 4;
+        var s = settings.piceSize / 6;
         var xc = pice.xCoord;
         var yc = pice.yCoord;
 
@@ -64,25 +63,19 @@ BorbitPuzzle.pices = function(data) {
     function factory(data) {
         var pice = $.extend({
             ctx: null,
-            yCoord: null,
+            canvas: null,
             selected: false,
-            ix: null, iy: null,
+            xCoord: null,
+            yCoord: null,
             tx: null, ty: null,
-            x: null, y: null, l: null,
-            b: null, r: null, t: null
+            l: null, b: null,
+            r: null, t: null
         }, data);
 
-        pice.xCoord = pice.x ? pice.x * (settings.rectSize + 1) : 0;
-        pice.yCoord = pice.y ? pice.y * (settings.rectSize + 1) : 0;
-
-        return {
-            x: pice.x,
-            y: pice.y,
-
+        $.extend(pice, {
             build: function() {
-                var canvas = build(pice);
-                pice.ctx = canvas.getContext('2d');
-                return canvas;
+                build(pice);
+                pice.ctx = pice.canvas.getContext('2d');
             },
 
             draw: function() {
@@ -90,13 +83,16 @@ BorbitPuzzle.pices = function(data) {
             },
 
             select: function() {
-                select(pice);
+                pice.selected = true;
+                highlight(pice);
             },
 
             hasPoint: function(x, y) {
                 return hasPoint(pice, x, y);
             }
-        };
+        });
+
+        return pice;
     }
 
     return {
