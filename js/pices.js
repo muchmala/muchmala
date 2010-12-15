@@ -24,20 +24,21 @@ BorbitPuzzle.pices = function(data) {
             x: pice.tx,
             y: pice.ty,
             ctx: pice.ctx,
-            ears: {
-                left: pice.l, bottom: pice.b,
-                right: pice.r, top: pice.t
-            }
+            ears: {left: pice.l, bottom: pice.b, right: pice.r, top: pice.t}
         });
     }
 
-    function highlight(pice) {
-        drawer.highlight({
+    function select(pice) {
+        drawer.select({
             ctx: pice.ctx,
-            ears: {
-                left: pice.l, bottom: pice.b,
-                right: pice.r, top: pice.t
-            }
+            ears: {left: pice.l, bottom: pice.b, right: pice.r, top: pice.t}
+        });
+    }
+
+    function lock(pice) {
+        drawer.lock({
+            ctx: pice.ctx,
+            ears: {left: pice.l, bottom: pice.b, right: pice.r, top: pice.t}
         });
     }
 
@@ -64,10 +65,12 @@ BorbitPuzzle.pices = function(data) {
         var pice = $.extend({
             ctx: null,
             canvas: null,
+            locked: false,
             selected: false,
             xCoord: null,
             yCoord: null,
             tx: null, ty: null,
+            x: null, y: null,
             l: null, b: null,
             r: null, t: null
         }, data);
@@ -84,7 +87,22 @@ BorbitPuzzle.pices = function(data) {
 
             select: function() {
                 pice.selected = true;
-                highlight(pice);
+                select(pice);
+            },
+
+            unselect: function() {
+                pice.selected = false;
+                this.draw();
+            },
+
+            lock: function() {
+                pice.locked = true;
+                lock(pice);
+            },
+
+            unlock: function() {
+                pice.locked = false;
+                this.draw();
             },
 
             hasPoint: function(x, y) {

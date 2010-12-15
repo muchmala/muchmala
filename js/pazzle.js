@@ -5,62 +5,54 @@ $(function() {
     var binder = $('#binder');
 
     function renderView() {
+        var shouldBeDraggable = false;
         var displayHeight = display.height();
         var displayWidth = display.width();
-        var hDiff = viewport.height() - displayHeight;
-        var wDiff = viewport.width() - displayWidth;
+        var viewportHeight = viewport.height();
+        var viewportWidth = viewport.width();
 
-        binder.width(displayWidth + wDiff*2);
-        binder.height(displayHeight + hDiff*2);
-
-        binder.css({
-            top: hDiff * -1,
-            left: wDiff * -1
-        });
-
-        viewport.css({
-            top: toInt(hDiff / 2),
-            left: toInt(wDiff / 2)
-        });
-    }
-
-    viewport.draggable({containment: 'parent'});
-    renderView();
-    
-    var image1 = new Image();
-    image1.src = 'lost.jpg';
-    image1.onload = function() {
-        buildPazzle(image1, viewport, 90);
-    };
-
-    function buildPazzle(image, viewport, piceSize) {
-        
-        var field = BorbitPuzzle.fileld({
-            piceSize: piceSize,
-            viewport: viewport
-        });
-        
-        var pices = BorbitPuzzle.pices({
-            piceSize: piceSize,
-            image: image
-        });
-
-        var map = generatePuzzleMap(image.width, image.height, piceSize);
-
-        for(var y = 0; y < map.length; y++) {
-            for(var x = 0; x < map[y].length; x++) {
-
-                var data = map[y][x];
-                var pice = pices.factory({
-                    tx: data.x, ty: data.y,
-                    l: data.l, b: data.b,
-                    r: data.r, t: data.t
-                });
-
-                field.addPice(x, y, pice);
-            }
+        if(viewportHeight > displayHeight) {
+            var hDiff = viewportHeight - displayHeight;
+            binder.height(displayHeight + hDiff*2);
+            binder.css('top', hDiff * -1);
+            viewport.css('top', toInt(hDiff / 2));
+            shouldBeDraggable = true;
+        } else {
+            viewport.css('top', 0);
+            binder.height(viewportHeight);
+            binder.css('top', toInt(displayHeight / 2) -
+                              toInt(viewportHeight / 2));
         }
 
-        field.build();
+        if(viewportWidth > displayWidth) {
+            var wDiff = viewportWidth - displayWidth;
+            binder.width(displayWidth + wDiff*2);
+            binder.css('left', wDiff * -1);
+            viewport.css('left', toInt(wDiff / 2));
+            shouldBeDraggable = true;
+        } else {
+            viewport.css('left', 0);
+            binder.width(viewportWidth);
+            binder.css('left', toInt(displayWidth / 2) -
+                               toInt(viewportWidth / 2));
+        }
+
+        if(shouldBeDraggable) {
+            viewport.draggable({containment: 'parent'});
+        }
     }
+
+    renderView();
+
+    $(window).resize(renderView);
+    
+    var image = new Image();
+    image.src = 'lost.jpg';
+    image.onload = function() {
+        var server = BorbitPuzzle.server();
+        var controller = BorbitPuzzle.controller(server, {
+            viewport: viewport,
+            image: image
+        });
+    };
 });

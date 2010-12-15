@@ -1,4 +1,4 @@
-BorbitPuzzle.fileld = function(settings) {
+BorbitPuzzle.field = function field(settings) {
     settings = $.extend({
         viewport: null,
         piceSize: null,
@@ -10,7 +10,8 @@ BorbitPuzzle.fileld = function(settings) {
 
     var index = {};
     var pices = {};
-    var selected = false;
+    var observer = BorbitUtils.Observer();
+    observer.register(field.events.clicked);
 
     settings.viewport.click(function(event) {
         var offset = settings.viewport.offset();
@@ -20,48 +21,24 @@ BorbitPuzzle.fileld = function(settings) {
         
         for(var i in found) {
             if(found[i].hasPoint(eventX, eventY)) {
-                onClick(found[i]);
+                observer.fire(field.events.clicked, found[i]);
                 break;
             }
         }
     });
-
-    function onClick(pice) {
-        if(!selected || !selected.selected && !pice.selected) {
-            pice.select();
-            selected = pice;
-        } else {
-            if(isSameType(selected, pice)) {
-                replacePices(selected, pice);
-                selected.selected = false;
-            }
-        }
-    }
-
-    function isSameType(first, second) {
-        if(first.l == second.l && first.b == second.b &&
-           first.r == second.r && first.t == second.t) {
-            return true;
-        }
-        return false;
-    }
-
-    function replacePices(first, second) {
-        var tmpX = first.tx;
-        var tmpY = first.ty;
-        first.tx = second.tx;
-        first.ty = second.ty;
-        second.tx = tmpX;
-        second.ty = tmpY;
-        second.draw();
-        first.draw();
-    }
 
     function addPice(x, y, pice) {
         if(pices[y] == null) {
             pices[y] = {};
         }
         pices[y][x] = pice;
+    }
+
+    function getPice(x, y) {
+        if(pices[y] != null && pices[y][x] != null) {
+            return pices[y][x];
+        }
+        return false;
     }
 
     function build() {
@@ -128,6 +105,13 @@ BorbitPuzzle.fileld = function(settings) {
 
     return {
         build: build,
-        addPice: addPice
+        addPice: addPice,
+        getPice: getPice,
+        subscribe: observer.subscribe,
+        unsubscribe: observer.unsubscribe
     };
+};
+
+BorbitPuzzle.field.events = {
+    clicked: 'clicked'
 };

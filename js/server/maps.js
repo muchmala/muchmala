@@ -6,7 +6,7 @@ function rand(max) {
     return Math.floor(Math.random() * (max + 1));
 }
 
-function generatePuzzleMap(width, height, piceSize) {
+function generate(width, height, piceSize) {
     var rectSize = toInt(piceSize/3 * 2);
     var countH = toInt((width - rectSize/2) / rectSize);
     var countV = toInt((height - rectSize/2) / rectSize);
@@ -16,6 +16,8 @@ function generatePuzzleMap(width, height, piceSize) {
     var index = [];
 
     for(var y = 0; y < countV; y++) {
+        result[y] = [];
+        
         for(var x = 0; x < countH; x++) {
             var top = rand(1);
             var left = rand(1);
@@ -36,18 +38,7 @@ function generatePuzzleMap(width, height, piceSize) {
                 }
             }
 
-            if(result[y] == null) {
-                result[y] = [];
-            }
-
-            result[y][x] = {
-                t: top,
-                l: left,
-                b: rand(1),
-                r: rand(1),
-                x: x,
-                y: y
-            };
+            result[y][x] = {t: top, l: left, b: rand(1), r: rand(1), x: x, y: y};
 
             var key = ''+result[y][x].l + result[y][x].b +
                          result[y][x].r + result[y][x].t;
@@ -59,7 +50,6 @@ function generatePuzzleMap(width, height, piceSize) {
             sorted[key].push(result[y][x]);
             index.push(key);
         }
-
     }
 
     for (var i in sorted) {
@@ -68,8 +58,7 @@ function generatePuzzleMap(width, height, piceSize) {
         });
     }
 
-    var shuffled = [];
-    var k;
+    var k, shuffled = [];
 
     for(y = 0, k = 0; y < countV; y++) {
         shuffled[y] = [];
@@ -81,3 +70,5 @@ function generatePuzzleMap(width, height, piceSize) {
 
     return shuffled;
 }
+
+exports.generate = generate;

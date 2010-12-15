@@ -94,24 +94,34 @@ BorbitPuzzle.piceDrawer = function(settings) {
     function draw(settings) {
         var imageX = settings.x * (piceSize - step*2);
         var imageY = settings.y * (piceSize - step*2);
-        //settings.ctx.clearRect(0, 0, piceSize, piceSize);
+        settings.ctx.clearRect(0, 0, piceSize, piceSize);
         drawPath(settings.ctx, settings.ears);
         settings.ctx.clip();
         settings.ctx.drawImage(image, imageX, imageY, piceSize, piceSize,
                                 0, 0, piceSize, piceSize);
     }
 
-    function highlight(settings) {
+    function select(settings) {
         drawPath(settings.ctx, settings.ears);
-        settings.ctx.lineWidth = 3;
-        settings.ctx.strokeStyle = 'rgb(0,0,255)';
-        settings.ctx.fillStyle = 'rgba(0,0,255,0.2)';
-        settings.ctx.stroke();
+        settings.ctx.fillStyle = 'rgba(0,0,255,0.5)';
         settings.ctx.fill();
+    }
+
+    function lock(settings) {
+        drawPath(settings.ctx, settings.ears);
+        settings.ctx.fillStyle = 'rgba(255,0,0,0.7)';
+        settings.ctx.fill();
+        settings.ctx.textBaseline = 'top';
+        settings.ctx.textAlign = 'center';
+        settings.ctx.font = 'bold 10px Arial';
+        settings.ctx.fillStyle = 'rgb(255,255,255)';
+        settings.ctx.fillText('LOC', toInt(piceSize / 2), toInt(piceSize / 2) - 10);
+        settings.ctx.fillText('KED', toInt(piceSize / 2), toInt(piceSize / 2));
     }
 
     return {
         draw: draw,
-        highlight: highlight
+        lock: lock,
+        select: select
     };
 };
