@@ -1,7 +1,7 @@
 var config = exports;
 
 config.server = {
-    host: '172.16.45.129',
+    host: '172.16.127.128',
     port: 9999
 };
 

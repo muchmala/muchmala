@@ -52,4 +52,5 @@ Error: EADDRNOTAVAIL, Cannot assign requested address
 
 So try to check config.
 
-5. Finally open page in your browser:
+5. Finally open page in your browser: http://puzzle.kunik.dev/
+You should see some puzzle ;)
