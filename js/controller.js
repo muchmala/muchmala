@@ -8,19 +8,23 @@ BorbitPuzzle.controller = function(server, settings) {
     server.subscribe(serverEvents.changed, changedPicesByCoords);
 
     function init(data) {
-        field = BorbitPuzzle.field({
-            piceSize: data.piceSize,
-            viewport: settings.viewport
-        });
+        var image = new Image();
+        image.src = data.imageSrc;
+        image.onload = function() {
+            field = BorbitPuzzle.field({
+                piceSize: data.piceSize,
+                viewport: settings.viewport
+            });
 
-        pices = BorbitPuzzle.pices({
-            piceSize: data.piceSize,
-            image: settings.image
-        });
+            pices = BorbitPuzzle.pices({
+                piceSize: data.piceSize,
+                image: image
+            });
 
-        field.subscribe(fieldEvents.clicked, processClickedPice);
-        
-        buildField(data.map);
+            field.subscribe(fieldEvents.clicked, processClickedPice);
+
+            buildField(data.map);
+        }
     }
 
     function buildField(map) {

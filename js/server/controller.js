@@ -7,7 +7,11 @@ function controller(client, map) {
         
     });
 
-    client.send(createMessage(controller.events.map, {map: map, piceSize: 90}));
+    client.send(createMessage(controller.events.map, {
+        imageSrc: 'lost.jpg',
+        piceSize: 90,
+        map: map
+    }));
 
     function createMessage(event, data) {
         return JSON.stringify({

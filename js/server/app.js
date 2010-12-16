@@ -1,3 +1,4 @@
+var config = require('./config');
 var http = require('http');
 var io = require('socket.io');
 
@@ -7,7 +8,7 @@ var puzzle = {
 };
 
 var server = http.createServer();
-server.listen(9999, '172.16.45.129');
+server.listen(config.server.port, config.server.host);
 
 var map = puzzle.maps.generate(1440, 758, 90);
 

@@ -46,13 +46,6 @@ $(function() {
 
     $(window).resize(renderView);
     
-    var image = new Image();
-    image.src = 'lost.jpg';
-    image.onload = function() {
-        var server = BorbitPuzzle.server();
-        var controller = BorbitPuzzle.controller(server, {
-            viewport: viewport,
-            image: image
-        });
-    };
+    var server = BorbitPuzzle.server();
+    var controller = BorbitPuzzle.controller(server, {viewport: viewport});
 });
