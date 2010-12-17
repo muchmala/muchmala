@@ -1,4 +1,4 @@
-BorbitPuzzle.controller = function(server, settings) {
+BorbitPuzzle.controller = function(server, viewport) {
     var field, pices, selected;
     var fieldEvents = BorbitPuzzle.field.events;
     var serverEvents = BorbitPuzzle.server.events;
@@ -13,7 +13,7 @@ BorbitPuzzle.controller = function(server, settings) {
         image.onload = function() {
             field = BorbitPuzzle.field({
                 piceSize: data.piceSize,
-                viewport: settings.viewport
+                viewport: viewport
             });
 
             pices = BorbitPuzzle.pices({
