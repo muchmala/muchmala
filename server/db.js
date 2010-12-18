@@ -1,16 +1,14 @@
 var config = require('./config');
 var mongodb = require('mongodb');
-var client;
 var collections = {};
+var client;
 
 function createConnection(callback) {
     if (client === undefined) {
         client = new mongodb.Db(
             config.db.name,
-            new mongodb.Server(config.db.host, config.db.port, config.db.options),
-            {}
+            new mongodb.Server(config.db.host, config.db.port, config.db.options)
         );
-
         client.open(function(err, client) {
             client.authenticate(config.db.username, config.db.password, function(err, replies) {
                 callback.call(this, client);
@@ -32,8 +30,14 @@ function useCollection(collectionName, callback) {
     }
 }
 
-exports.createConnection = createConnection;
-exports.useCollection = useCollection;
+function createCollection(collectionName, data, callback) {
+    if (client !== undefined) {
+        client.createCollection(collectionName, function(err, collection) {
 
-exports.client = client;
-exports.collections = collections;
+        });
+    }
+}
+
+exports.createConnection = createConnection;
+exports.createCollection = createCollection;
+exports.useCollection = useCollection;

@@ -14,16 +14,20 @@ function getHandlers(client, map) {
         changed: 'changed'
     };
 
+    var locked = null;
+
     client.on('message', function(data) {
         process(JSON.parse(data));
     });
 
     client.on('disconnect', function() {
-
+        if(locked != null) {
+            unlock(locked);
+        }
     });
 
     client.send(createMessage(events.map, {
-        imageSrc: 'lost.jpg',
+        imageSrc: 'images/simpsons.jpg',
         piceSize: 90,
         map: map
     }));
@@ -43,10 +47,12 @@ function getHandlers(client, map) {
     }
 
     function lock(coordinates) {
+        locked = coordinates;
         client.broadcast(createMessage(events.locked, coordinates));
     }
 
     function unlock(coordinates) {
+        locked = null;
         client.broadcast(createMessage(events.unlocked, coordinates));
     }
 

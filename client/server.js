@@ -2,14 +2,13 @@ BorbitPuzzle.server = function server() {
     var socket = new io.Socket(null, {
         port: 8000
     });
-    socket.connect();
-
+    
     var observer = BorbitUtils.Observer();
     observer.register(server.events.map);
     observer.register(server.events.locked);
     observer.register(server.events.unlocked);
     observer.register(server.events.changed);
-
+    
     socket.on('message', function(data) {
         var parsed = JSON.parse(data);
         if(parsed.event != null &&
@@ -18,6 +17,12 @@ BorbitPuzzle.server = function server() {
             observer.fire(parsed.event, parsed.data);
         }
     });
+
+    socket.on('disconnect', connect);
+
+    function connect() {
+        socket.connect();
+    }
 
     function sendMessage(message) {
         if(socket.connected) {
@@ -48,6 +53,7 @@ BorbitPuzzle.server = function server() {
         lock: lock,
         unlock: unlock,
         change: change,
+        connect: connect,
         subscribe: observer.subscribe,
         unsubscribe: observer.unsubscribe
     };

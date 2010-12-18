@@ -1,4 +1,4 @@
-BorbitPuzzle.layout = function(viewport, display, binder) {
+BorbitPuzzle.layout = function(viewport, display, binder, loading) {
 
     var offsetX = 0,
         offsetY = 0,
@@ -6,9 +6,8 @@ BorbitPuzzle.layout = function(viewport, display, binder) {
         viewportY = 0,
         centerW = true,
         centerH = true,
-        displayHeight, displayWidth,
-        viewportHeight = viewport.height(),
-        viewportWidth = viewport.width();
+        viewportHeight,
+        viewportWidth;
 
     viewport.draggable({
         containment: 'parent',
@@ -19,23 +18,23 @@ BorbitPuzzle.layout = function(viewport, display, binder) {
             if(viewportY != ui.position.left) {
                 centerW = false;
             }
-
             viewportX = ui.position.top;
             viewportY = ui.position.left;
-
-            if(viewportHeight > displayHeight ||
-               viewportWidth > displayWidth) {
-                viewport.draggable('enable');
-            } else {
-                viewport.draggable('disable');
-            }
         }
     });
 
-    function renderView() {
-        displayHeight = display.height();
-        displayWidth = display.width();
+    function arrange(width, height) {
+        viewportHeight = height;
+        viewportWidth = width;
+        viewport.height(height);
+        viewport.width(width);
+        processArranging();
+    }
 
+    function processArranging() {
+        var displayHeight = display.height();
+        var displayWidth = display.width();
+        
         if(viewportHeight > displayHeight) {
             var hDiff = viewportHeight - displayHeight;
             binder.height(displayHeight + hDiff*2);
@@ -54,11 +53,9 @@ BorbitPuzzle.layout = function(viewport, display, binder) {
             }
             offsetX = hDiff;
         } else {
-            if(!centerH) {
-                centerH = true;
-                viewport.css('top', 0);
-                binder.height(viewportHeight);
-            }
+            centerH = true;
+            viewport.css('top', 0);
+            binder.height(viewportHeight);
             binder.css('top', toInt(displayHeight / 2) -
                               toInt(viewportHeight / 2));
         }
@@ -80,19 +77,37 @@ BorbitPuzzle.layout = function(viewport, display, binder) {
             }
             offsetY = wDiff;
         } else {
-            if(!centerW) {
-                centerW = true;
-                viewport.css('left', 0);
-                binder.width(viewportWidth);
-            }
+            centerW = true;
+            viewport.css('left', 0);
+            binder.width(viewportWidth);
             binder.css('left', toInt(displayWidth / 2) -
                                toInt(viewportWidth / 2));
         }
+
+        if(viewportHeight > displayHeight ||
+           viewportWidth > displayWidth) {
+            viewport.draggable('enable');
+        } else {
+            viewport.draggable('disable');
+        }
     }
 
-    renderView();
+    function showLoading() {
+        loading.show();
+    }
+
+    function hideLoading() {
+        loading.hide();
+    }
 
     $(window).resize(function() {
-        renderView();
+        processArranging();
     });
+
+    return {
+        viewport: viewport,
+        showLoading: showLoading,
+        hideLoading: hideLoading,
+        arrange: arrange
+    }
 };

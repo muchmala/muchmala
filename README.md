@@ -3,7 +3,6 @@ Instalation
 
 0. Install mongoDB, nginx, node.js
 ----------------------------------
-
 1. Install node.js modules
 --------------------------
 
@@ -18,7 +17,6 @@ https://github.com/christkv/node-mongodb-native
 
 2. Pull git repository.
 -----------------------
-
 3. Create nginx config like this and restart it:
 ------------------------------------------------
 

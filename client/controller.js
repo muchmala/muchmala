@@ -1,4 +1,4 @@
-BorbitPuzzle.controller = function(server, viewport) {
+BorbitPuzzle.controller = function(server, layout) {
     var field, pices, selected;
     var fieldEvents = BorbitPuzzle.field.events;
     var serverEvents = BorbitPuzzle.server.events;
@@ -7,13 +7,16 @@ BorbitPuzzle.controller = function(server, viewport) {
     server.subscribe(serverEvents.unlocked, unlockPice);
     server.subscribe(serverEvents.changed, changedPicesByCoords);
 
+    server.connect();
+    layout.showLoading();
+
     function init(data) {
         var image = new Image();
         image.src = data.imageSrc;
         image.onload = function() {
             field = BorbitPuzzle.field({
                 piceSize: data.piceSize,
-                viewport: viewport
+                viewport: layout.viewport
             });
 
             pices = BorbitPuzzle.pices({
@@ -23,7 +26,14 @@ BorbitPuzzle.controller = function(server, viewport) {
 
             field.subscribe(fieldEvents.clicked, processClickedPice);
 
+            var step = toInt(data.piceSize / 6);
+            var vQnt = data.map[0].length;
+            var hQnt = data.map.length;
+
+            layout.arrange(vQnt * (step * 4 + 1) + step * 2,
+                           hQnt * (step * 4 + 1) + step * 2);
             buildField(data.map);
+            layout.hideLoading();
         }
     }
 
@@ -96,8 +106,11 @@ BorbitPuzzle.controller = function(server, viewport) {
     }
 
     function changedPicesByCoords(coords) {
-        changePices(field.getPice(coords[0][0], coords[0][1]),
-                    field.getPice(coords[1][0], coords[1][1]));
+        var first = field.getPice(coords[0][0], coords[0][1]);
+        var second = field.getPice(coords[1][0], coords[1][1]);
+        first.unlock();
+        second.unlock();
+        changePices(first, second);
     }
 
 };

@@ -1,14 +1,12 @@
 $(function() {
 
-    BorbitPuzzle.layout(
+    var layout = BorbitPuzzle.layout(
         $('#viewport'),
         $('#display'),
-        $('#binder')
+        $('#binder'),
+        $('#loading')
     );
     
-    BorbitPuzzle.controller(
-        BorbitPuzzle.server(),
-        $('#viewport')
-    );
-        
+    BorbitPuzzle.controller(BorbitPuzzle.server(), layout);
+    
 });
