@@ -1,6 +1,6 @@
 BorbitPuzzle.server = function server() {
     var socket = new io.Socket(null, {
-        port: 9999
+        port: 8000
     });
     socket.connect();
 

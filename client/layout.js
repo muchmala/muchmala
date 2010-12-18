@@ -1,47 +1,64 @@
 BorbitPuzzle.layout = function(viewport, display, binder) {
-    var offsetX = 0;
-    var offsetY = 0;
-    var viewportX = 0;
-    var viewportY = 0;
+
+    var offsetX = 0,
+        offsetY = 0,
+        viewportX = 0,
+        viewportY = 0,
+        centerW = true,
+        centerH = true,
+        displayHeight, displayWidth,
+        viewportHeight = viewport.height(),
+        viewportWidth = viewport.width();
 
     viewport.draggable({
         containment: 'parent',
         stop: function(event, ui) {
-            offsetX = ui.position.top - viewportX;
-            offsetY = ui.position.left - viewportY;
+            if(viewportX != ui.position.top) {
+                centerH = false;
+            }
+            if(viewportY != ui.position.left) {
+                centerW = false;
+            }
+
+            viewportX = ui.position.top;
+            viewportY = ui.position.left;
+
+            if(viewportHeight > displayHeight ||
+               viewportWidth > displayWidth) {
+                viewport.draggable('enable');
+            } else {
+                viewport.draggable('disable');
+            }
         }
     });
 
     function renderView() {
-        var shouldBeDraggable = false;
-        var displayHeight = display.height();
-        var displayWidth = display.width();
-        var viewportHeight = viewport.height();
-        var viewportWidth = viewport.width();
+        displayHeight = display.height();
+        displayWidth = display.width();
 
         if(viewportHeight > displayHeight) {
             var hDiff = viewportHeight - displayHeight;
             binder.height(displayHeight + hDiff*2);
             binder.css('top', hDiff * -1);
-            viewportX = toInt(hDiff / 2);
-            shouldBeDraggable = true;
 
-            var top = viewportX + offsetX;
-            var viewportOffsetTop = viewport.offset().top;
-            var visibleHeight = viewportOffsetTop + viewportHeight;
-            
-            if(visibleHeight < displayHeight) {
-                top = 0;
-                offsetX += displayHeight - visibleHeight;
+            if(centerH) {
+                viewportX = toInt(hDiff / 2);
+                viewport.css('top', viewportX);
+            } else {
+                var newX = viewportX - (hDiff - offsetX)*-1;
+                if(newX >= 0) {
+                    viewport.css('top', newX);
+                    viewportX = newX;
+                }
+
             }
-            if(viewportOffsetTop >= 0) {
-                top = binder.offset().top * -1;
-            }
-            viewport.css('top', top);
+            offsetX = hDiff;
         } else {
-            offsetY = 0;
-            viewport.css('top', 0);
-            binder.height(viewportHeight);
+            if(!centerH) {
+                centerH = true;
+                viewport.css('top', 0);
+                binder.height(viewportHeight);
+            }
             binder.css('top', toInt(displayHeight / 2) -
                               toInt(viewportHeight / 2));
         }
@@ -50,33 +67,26 @@ BorbitPuzzle.layout = function(viewport, display, binder) {
             var wDiff = viewportWidth - displayWidth;
             binder.width(displayWidth + wDiff*2);
             binder.css('left', wDiff * -1);
-            viewportY = toInt(wDiff / 2);
-            shouldBeDraggable = true;
 
-            var left = viewportY + offsetY;
-            var viewportOffsetLeft = viewport.offset().left;
-            var visibleWidth = viewportOffsetLeft + viewportWidth;
-
-            if(visibleWidth < displayWidth) {
-                left = 0;
-                offsetY += displayWidth - visibleWidth;
+            if(centerW) {
+                viewportY = toInt(wDiff / 2);
+                viewport.css('left', viewportY);
+            } else {
+                var newY = viewportY - (wDiff - offsetY)*-1;
+                if(newY >= 0) {
+                    viewport.css('left', newY);
+                    viewportY = newY;
+                }
             }
-            if(viewportOffsetLeft >= 0) {
-                left = binder.offset().left * -1;
-            }
-            viewport.css('left', left);
+            offsetY = wDiff;
         } else {
-            offsetX = 0;
-            viewport.css('left', 0);
-            binder.width(viewportWidth);
+            if(!centerW) {
+                centerW = true;
+                viewport.css('left', 0);
+                binder.width(viewportWidth);
+            }
             binder.css('left', toInt(displayWidth / 2) -
                                toInt(viewportWidth / 2));
-        }
-
-        if(shouldBeDraggable) {        
-            viewport.draggable('enable');
-        } else {
-            viewport.draggable('disable');
         }
     }
 

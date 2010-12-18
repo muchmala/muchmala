@@ -16,7 +16,6 @@ function getHandlers(client, map) {
 
     client.on('message', function(data) {
         process(JSON.parse(data));
-        console.log(config.qwe);
     });
 
     client.on('disconnect', function() {

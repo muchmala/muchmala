@@ -1,9 +1,14 @@
-Instalation:
+Instalation
+===========
 
 0. Install mongoDB, nginx, node.js
+----------------------------------
 
 1. Install node.js modules
+--------------------------
+
 I use npm (http://npmjs.org/) so it is really simple:
+
     npm install socket.io
     npm install mongodb
 
@@ -12,13 +17,16 @@ http://socket.io/
 https://github.com/christkv/node-mongodb-native
 
 2. Pull git repository.
+-----------------------
 
 3. Create nginx config like this and restart it:
+------------------------------------------------
+
     server {
-        server_name  puzzle.kunik.dev;
+        server_name puzzle.dev;
         root /home/kunik/www/my/puzzle.js;
 
-        access_log  /var/log/nginx/puzzle.kunik.dev.access.log;
+        access_log  /var/log/nginx/puzzle.dev.access.log;
 
         location /socket.io {
             proxy_pass_header Server;
@@ -31,26 +39,34 @@ https://github.com/christkv/node-mongodb-native
     }
 
 3. Check config in ./server/config.js
+-------------------------------------
+
 Basicly you need to check port. Check if it is not used
+
     netstat -an | grep :9999
 
 4. Start server
+---------------
+
     node ./server/app.js
 
 If it is OK, it should write something like:
-16 Dec 22:44:13 - socket.io ready - accepting connections
+
+    16 Dec 22:44:13 - socket.io ready - accepting connections
 
 If somth is wrong it'll yell:
 
-node.js:50
-    throw e; // process.nextTick error, or 'error' event on first tick
-    ^
-Error: EADDRNOTAVAIL, Cannot assign requested address
-    at Server._doListen (net.js:1148:42)
-    at net.js:1119:14
-...bla-bla
+    node.js:50
+        throw e; // process.nextTick error, or 'error' event on first tick
+        ^
+    Error: EADDRNOTAVAIL, Cannot assign requested address
+        at Server._doListen (net.js:1148:42)
+        at net.js:1119:14
+    ...bla-bla
 
 So try to check config.
 
-5. Finally open page in your browser: http://puzzle.kunik.dev/
-You should see some puzzle ;)
+5. Finally open page in your browser: http://puzzle.dev
+--------------------------------------------------------------
+
+You should see your puzzle ;)
