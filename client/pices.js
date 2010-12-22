@@ -21,24 +21,24 @@ BorbitPuzzle.pices = function(data) {
 
     function draw(pice) {
         drawer.draw({
-            x: pice.tx,
-            y: pice.ty,
+            x: pice.initX,
+            y: pice.initY,
             ctx: pice.ctx,
-            ears: {left: pice.l, bottom: pice.b, right: pice.r, top: pice.t}
+            ears: pice.ears
         });
     }
 
     function select(pice) {
         drawer.select({
             ctx: pice.ctx,
-            ears: {left: pice.l, bottom: pice.b, right: pice.r, top: pice.t}
+            ears: pice.ears
         });
     }
 
     function lock(pice) {
         drawer.lock({
             ctx: pice.ctx,
-            ears: {left: pice.l, bottom: pice.b, right: pice.r, top: pice.t}
+            ears: pice.ears
         });
     }
 
@@ -69,10 +69,12 @@ BorbitPuzzle.pices = function(data) {
             selected: false,
             xCoord: null,
             yCoord: null,
-            tx: null, ty: null,
+            initX: null, initY: null,
             x: null, y: null,
-            l: null, b: null,
-            r: null, t: null
+            ears: {
+                left: null, bottom: null,
+                right: null, top: null
+            }
         }, data);
 
         $.extend(pice, {

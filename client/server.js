@@ -1,24 +1,27 @@
 BorbitPuzzle.server = function server() {
-    var socket = new io.Socket(null, {
-        port: 8000
-    });
+    var socket = new io.Socket('io.puzzle.home', {port: 8000});
     
     var observer = BorbitUtils.Observer();
     observer.register(server.events.map);
     observer.register(server.events.locked);
     observer.register(server.events.unlocked);
     observer.register(server.events.changed);
+    observer.register(server.events.connected);
     
     socket.on('message', function(data) {
         var parsed = JSON.parse(data);
         if(parsed.event != null &&
            observer.isRegistered(parsed.event)) {
-           console.log(parsed.event);
+            log('received ' + parsed.event);
             observer.fire(parsed.event, parsed.data);
         }
     });
 
     socket.on('disconnect', connect);
+
+    socket.on('connect', function() {
+        observer.fire(server.events.connected);
+    });
 
     function connect() {
         socket.connect();
@@ -26,15 +29,19 @@ BorbitPuzzle.server = function server() {
 
     function sendMessage(message) {
         if(socket.connected) {
-            console.log(message);
+            log('sent ' + message);
             socket.send(message);
         } else {
-            throw 'Socket is not connected';
+            log('Socket is not connected');
         }
     }
 
     function createMessage(action, data) {
         return JSON.stringify({action: action, data: data});
+    }
+
+    function map() {
+        sendMessage(createMessage('map'));
     }
 
     function lock(x, y) {
@@ -50,6 +57,7 @@ BorbitPuzzle.server = function server() {
     }
 
     return {
+        map: map,
         lock: lock,
         unlock: unlock,
         change: change,
@@ -63,5 +71,6 @@ BorbitPuzzle.server.events = {
     map: 'map',
     locked: 'locked',
     unlocked: 'unlocked',
-    changed: 'changed'
+    changed: 'changed',
+    conncted: 'conncted'
 };

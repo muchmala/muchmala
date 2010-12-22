@@ -4,7 +4,7 @@ var http = require('http');
 var io = require('socket.io');
 
 var puzzle = {
-    handlers: require('./handlers').getHandlers,
+    handlers: require('./handlers').handlers,
     maps:     require('./maps')
 };
 

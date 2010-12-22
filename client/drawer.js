@@ -108,15 +108,17 @@ BorbitPuzzle.piceDrawer = function(settings) {
     }
 
     function lock(settings) {
+        var center = toInt(piceSize / 2);
         drawPath(settings.ctx, settings.ears);
-        settings.ctx.fillStyle = 'rgba(255,0,0,0.7)';
+        settings.ctx.fillStyle = 'rgb(255,0,0)';
         settings.ctx.fill();
-        settings.ctx.textBaseline = 'top';
-        settings.ctx.textAlign = 'center';
-        settings.ctx.font = 'bold 10px Arial';
         settings.ctx.fillStyle = 'rgb(255,255,255)';
-        settings.ctx.fillText('LOC', toInt(piceSize / 2), toInt(piceSize / 2) - 10);
-        settings.ctx.fillText('KED', toInt(piceSize / 2), toInt(piceSize / 2));
+        settings.ctx.strokeStyle = 'rgb(255,255,255)';
+        settings.ctx.lineWidth = 2;
+        settings.ctx.beginPath();
+        settings.ctx.fillRect(center-8, center-4, 16, 14);
+        settings.ctx.arc(center, center-4, 5, 0, Math.PI, true);
+        settings.ctx.stroke();
     }
 
     return {
