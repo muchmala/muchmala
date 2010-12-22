@@ -1,10 +1,12 @@
 var db = require('./db');
+var oldMaps = require('./maps')
 
-var Maps = (function() {
-    return function() {
-
-    };
-})();
+var Maps = {
+    create: oldMaps.generate,
+    load: function() {
+        //
+    }
+};
 
 var Map = (function() {
     return function() {

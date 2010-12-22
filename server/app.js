@@ -3,19 +3,17 @@ var db = require('./db');
 var http = require('http');
 var io = require('socket.io');
 
-var puzzle = {
-    handlers: require('./handlers').getHandlers,
-    maps:     require('./maps')
-};
+var models = require('./models');
+var handlers = require('./handlers').getHandlers;
 
 var server = http.createServer();
 server.listen(config.server.port, config.server.host);
 
-var map = puzzle.maps.generate(800, 600, 90);
-
 db.createConnection(function() {
+    var map = models.Maps.create(800, 600, 90);
     var socket = io.listen(server);
+
     socket.on('connection', function(client) {
-        puzzle.handlers(client, map);
+        handlers(client, map);
     });
 })

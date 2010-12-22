@@ -30,14 +30,5 @@ function useCollection(collectionName, callback) {
     }
 }
 
-function createCollection(collectionName, data, callback) {
-    if (client !== undefined) {
-        client.createCollection(collectionName, function(err, collection) {
-
-        });
-    }
-}
-
 exports.createConnection = createConnection;
-exports.createCollection = createCollection;
 exports.useCollection = useCollection;
