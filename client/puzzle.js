@@ -1,5 +1,4 @@
 $(function() {
-
     var layout = BorbitPuzzle.layout(
         $('#viewport'),
         $('#display'),
@@ -7,6 +6,5 @@ $(function() {
         $('#loading')
     );
     
-    BorbitPuzzle.controller(BorbitPuzzle.server(), layout);
-    
+    BorbitPuzzle.handlers(BorbitPuzzle.server(), layout);
 });

@@ -4,7 +4,7 @@ var http = require('http');
 var io = require('socket.io');
 
 var models = require('./models');
-var handlers = require('./handlers').getHandlers;
+var handlers = require('./handlers').handlers;
 
 var server = http.createServer();
 server.listen(config.server.port, config.server.host);

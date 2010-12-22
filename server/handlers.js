@@ -1,17 +1,19 @@
 var models = require('./models');
 
-function getHandlers(client, map) {
-    var actions = {
-        lock: lock,
-        unlock: unlock,
-        change: change
-    };
+var events = {
+    map: 'map',
+    locked: 'locked',
+    unlocked: 'unlocked',
+    changed: 'changed'
+};
 
-    var events = {
-        map: 'map',
-        locked: 'locked',
-        unlocked: 'unlocked',
-        changed: 'changed'
+function handlers(client, map) {
+
+    var actions = {
+        map: mapHandler,
+        lock: lockHandler,
+        unlock: unlockHandler,
+        change: changeHandler
     };
 
     var locked = null;
@@ -22,15 +24,9 @@ function getHandlers(client, map) {
 
     client.on('disconnect', function() {
         if(locked != null) {
-            unlock(locked);
+            unlockHandler(locked);
         }
     });
-
-    client.send(createMessage(events.map, {
-        imageSrc: 'images/simpsons.jpg',
-        piceSize: 90,
-        map: map
-    }));
 
     function createMessage(event, data) {
         return JSON.stringify({
@@ -46,19 +42,27 @@ function getHandlers(client, map) {
         }
     }
 
-    function lock(coordinates) {
+    function mapHandler() {
+        client.send(createMessage(events.map, {
+            imageSrc: 'images/simpsons.jpg',
+            piceSize: 90,
+            map: map
+        }));
+    }
+
+    function lockHandler(coordinates) {
         locked = coordinates;
         client.broadcast(createMessage(events.locked, coordinates));
     }
 
-    function unlock(coordinates) {
+    function unlockHandler(coordinates) {
         locked = null;
         client.broadcast(createMessage(events.unlocked, coordinates));
     }
 
-    function change(coordinates) {
+    function changeHandler(coordinates) {
         client.broadcast(createMessage(events.changed, coordinates));
     }
 }
 
-exports.getHandlers = getHandlers;
+exports.handlers = handlers;

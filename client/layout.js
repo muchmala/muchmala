@@ -97,7 +97,7 @@ BorbitPuzzle.layout = function(viewport, display, binder, loading) {
     }
 
     function hideLoading() {
-        loading.hide();
+        //loading.hide();
     }
 
     $(window).resize(function() {
