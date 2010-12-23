@@ -18,4 +18,4 @@ db.createConnection(function() {
             handlers(client, map);
         });
     });
-})
+});

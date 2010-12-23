@@ -7,10 +7,10 @@ var MapsLoader = function(collection) {
     var maps = [];
 
     var Map = function(id, callback) {
-        var mapCompactFormat = oldMaps.generate(800, 600, 90);
+        var mapCompactFormat = oldMaps.generate(1440, 758, 90);
 
         var mapInfo = {
-            imageSrc: 'images/simpsons.jpg',
+            imageSrc: 'images/lost.jpg',
             piceSize: 90,
             width: 800,
             height: 600,

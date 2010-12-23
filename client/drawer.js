@@ -113,12 +113,16 @@ BorbitPuzzle.piceDrawer = function(settings) {
         settings.ctx.fillStyle = 'rgb(255,0,0)';
         settings.ctx.fill();
         settings.ctx.fillStyle = 'rgb(255,255,255)';
-        settings.ctx.strokeStyle = 'rgb(255,255,255)';
-        settings.ctx.lineWidth = 2;
         settings.ctx.beginPath();
-        settings.ctx.fillRect(center-8, center-4, 16, 14);
-        settings.ctx.arc(center, center-4, 5, 0, Math.PI, true);
-        settings.ctx.stroke();
+        settings.ctx.fillRect(center-5, center-9, 2, 4);
+        settings.ctx.fillRect(center+3, center-9, 2, 4);
+        settings.ctx.fillRect(center-3, center-11, 6, 2);
+        settings.ctx.fillRect(center-7, center-5, 14, 12);
+        settings.ctx.fillRect(center-5, center+7, 10, 2);
+        settings.ctx.fillStyle = 'rgb(255,0,0)';
+        settings.ctx.fillRect(center-1, center, 2, 4);
+        //settings.ctx.arc(center, center-4, 5, 0, Math.PI, true);
+        //settings.ctx.stroke();
     }
 
     return {

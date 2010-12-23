@@ -1,8 +1,8 @@
 var config = exports;
 
 config.server = {
-    host: '172.16.45.129',
-    port: 8000
+    host: '172.16.45.128',
+    port: 80
 };
 
 config.db = {

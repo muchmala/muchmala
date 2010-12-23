@@ -3,7 +3,8 @@ function toInt(value) {
 }
 
 function log(message) {
-    if(console && console.log) {
+    if(window.console != null &&
+        window.console.log != null) {
         console.log(message);
     }
 }

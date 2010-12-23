@@ -47,7 +47,7 @@ function handlers(client, map) {
     function mapHandler() {
         map.getCompactInfo(function(compactMap) {
             client.send(createMessage(events.map, compactMap));
-        })
+        });
     }
 
     function lockHandler(coordinates) {
