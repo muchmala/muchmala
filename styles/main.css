@@ -25,16 +25,22 @@ body {
     top:0px;
     left:50%;
     margin-left:-70px;
+    padding-left:10px;
     height:28px;
-    width:140px;
+    width:110px;
     line-height:26px;
-    background:rgba(0,0,0,0.7);
+    background:rgba(0,0,0,0.7) url('/images/loadinfo.net.gif') no-repeat 97px 5px;
     color:#fff;
-    text-align:center;
-    border:1px solid #fff;
-    border-width:0 1px 1px 1px;
+    font-size:12px;
     border-bottom-left-radius:10px;
     border-bottom-right-radius:10px;
     -moz-border-radius-bottomleft:10px;
     -moz-border-radius-bottomright:10px;
+    -webkit-box-shadow:0 0 2px #fff;
+    -moz-box-shadow:0 0 2px #fff;
+    box-shadow:0 0 2px #fff;
+}
+
+#loading img {
+    display:inline-block;
 }

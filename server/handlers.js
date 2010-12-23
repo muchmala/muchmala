@@ -44,7 +44,7 @@ function handlers(client, map) {
 
     function mapHandler() {
         client.send(createMessage(events.map, {
-            imageSrc: 'images/simpsons.jpg',
+            imageSrc: 'images/lost.jpg',
             piceSize: 90,
             map: map
         }));

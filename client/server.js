@@ -1,5 +1,7 @@
 BorbitPuzzle.server = function server() {
-    var socket = new io.Socket('io.puzzle.home', {port: 8000});
+    var socket = new io.Socket('io.puzzle.home', {
+        transports: ['websocket', 'flashsocket', 'xhr-multipart']
+    });
     
     var observer = BorbitUtils.Observer();
     observer.register(server.events.map);
