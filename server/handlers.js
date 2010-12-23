@@ -13,7 +13,7 @@ function handlers(client, map) {
         map: mapHandler,
         lock: lockHandler,
         unlock: unlockHandler,
-        change: changeHandler
+        change: flipHandler
     };
 
     var locked = null;
@@ -23,9 +23,11 @@ function handlers(client, map) {
     });
 
     client.on('disconnect', function() {
-        if(locked != null) {
-            unlockHandler(locked);
-        }
+        map.unlockAll(client.sessionId, function(result) {
+            for (var i in result) {
+                client.broadcast(createMessage(events.unlocked, result[i]));
+            }
+        });
     });
 
     function createMessage(event, data) {
@@ -43,25 +45,33 @@ function handlers(client, map) {
     }
 
     function mapHandler() {
-        client.send(createMessage(events.map, {
-            imageSrc: 'images/simpsons.jpg',
-            piceSize: 90,
-            map: map
-        }));
+        map.getCompactInfo(function(compactMap) {
+            client.send(createMessage(events.map, compactMap));
+        })
     }
 
     function lockHandler(coordinates) {
-        locked = coordinates;
-        client.broadcast(createMessage(events.locked, coordinates));
+        map.lock(coordinates[0], coordinates[1], client.sessionId, function(done) {
+            if (done) {
+                client.broadcast(createMessage(events.locked, coordinates));
+            }
+        });
     }
 
     function unlockHandler(coordinates) {
-        locked = null;
-        client.broadcast(createMessage(events.unlocked, coordinates));
+        map.unlock(coordinates[0], coordinates[1], client.sessionId, function(done) {
+            if (done) {
+                client.broadcast(createMessage(events.unlocked, coordinates));
+            }
+        });
     }
 
-    function changeHandler(coordinates) {
-        client.broadcast(createMessage(events.changed, coordinates));
+    function flipHandler(coordinates) {
+        map.flip(coordinates[0][0], coordinates[0][1], coordinates[1][0], coordinates[1][1], client.sessionId, function(done) {
+            if (done) {
+                client.broadcast(createMessage(events.changed, coordinates));
+            }
+        });
     }
 }
 
