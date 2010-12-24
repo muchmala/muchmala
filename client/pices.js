@@ -21,8 +21,8 @@ BorbitPuzzle.pices = function(data) {
 
     function draw(pice) {
         drawer.draw({
-            x: pice.initX,
-            y: pice.initY,
+            x: pice.realX,
+            y: pice.realY,
             ctx: pice.ctx,
             ears: pice.ears
         });
@@ -52,10 +52,10 @@ BorbitPuzzle.pices = function(data) {
            (x >= xc+s && y >= yc+s*3.5 && x <= xc+s*2.5 && y <= yc+s*5) ||
            (x >= xc+s*3.5 && y >= yc+s*3.5 && x <= xc+s*5 && y <= yc+s*5) ||
            (x >= xc+s*2 && y >= yc+s*2 && x <= xc+s*4 && y <= yc+s*4) ||
-           (pice.l && x >= xc && y >= yc+s*2.5 && x <= xc+s*2 && y <= yc+s*3.5) ||
-           (pice.b && x >= xc+s*2.5 && y >= yc+s*4 && x <= xc+s*3.5 && y <= yc+s*6) ||
-           (pice.r && x >= xc+s*4 && y >= yc+s*2.5 && x <= xc+s*6 && y <= yc+s*3.5) ||
-           (pice.t && x >= xc+s*2.5 && y >= yc && x <= xc+s*3.5 && y <= yc+s*2)) {
+           (pice.ears.left && x >= xc && y >= yc+s*2.5 && x <= xc+s*2 && y <= yc+s*3.5) ||
+           (pice.ears.bottom && x >= xc+s*2.5 && y >= yc+s*4 && x <= xc+s*3.5 && y <= yc+s*6) ||
+           (pice.ears.right && x >= xc+s*4 && y >= yc+s*2.5 && x <= xc+s*6 && y <= yc+s*3.5) ||
+           (pice.ears.top && x >= xc+s*2.5 && y >= yc && x <= xc+s*3.5 && y <= yc+s*2)) {
             return true;
         }
         return false;
@@ -69,7 +69,8 @@ BorbitPuzzle.pices = function(data) {
             selected: false,
             xCoord: null,
             yCoord: null,
-            initX: null, initY: null,
+            realX: null,
+            realY: null,
             x: null, y: null,
             ears: {
                 left: null, bottom: null,

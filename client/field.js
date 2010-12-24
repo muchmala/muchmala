@@ -50,6 +50,9 @@ BorbitPuzzle.field = function field(settings) {
                 pices[y][x].yCoord = y * (rectSize + 1);
                 pices[y][x].build();
                 pices[y][x].draw();
+                if(pices[y][x].locked) {
+                    pices[y][x].lock();
+                }
                 settings.viewport.append(pices[y][x].canvas);
             }
         }

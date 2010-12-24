@@ -51,9 +51,9 @@ BorbitPuzzle.handlers = function(server, layout) {
                 var cell = map[y][x];
                 var pice = pices.factory({
                     x: x, y: y, 
-                    initX: cell.x,
-                    initY: cell.y,
-                    locked: cell.lckd,
+                    realX: cell.x,
+                    realY: cell.y,
+                    locked: cell.d,
                     ears: {
                         left: cell.l, bottom: cell.b,
                         right: cell.r, top: cell.t
@@ -76,9 +76,9 @@ BorbitPuzzle.handlers = function(server, layout) {
                     pice.unselect();
                 }
 
-                if(pice.initX != cell.x || pice.initY != cell.y) {
-                    pice.initX = cell.x;
-                    pice.initY = cell.y;
+                if(pice.realX != cell.x || pice.realY != cell.y) {
+                    pice.realX = cell.x;
+                    pice.realY = cell.y;
                     pice.draw();
                 }
             }
@@ -124,12 +124,12 @@ BorbitPuzzle.handlers = function(server, layout) {
     }
 
     function changePices(first, second) {
-        var tmpX = first.initX;
-        var tmpY = first.initY;
-        first.initX = second.initX;
-        first.initY = second.initY;
-        second.initX = tmpX;
-        second.initY = tmpY;
+        var tmpX = first.realX;
+        var tmpY = first.realY;
+        first.realX = second.realX;
+        first.realY = second.realY;
+        second.realX = tmpX;
+        second.realY = tmpY;
         second.draw();
         first.draw();
     }
