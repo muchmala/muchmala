@@ -17,7 +17,7 @@ function generate(width, height, piceSize) {
 
     for(var y = 0; y < countV; y++) {
         result[y] = [];
-        
+
         for(var x = 0; x < countH; x++) {
             var top = rand(1);
             var left = rand(1);

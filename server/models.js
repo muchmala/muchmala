@@ -2,18 +2,14 @@ var db = require('./db');
 var oldMaps = require('./maps')
 
 var MapsLoader = function(collection) {
-    var mapsCollection = collection;
-
     var maps = [];
 
     var Map = function(id, callback) {
-        var mapCompactFormat = oldMaps.generate(1440, 758, 90);
+        var mapCompactFormat = oldMaps.generate(1420, 950, 90);
 
         var mapInfo = {
-            imageSrc: 'images/lost.jpg',
+            imageSrc: 'images/springfield.jpg',
             piceSize: 90,
-            width: 800,
-            height: 600,
             pieces: []
         };
 

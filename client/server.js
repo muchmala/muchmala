@@ -7,8 +7,8 @@ BorbitPuzzle.server = function server() {
     observer.register(server.events.map);
     observer.register(server.events.locked);
     observer.register(server.events.unlocked);
-    observer.register(server.events.changed);
     observer.register(server.events.connected);
+    observer.register(server.events.flipped);
     
     socket.on('message', function(data) {
         var parsed = JSON.parse(data);
@@ -54,15 +54,15 @@ BorbitPuzzle.server = function server() {
         sendMessage(createMessage('unlock', [x, y]));
     }
 
-    function change(x1, y1, x2, y2) {
-        sendMessage(createMessage('change', [[x1, y1], [x2, y2]]));
+    function flip(x1, y1, x2, y2) {
+        sendMessage(createMessage('flip', [[x1, y1], [x2, y2]]));
     }
 
     return {
         map: map,
         lock: lock,
         unlock: unlock,
-        change: change,
+        flip: flip,
         connect: connect,
         subscribe: observer.subscribe,
         unsubscribe: observer.unsubscribe
@@ -73,6 +73,6 @@ BorbitPuzzle.server.events = {
     map: 'map',
     locked: 'locked',
     unlocked: 'unlocked',
-    changed: 'changed',
-    conncted: 'conncted'
+    conncted: 'conncted',
+    flipped: 'flipped'
 };

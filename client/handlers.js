@@ -1,11 +1,11 @@
 BorbitPuzzle.handlers = function(server, layout) {
-    var field, pices, selected, image;
+    var field, pices, selected, image, countDown;
     var fieldEvents = BorbitPuzzle.field.events;
     var serverEvents = BorbitPuzzle.server.events;
     server.subscribe(serverEvents.map, processMap);
     server.subscribe(serverEvents.locked, lockPice);
-    server.subscribe(serverEvents.unlocked, unlockPice);
-    server.subscribe(serverEvents.changed, changedPicesByCoords);
+    server.subscribe(serverEvents.unlocked, unlockPices);
+    server.subscribe(serverEvents.flipped, flipPicesByCoords);
     server.subscribe(serverEvents.connected, server.map);
 
     server.connect();
@@ -93,24 +93,38 @@ BorbitPuzzle.handlers = function(server, layout) {
     function unlockPice(coords) {
         field.getPice(coords[0], coords[1]).unlock();
     }
+
+    function unlockPices(coords) {
+        for(var i = 0, len = coords.length; i < len; i++) {
+            unlockPice(coords[i]);
+        }
+    }
     
     function processClickedPice(pice) {
         if(!pice.locked) {
             if(pice.selected) {
-                pice.unselect();
-                server.unlock(pice.x, pice.y);
+                unselect(pice);
+                stopCountDown();
             } else if(!selected || !selected.selected) {
-                pice.select();
-                selected = pice;
-                server.lock(pice.x, pice.y);
+                select(pice);
+                startCountDown();
             } else {
                 if(isSameType(selected, pice)) {
-                    changePices(selected, pice);
-                    server.change(selected.x, selected.y, pice.x, pice.y);
-                    selected.unselect();
+                    flipSelectedWith(pice);
+                    stopCountDown();
                 }
             }
         }
+    }
+
+    function startCountDown() {
+        countDown = setTimeout(function() {
+            unselect(selected);
+        }, 20000);
+    }
+
+    function stopCountDown() {
+        clearTimeout(countDown);
     }
 
     function isSameType(first, second) {
@@ -123,23 +137,37 @@ BorbitPuzzle.handlers = function(server, layout) {
         return false;
     }
 
-    function changePices(first, second) {
-        var tmpX = first.realX;
-        var tmpY = first.realY;
-        first.realX = second.realX;
-        first.realY = second.realY;
-        second.realX = tmpX;
-        second.realY = tmpY;
-        second.draw();
-        first.draw();
+    function select(pice) {
+        pice.select();
+        selected = pice;
+        server.lock(pice.x, pice.y);
     }
 
-    function changedPicesByCoords(coords) {
+    function unselect(pice) {
+        pice.unselect();
+        server.unlock(pice.x, pice.y);
+    }
+
+    function flipSelectedWith(pice) {
+        var tmpX = selected.realX;
+        var tmpY = selected.realY;
+        selected.realX = pice.realX;
+        selected.realY = pice.realY;
+        pice.realX = tmpX;
+        pice.realY = tmpY;
+        pice.draw();
+        selected.draw();
+        selected.unselect();
+        
+        server.flip(selected.x, selected.y, pice.x, pice.y);
+    }
+
+    function flipPicesByCoords(coords) {
         var first = field.getPice(coords[0][0], coords[0][1]);
         var second = field.getPice(coords[1][0], coords[1][1]);
         first.unlock();
         second.unlock();
-        changePices(first, second);
+        flipPices(first, second);
     }
 
 };
