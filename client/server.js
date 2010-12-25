@@ -5,6 +5,7 @@ BorbitPuzzle.server = function server() {
     
     var observer = BorbitUtils.Observer();
     observer.register(server.events.map);
+    observer.register(server.events.user);
     observer.register(server.events.locked);
     observer.register(server.events.unlocked);
     observer.register(server.events.connected);
@@ -42,8 +43,11 @@ BorbitPuzzle.server = function server() {
         return JSON.stringify({action: action, data: data});
     }
 
-    function map(id) {
-        sendMessage(createMessage('map', id));
+    function map(mapId, userId) {
+        sendMessage(createMessage('map', {
+            mapId: mapId,
+            userId: userId
+        }));
     }
 
     function lock(x, y) {
@@ -71,6 +75,7 @@ BorbitPuzzle.server = function server() {
 
 BorbitPuzzle.server.events = {
     map: 'map',
+    user: 'user',
     locked: 'locked',
     unlocked: 'unlocked',
     conncted: 'conncted',

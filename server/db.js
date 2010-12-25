@@ -22,8 +22,12 @@ function createConnection(callback) {
 function useCollection(collectionName, callback) {
     if (collections[collectionName] === undefined) {
         client.collection(collectionName, function(err, collection) {
-            collections[collectionName] = collection;
-            callback.call(this, collections[collectionName]);
+            if(!err) {
+                collections[collectionName] = collection;
+                callback.call(this, collections[collectionName]);
+            } else {
+                throw err;
+            }
         });
     } else {
         callback.call(this, collections[collectionName]);

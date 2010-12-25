@@ -1,11 +1,12 @@
 var events = {
     map: 'map',
+    user: 'user',
     locked: 'locked',
     unlocked: 'unlocked',
     flipped: 'flipped'
 };
 
-function handlers(client, maps) {
+function handlers(client, maps, users) {
     var actions = {
         map: mapHandler,
         lock: lockHandler,
@@ -39,8 +40,28 @@ function handlers(client, maps) {
         }
     }
 
-    function mapHandler(mapId) {
-        maps.getMap(mapId, function(map) {
+    function mapHandler(data) {
+        if(data.userId) {
+            users.getUser(data.userId, function(user) {
+                user.getData(function(data) {
+                    client.send(createMessage(events.user, {
+                        id: data._id,
+                        name: data.name
+                    }));
+                });
+            });
+        } else {
+            users.addUser('anonimus', function(user) {
+                user.getData(function(data) {
+                    client.send(createMessage(events.user, {
+                        id: data._id,
+                        name: 'anonimus'
+                    }));
+                });
+            });
+        }
+
+        maps.getMap(data.mapId, function(map) {
             currentMap = map;
             currentMap.getCompactInfo(function(compactMap) {
                  client.send(createMessage(events.map, compactMap));

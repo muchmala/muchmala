@@ -11,10 +11,15 @@ server.listen(config.server.port, config.server.host);
 
 db.createConnection(function() {
     var maps = models.maps.load('collection');
-    var users = models.users.load('collection');
-    var socket = io.listen(server);
 
-    socket.on('connection', function(client) {
-        handlers(client, maps, users);
+    db.useCollection('users', function(usersCollection) {
+
+        var users = models.users.load(usersCollection);
+        var socket = io.listen(server);
+
+        socket.on('connection', function(client) {
+            handlers(client, maps, users);
+        });
+        
     });
 });

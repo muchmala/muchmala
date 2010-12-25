@@ -97,7 +97,7 @@ body {
 
 #panel .statistics {
     clear:both;
-    line-height:12px;
+    line-height:14px;
     text-align:left;
 }
 
@@ -106,6 +106,7 @@ body {
     padding-right:5px;
     width:70px;
     font-family:Georgia;
+    font-size:12px;
     text-align:right;
 }
 

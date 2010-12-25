@@ -4,6 +4,7 @@ BorbitPuzzle.handlers = function(server, layout) {
     var serverEvents = BorbitPuzzle.server.events;
 
     server.subscribe(serverEvents.map, processMap);
+    server.subscribe(serverEvents.user, processUser);
     server.subscribe(serverEvents.locked, lockPice);
     server.subscribe(serverEvents.unlocked, unlockPices);
     server.subscribe(serverEvents.flipped, flipPicesByCoords);
@@ -35,7 +36,11 @@ BorbitPuzzle.handlers = function(server, layout) {
     }
 
     function getMap() {
-        server.map(1);
+
+        var userId = $.cookie('puzzleUserId');
+        var mapId = 1;
+
+        server.map(mapId, userId);
     }
 
     function processMap(data) {
@@ -48,6 +53,10 @@ BorbitPuzzle.handlers = function(server, layout) {
         } else {
             updateField(data.map);
         }
+    }
+
+    function processUser(data) {
+        console.log(data);
     }
 
     function buildField(map) {
