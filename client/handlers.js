@@ -2,11 +2,12 @@ BorbitPuzzle.handlers = function(server, layout) {
     var field, pices, selected, image, countDown;
     var fieldEvents = BorbitPuzzle.field.events;
     var serverEvents = BorbitPuzzle.server.events;
+
     server.subscribe(serverEvents.map, processMap);
     server.subscribe(serverEvents.locked, lockPice);
     server.subscribe(serverEvents.unlocked, unlockPices);
     server.subscribe(serverEvents.flipped, flipPicesByCoords);
-    server.subscribe(serverEvents.connected, server.map);
+    server.subscribe(serverEvents.connected, getMap);
 
     server.connect();
     layout.showLoading();
@@ -31,6 +32,10 @@ BorbitPuzzle.handlers = function(server, layout) {
         layout.arrange(vQnt*rectSize + step*2, hQnt*rectSize + step*2);
         buildField(data.map);
         layout.hideLoading();
+    }
+
+    function getMap() {
+        server.map(1);
     }
 
     function processMap(data) {
@@ -148,17 +153,20 @@ BorbitPuzzle.handlers = function(server, layout) {
         server.unlock(pice.x, pice.y);
     }
 
+    function flipPices(first, second) {
+        var tmpX = first.realX;
+        var tmpY = first.realY;
+        first.realX = second.realX;
+        first.realY = second.realY;
+        second.realX = tmpX;
+        second.realY = tmpY;
+        second.draw();
+        first.draw();
+        first.unselect();
+    }
+
     function flipSelectedWith(pice) {
-        var tmpX = selected.realX;
-        var tmpY = selected.realY;
-        selected.realX = pice.realX;
-        selected.realY = pice.realY;
-        pice.realX = tmpX;
-        pice.realY = tmpY;
-        pice.draw();
-        selected.draw();
-        selected.unselect();
-        
+        flipPices(selected, pice);
         server.flip(selected.x, selected.y, pice.x, pice.y);
     }
 

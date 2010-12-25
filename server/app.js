@@ -10,12 +10,11 @@ var server = http.createServer();
 server.listen(config.server.port, config.server.host);
 
 db.createConnection(function() {
-    var mapsLoader = models.MapsLoader('collection');
-    mapsLoader.getMap(1, function(map) {
-        var socket = io.listen(server);
+    var maps = models.maps.load('collection');
+    var users = models.users.load('collection');
+    var socket = io.listen(server);
 
-        socket.on('connection', function(client) {
-            handlers(client, map);
-        });
+    socket.on('connection', function(client) {
+        handlers(client, maps, users);
     });
 });

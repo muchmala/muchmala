@@ -1,5 +1,3 @@
-var models = require('./models');
-
 var events = {
     map: 'map',
     locked: 'locked',
@@ -7,7 +5,7 @@ var events = {
     flipped: 'flipped'
 };
 
-function handlers(client, map) {
+function handlers(client, maps) {
     var actions = {
         map: mapHandler,
         lock: lockHandler,
@@ -16,6 +14,8 @@ function handlers(client, map) {
     };
 
     var locked = null;
+    var currentMap = null;
+    var currentUser = null;
 
     client.on('message', function(data) {
         process(JSON.parse(data));
@@ -39,14 +39,17 @@ function handlers(client, map) {
         }
     }
 
-    function mapHandler() {
-        map.getCompactInfo(function(compactMap) {
-             client.send(createMessage(events.map, compactMap));
+    function mapHandler(mapId) {
+        maps.getMap(mapId, function(map) {
+            currentMap = map;
+            currentMap.getCompactInfo(function(compactMap) {
+                 client.send(createMessage(events.map, compactMap));
+            });
         });
     }
 
     function lockHandler(coords) {
-        map.lock(coords[0], coords[1], client.sessionId, function(done) {
+        currentMap.lock(coords[0], coords[1], client.sessionId, function(done) {
             if (done) {
                 client.broadcast(createMessage(events.locked, coords));
             }
@@ -54,7 +57,7 @@ function handlers(client, map) {
     }
 
     function unlockHandler(coords) {
-        map.unlock(coords[0], coords[1], client.sessionId, function(done) {
+        currentMap.unlock(coords[0], coords[1], client.sessionId, function(done) {
             if (done) {
                 client.broadcast(createMessage(events.unlocked, [coords]));
             }
@@ -62,7 +65,7 @@ function handlers(client, map) {
     }
 
     function flipHandler(coords) {
-        map.flip(coords[0][0], coords[0][1], coords[1][0], coords[1][1], client.sessionId, function(done) {
+        currentMap.flip(coords[0][0], coords[0][1], coords[1][0], coords[1][1], client.sessionId, function(done) {
             if (done) {
                 client.broadcast(createMessage(events.flipped, coords));
             }
@@ -70,7 +73,7 @@ function handlers(client, map) {
     }
 
     function disconnectHandler() {
-        map.unlockAll(client.sessionId, function(pices) {
+        currentMap.unlockAll(client.sessionId, function(pices) {
             client.broadcast(createMessage(events.unlocked, pices));
         });
     }

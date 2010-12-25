@@ -42,8 +42,8 @@ BorbitPuzzle.server = function server() {
         return JSON.stringify({action: action, data: data});
     }
 
-    function map() {
-        sendMessage(createMessage('map'));
+    function map(id) {
+        sendMessage(createMessage('map', id));
     }
 
     function lock(x, y) {

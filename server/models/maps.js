@@ -1,7 +1,7 @@
-var db = require('./db');
-var oldMaps = require('./maps')
+var db = require('../db');
+var oldMaps = require('../maps')
 
-var MapsLoader = function(collection) {
+var loader = function(collection) {
     var maps = [];
 
     var Map = function(id, callback) {
@@ -146,4 +146,4 @@ var MapsLoader = function(collection) {
     };
 };
 
-exports.MapsLoader = MapsLoader;
+exports.load = loader;
