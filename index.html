@@ -4,6 +4,8 @@
     <title>Puzzle</title>
     <link rel="stylesheet" type="text/css" href="/styles/reset.css" />
     <link rel="stylesheet" type="text/css" href="/styles/main.css" />
+    <link rel="stylesheet" type="text/css" href="/styles/panel.css" />
+    <link rel="stylesheet" type="text/css" href="/styles/dialog.css" />
 </head>
 <body>
 
@@ -11,7 +13,7 @@
         <div id="binder">
             <div id="viewport"></div>
         </div>
-        <div id="panel">
+        <div id="panel" class="clickable">
             <div class="content">
                 <div class="logo">
                     Medness? No! This is
@@ -66,9 +68,9 @@
                         <span class="pts">pts.</span><br/>
                     </div>
                 </div>
-                <div class="score">
-                    Your score:
-                    <span class="num">1745</span>
+                <div class="user">
+                    <span class="name"></span>
+                    <span class="num"></span>
                     <span class="pts">pts.</span>
                 </div>
             </div>
@@ -80,15 +82,18 @@
     <script src="http://io.puzzle.home/socket.io/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/jquery-ui.min.js"></script>
-    <script src="client/jquery.cookie.js"></script>
     <script src="client/functions.js"></script>
     <script src="client/drawer.js"></script>
     <script src="client/observer.js"></script>
     <script src="client/field.js"></script>
+    <script src="client/fieldHelper.js"></script>
     <script src="client/pices.js"></script>
     <script src="client/server.js"></script>
+    <script src="client/storage.js"></script>
     <script src="client/handlers.js"></script>
     <script src="client/layout.js"></script>
+    <script src="client/dialog.js"></script>
+    <script src="client/panel.js"></script>
     <script src="client/puzzle.js"></script>
 
 </body>

@@ -3,18 +3,21 @@ var events = {
     user: 'user',
     locked: 'locked',
     unlocked: 'unlocked',
+    selected: 'selected',
+    unselected: 'unselected',
     flipped: 'flipped'
 };
 
 function handlers(client, maps, users) {
     var actions = {
         map: mapHandler,
-        lock: lockHandler,
-        unlock: unlockHandler,
-        flip: flipHandler
+        user: userHandler,
+        flip: flipHandler,
+        select: selectHandler,
+        unselect: unselectHandler,
+        updateUserName: updateUserNameHandler
     };
 
-    var locked = null;
     var currentMap = null;
     var currentUser = null;
 
@@ -26,41 +29,28 @@ function handlers(client, maps, users) {
         disconnectHandler();
     });
 
-    function createMessage(event, data) {
-        return JSON.stringify({
-            event: event,
-            data: data
+    function userHandler(userId) {
+        if(userId) {
+            users.getUser(userId, function(user) {
+                if(user) {
+                    currentUser = user;
+                    sendCurrentUserData();
+                } else {
+                    addAnonimus();
+                }
+            });
+        } else {
+            addAnonimus();
+        }
+    }
+
+    function updateUserNameHandler(userName) {
+        currentUser.updateData({name: userName}, function(userData) {
+            sendCurrentUserData();
         });
     }
 
-    function process(message) {
-        if(message.action != null &&
-           actions[message.action] != null) {
-            actions[message.action].call(null, message.data);
-        }
-    }
-
     function mapHandler(data) {
-        if(data.userId) {
-            users.getUser(data.userId, function(user) {
-                user.getData(function(data) {
-                    client.send(createMessage(events.user, {
-                        id: data._id,
-                        name: data.name
-                    }));
-                });
-            });
-        } else {
-            users.addUser('anonimus', function(user) {
-                user.getData(function(data) {
-                    client.send(createMessage(events.user, {
-                        id: data._id,
-                        name: 'anonimus'
-                    }));
-                });
-            });
-        }
-
         maps.getMap(data.mapId, function(map) {
             currentMap = map;
             currentMap.getCompactInfo(function(compactMap) {
@@ -69,17 +59,19 @@ function handlers(client, maps, users) {
         });
     }
 
-    function lockHandler(coords) {
+    function selectHandler(coords) {
         currentMap.lock(coords[0], coords[1], client.sessionId, function(done) {
             if (done) {
+                client.send(createMessage(events.selected, coords));
                 client.broadcast(createMessage(events.locked, coords));
             }
         });
     }
 
-    function unlockHandler(coords) {
+    function unselectHandler(coords) {
         currentMap.unlock(coords[0], coords[1], client.sessionId, function(done) {
             if (done) {
+                client.send(createMessage(events.unselected, coords));
                 client.broadcast(createMessage(events.unlocked, [coords]));
             }
         });
@@ -96,6 +88,37 @@ function handlers(client, maps, users) {
     function disconnectHandler() {
         currentMap.unlockAll(client.sessionId, function(pices) {
             client.broadcast(createMessage(events.unlocked, pices));
+        });
+    }
+
+    function createMessage(event, data) {
+        return JSON.stringify({
+            event: event,
+            data: data
+        });
+    }
+
+    function process(message) {
+        if(message.action != null &&
+           actions[message.action] != null) {
+            actions[message.action].call(null, message.data);
+        }
+    }
+
+    function sendCurrentUserData() {
+        currentUser.getData(function(data) {
+            client.send(createMessage(events.user, {
+                id: data._id,
+                name: data.name,
+                score: 0
+            }));
+        });
+    }
+
+    function addAnonimus() {
+        users.addUser('anonimus', function(user) {
+            currentUser = user;
+            sendCurrentUserData();
         });
     }
 }

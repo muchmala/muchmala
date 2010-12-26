@@ -1,6 +1,6 @@
-BorbitPuzzle = {};
+Puzzle = {};
 
-BorbitPuzzle.piceDrawer = function(settings) {
+Puzzle.piceDrawer = function(settings) {
     var image = settings.image;
     var piceSize = settings.piceSize;
     var step = toInt(piceSize / 6);

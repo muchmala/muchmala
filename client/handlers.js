@@ -1,49 +1,24 @@
-BorbitPuzzle.handlers = function(server, layout) {
-    var field, pices, selected, image, countDown;
-    var fieldEvents = BorbitPuzzle.field.events;
-    var serverEvents = BorbitPuzzle.server.events;
+Puzzle.handlers = function(server, layout, panel) {
+    var field, pices, image, selected, countDown;
+    var fieldEvents = Puzzle.Field.events;
+    var panelEvents = Puzzle.Panel.events;
+    var serverEvents = Puzzle.Server.events;
 
-    server.subscribe(serverEvents.map, processMap);
-    server.subscribe(serverEvents.user, processUser);
-    server.subscribe(serverEvents.locked, lockPice);
-    server.subscribe(serverEvents.unlocked, unlockPices);
-    server.subscribe(serverEvents.flipped, flipPicesByCoords);
-    server.subscribe(serverEvents.connected, getMap);
+    server.subscribe(serverEvents.map, mapHandler);
+    server.subscribe(serverEvents.user, userHandler);
+    server.subscribe(serverEvents.locked, lockedHandler);
+    server.subscribe(serverEvents.unlocked, unlockedHandler);
+    server.subscribe(serverEvents.selected, selectedHandler);
+    server.subscribe(serverEvents.unselected, unselectedHandler);
+    server.subscribe(serverEvents.connected, connectedHandler);
+    server.subscribe(serverEvents.flipped, flippedHandler);
+
+    panel.subscribe(panelEvents.userNameChanged, server.updateUserName);
 
     server.connect();
     layout.showLoading();
 
-    function init(data) {
-        field = BorbitPuzzle.field({
-            piceSize: data.piceSize,
-            viewport: layout.viewport
-        });
-
-        pices = BorbitPuzzle.pices({
-            piceSize: data.piceSize,
-            image: image
-        });
-
-        var step = toInt(data.piceSize / 6);
-        var rectSize = step * 4 + 1;
-        var vQnt = data.map[0].length;
-        var hQnt = data.map.length;
-
-        field.subscribe(fieldEvents.clicked, processClickedPice);
-        layout.arrange(vQnt*rectSize + step*2, hQnt*rectSize + step*2);
-        buildField(data.map);
-        layout.hideLoading();
-    }
-
-    function getMap() {
-
-        var userId = $.cookie('puzzleUserId');
-        var mapId = 1;
-
-        server.map(mapId, userId);
-    }
-
-    function processMap(data) {
+    function mapHandler(data) {
         if(!image) {
             image = new Image();
             image.src = data.imageSrc;
@@ -55,136 +30,94 @@ BorbitPuzzle.handlers = function(server, layout) {
         }
     }
 
-    function processUser(data) {
-        console.log(data);
+    function userHandler(data) {
+        Puzzle.storage.setUserId(data.id);
+        panel.setUsername(data.name);
+        panel.setScore(data.score);
     }
 
-    function buildField(map) {
-        for(var y = 0, rLen = map.length; y < rLen; y++) {
-            for(var x = 0, cLen = map[y].length; x < cLen; x++) {
-                var cell = map[y][x];
-                var pice = pices.factory({
-                    x: x, y: y, 
-                    realX: cell.x,
-                    realY: cell.y,
-                    locked: cell.d,
-                    ears: {
-                        left: cell.l, bottom: cell.b,
-                        right: cell.r, top: cell.t
-                    }
-                });
-                field.addPice(x, y, pice);
-            }
-        }
-        field.build();
-        log('field is built');
-    }
-
-    function updateField(map) {
-        for(var y = 0, rLen = map.length; y < rLen; y++) {
-            for(var x = 0, cLen = map[y].length; x < cLen; x++) {
-                var cell = map[y][x];
-                var pice = field.getPice(x, y);
-
-                if(pice.selected) {
-                    pice.unselect();
-                }
-
-                if(pice.realX != cell.x || pice.realY != cell.y) {
-                    pice.realX = cell.x;
-                    pice.realY = cell.y;
-                    pice.draw();
-                }
-            }
-        }
-        log('field is updated');
-    }
-
-    function lockPice(coords) {
+    function lockedHandler(coords) {
         field.getPice(coords[0], coords[1]).lock();
     }
 
-    function unlockPice(coords) {
-        field.getPice(coords[0], coords[1]).unlock();
+    function unlockedHandler(coords) {
+        for(var i = 0, len = coords.length; i < len; i++) {
+            field.getPice(coords[i][0], coords[i][1]).unlock();
+        }
     }
 
-    function unlockPices(coords) {
-        for(var i = 0, len = coords.length; i < len; i++) {
-            unlockPice(coords[i]);
-        }
+    function selectedHandler(coords) {
+        startCountDown();
+        selected = field.getPice(coords[0], coords[1]);
+        selected.select();
+    }
+
+    function unselectedHandler(coords) {
+        stopCountDown();
+        field.getPice(coords[0], coords[1]).unselect();
+    }
+
+    function connectedHandler() {
+        var userId = Puzzle.storage.getUserId();
+        var mapId = 1;
+        server.getMap(mapId);
+        server.getUserData(userId);
+    }
+
+    function flippedHandler(coord) {
+        field.flipPicesByCoords(coord);
+    }
+
+    function init(data) {
+        field = Puzzle.FieldHelper(
+            Puzzle.Field({
+                piceSize: data.piceSize,
+                viewport: layout.viewport
+            }),
+            Puzzle.Pices({
+                piceSize: data.piceSize,
+                image: image
+            }));
+
+        var step = toInt(data.piceSize / 6);
+        var rectSize = step * 4 + 1;
+        var vQnt = data.map[0].length;
+        var hQnt = data.map.length;
+
+        field.subscribe(fieldEvents.clicked, processClickedPice);
+        field.buildField(data.map);
+        
+        layout.arrange(vQnt*rectSize + step*2, hQnt*rectSize + step*2);
+        layout.hideLoading();
     }
     
     function processClickedPice(pice) {
         if(!pice.locked) {
             if(pice.selected) {
-                unselect(pice);
-                stopCountDown();
+                server.unselectPice(pice.x, pice.y);
             } else if(!selected || !selected.selected) {
-                select(pice);
-                startCountDown();
+                server.selectPice(pice.x, pice.y);
             } else {
-                if(isSameType(selected, pice)) {
+                if(field.isSameType(selected, pice)) {
                     flipSelectedWith(pice);
                     stopCountDown();
+                    server.flipPices(selected.x, selected.y, pice.x, pice.y);
                 }
             }
         }
     }
 
+    function flipSelectedWith(pice) {
+        field.flipPices(selected, pice);
+    }
+
     function startCountDown() {
         countDown = setTimeout(function() {
-            unselect(selected);
+            server.unselectPice(selected.x, selected.y);
         }, 20000);
     }
 
     function stopCountDown() {
         clearTimeout(countDown);
     }
-
-    function isSameType(first, second) {
-        if(first.ears.left == second.ears.left &&
-           first.ears.bottom == second.ears.bottom &&
-           first.ears.right == second.ears.right &&
-           first.ears.top == second.ears.top) {
-            return true;
-        }
-        return false;
-    }
-
-    function select(pice) {
-        pice.select();
-        selected = pice;
-        server.lock(pice.x, pice.y);
-    }
-
-    function unselect(pice) {
-        pice.unselect();
-        server.unlock(pice.x, pice.y);
-    }
-
-    function flipPices(first, second) {
-        var tmpX = first.realX;
-        var tmpY = first.realY;
-        first.realX = second.realX;
-        first.realY = second.realY;
-        second.realX = tmpX;
-        second.realY = tmpY;
-        second.draw();
-        first.draw();
-        first.unselect();
-    }
-
-    function flipSelectedWith(pice) {
-        flipPices(selected, pice);
-        server.flip(selected.x, selected.y, pice.x, pice.y);
-    }
-
-    function flipPicesByCoords(coords) {
-        var first = field.getPice(coords[0][0], coords[0][1]);
-        var second = field.getPice(coords[1][0], coords[1][1]);
-        first.unlock();
-        second.unlock();
-        flipPices(first, second);
-    }
-
 };

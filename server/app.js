@@ -9,7 +9,7 @@ var handlers = require('./handlers').handlers;
 var server = http.createServer();
 server.listen(config.server.port, config.server.host);
 
-db.createConnection(function() {
+db.createConnection(function(client) {
     var maps = models.maps.load('collection');
 
     db.useCollection('users', function(usersCollection) {

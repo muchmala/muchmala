@@ -1,3 +1,5 @@
+var ObjectID = require('mongodb').ObjectID;
+
 function loader(collection) {
     function addUser(name, callback) {
         var userData = {
@@ -16,13 +18,24 @@ function loader(collection) {
     }
 
     function getUser(userId, callback) {
-        callback.call(null, user(userId));
+        var clause = {_id: new ObjectID(userId)};
+        collection.findOne(clause, function(err, userData) {
+            if(!err) {
+                if(userData) {
+                    callback.call(null, user(userId));
+                } else {
+                    callback.call(null);
+                }
+            } else {
+                throw err;
+            }
+        });
     }
 
     function user(userId) {
 
         function getData(callback) {
-            var clause = {_id: userId};
+            var clause = {_id: new ObjectID(userId)};
             collection.findOne(clause, function(err, userData) {
                 if(!err) {
                     callback.call(null, userData);
@@ -34,7 +47,7 @@ function loader(collection) {
 
         function updateData(data, callback) {
             var update = {$set: data};
-            var clause = {_id: userId};
+            var clause = {_id: new ObjectID(userId)};
             collection.update(clause, update, function(err, userData) {
                 if(!err) {
                     callback.call(null, userData);

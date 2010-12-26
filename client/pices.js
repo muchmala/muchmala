@@ -1,10 +1,10 @@
-BorbitPuzzle.pices = function(data) {
+Puzzle.Pices = function(data) {
     var settings = $.extend({
         piceSize: null,
         image: null
     }, data);
 
-    var drawer = BorbitPuzzle.piceDrawer({
+    var drawer = Puzzle.piceDrawer({
         image: settings.image,
         piceSize: settings.piceSize
     });

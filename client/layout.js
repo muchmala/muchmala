@@ -1,8 +1,4 @@
-BorbitPuzzle.layout = function(elements) {
-    var viewport = elements.viewport;
-    var display = elements.display;
-    var binder = elements.binder;
-
+Puzzle.Layout = function(viewport, display, binder, loading) {
     var offsetX = 0,
         offsetY = 0,
         viewportX = 0,
@@ -12,19 +8,27 @@ BorbitPuzzle.layout = function(elements) {
         viewportHeight,
         viewportWidth;
 
-    viewport.draggable({
-        containment: 'parent',
-        stop: function(event, ui) {
-            if(viewportX != ui.position.top) {
-                centerH = false;
+    init();
+
+    function init() {
+        viewport.draggable({
+            containment: 'parent',
+            stop: function(event, ui) {
+                if(viewportX != ui.position.top) {
+                    centerH = false;
+                }
+                if(viewportY != ui.position.left) {
+                    centerW = false;
+                }
+                viewportX = ui.position.top;
+                viewportY = ui.position.left;
             }
-            if(viewportY != ui.position.left) {
-                centerW = false;
-            }
-            viewportX = ui.position.top;
-            viewportY = ui.position.left;
-        }
-    });
+        });
+
+        $(window).resize(function() {
+            processArranging();
+        });
+    }
 
     function arrange(width, height) {
         viewportHeight = height;
@@ -96,42 +100,12 @@ BorbitPuzzle.layout = function(elements) {
     }
 
     function showLoading() {
-        if(elements.loading) {
-            elements.loading.animate({top: 0}, 200);
-        }
+        loading.animate({top: 0}, 200);
     }
 
     function hideLoading() {
-        if(elements.loading) {
-            elements.loading.animate({top: -28}, 200);
-        }
+        loading.animate({top: -28}, 200);
     }
-
-    if(elements.panel) {
-        var height = elements.panel.height();
-        var initTop = (height - 30) * -1;
-        var initRight = -30;
-        elements.panel.css('top', initTop);
-        elements.panel.css('right', initRight);
-        elements.panel.show();
-
-        elements.panel.click(function() {
-            elements.panel.animate({
-                right: 0,
-                top: 0
-            }, 200);
-        });
-        elements.panel.mouseleave(function() {
-            elements.panel.animate({
-                right: initRight,
-                top: initTop
-            }, 200);
-        });
-    }
-
-    $(window).resize(function() {
-        processArranging();
-    });
 
     return {
         viewport: viewport,
