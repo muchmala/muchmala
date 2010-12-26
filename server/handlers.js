@@ -16,8 +16,6 @@ function handlers(client, map) {
         change: flipHandler
     };
 
-    var locked = null;
-
     client.on('message', function(data) {
         process(JSON.parse(data));
     });

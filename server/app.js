@@ -9,13 +9,15 @@ var handlers = require('./handlers').handlers;
 var server = http.createServer();
 server.listen(config.server.port, config.server.host);
 
-db.createConnection(function() {
-    var mapsLoader = models.MapsLoader('collection');
-    mapsLoader.getMap(1, function(map) {
-        var socket = io.listen(server);
+db.createConnection(function(client) {
+    db.useCollection('maps', function(error, mapsCollection) {
+        var mapsLoader = models.MapsLoader(mapsCollection);
+        mapsLoader.getLastMap(function(map) {
+            var socket = io.listen(server);
 
-        socket.on('connection', function(client) {
-            handlers(client, map);
+            socket.on('connection', function(client) {
+                handlers(client, map);
+            });
         });
     });
 });
