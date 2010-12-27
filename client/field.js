@@ -1,4 +1,4 @@
-BorbitPuzzle.field = function field(settings) {
+Puzzle.Field = function field(settings) {
     settings = $.extend({
         viewport: null,
         piceSize: null,
@@ -10,7 +10,7 @@ BorbitPuzzle.field = function field(settings) {
 
     var index = {};
     var pices = {};
-    var observer = BorbitUtils.Observer();
+    var observer = Utils.Observer();
     observer.register(field.events.clicked);
 
     settings.viewport.click(function(event) {
@@ -50,6 +50,9 @@ BorbitPuzzle.field = function field(settings) {
                 pices[y][x].yCoord = y * (rectSize + 1);
                 pices[y][x].build();
                 pices[y][x].draw();
+                if(pices[y][x].locked) {
+                    pices[y][x].lock();
+                }
                 settings.viewport.append(pices[y][x].canvas);
             }
         }
@@ -112,6 +115,6 @@ BorbitPuzzle.field = function field(settings) {
     };
 };
 
-BorbitPuzzle.field.events = {
+Puzzle.Field.events = {
     clicked: 'clicked'
 };

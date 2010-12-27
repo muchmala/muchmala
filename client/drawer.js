@@ -1,6 +1,6 @@
-BorbitPuzzle = {};
+Puzzle = {};
 
-BorbitPuzzle.piceDrawer = function(settings) {
+Puzzle.piceDrawer = function(settings) {
     var image = settings.image;
     var piceSize = settings.piceSize;
     var step = toInt(piceSize / 6);
@@ -103,14 +103,14 @@ BorbitPuzzle.piceDrawer = function(settings) {
 
     function select(settings) {
         drawPath(settings.ctx, settings.ears);
-        settings.ctx.fillStyle = 'rgba(0,0,255,0.5)';
+        settings.ctx.fillStyle = 'rgba(0,0,255,0.7)';
         settings.ctx.fill();
     }
 
     function lock(settings) {
         var center = toInt(piceSize / 2);
         drawPath(settings.ctx, settings.ears);
-        settings.ctx.fillStyle = 'rgb(255,0,0)';
+        settings.ctx.fillStyle = 'rgba(255,0,0,0.7)';
         settings.ctx.fill();
         settings.ctx.fillStyle = 'rgb(255,255,255)';
         settings.ctx.beginPath();
@@ -121,8 +121,6 @@ BorbitPuzzle.piceDrawer = function(settings) {
         settings.ctx.fillRect(center-5, center+7, 10, 2);
         settings.ctx.fillStyle = 'rgb(255,0,0)';
         settings.ctx.fillRect(center-1, center, 2, 4);
-        //settings.ctx.arc(center, center-4, 5, 0, Math.PI, true);
-        //settings.ctx.stroke();
     }
 
     return {

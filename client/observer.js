@@ -1,5 +1,5 @@
-BorbitUtils = {};
-BorbitUtils.Observer = function() {
+Utils = {};
+Utils.Observer = function() {
     var triggers = {};
 
     function register(eventName) {

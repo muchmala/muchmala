@@ -1,0 +1,117 @@
+#panel {
+    display:none;
+    position:absolute;
+    top:-245px;
+    right:-30px;
+    width:170px;
+    background:rgba(0,0,0,0.7);
+    color:#fff;
+    border-bottom-left-radius:10px;
+    -moz-border-radius-bottomleft:10px;
+    -webkit-box-shadow:0 0 5px #fff;
+    -moz-box-shadow:0 0 5px #fff;
+}
+
+#panel.clickable {
+    cursor:pointer;
+}
+
+#panel .content {
+    padding:10px 0 10px 10px;
+    font-size:10px;
+    text-align:center;
+}
+
+#panel .logo {
+    color:#ccc;
+}
+
+#panel .logo h1 {
+    margin:0 0 5px 0;
+    color:#fff;
+    font-size:22px;
+    font-weight:bold;
+    text-align:center;
+    text-shadow:0 0 15px #fff;
+}
+
+#panel .backgrounds {
+    text-align:left;
+}
+
+#panel .backgrounds ul {
+    float:left;
+    margin:5px 0 10px 18px;
+    width:120px;
+}
+
+#panel .backgrounds li {
+    float:left;
+    margin:5px 5px 0 0;
+    width:8px;
+    height:8px;
+    border:1px solid #ddd;
+}
+
+#panel .statistics {
+    clear:both;
+    line-height:14px;
+    text-align:left;
+}
+
+#panel .statistics span {
+    display:inline-block;
+    padding-right:5px;
+    width:70px;
+    font-family:Georgia;
+    font-size:12px;
+    text-align:right;
+}
+
+#panel .leadersboard {
+    margin-top:5px;
+    line-height:12px;
+    text-align:left;
+}
+
+#panel .leadersboard .borders {
+    margin:5px 10px 0 0;
+    padding:5px;
+    border:1px solid #fff;
+    background:rgba(0,0,0,0.5);
+    -moz-border-radius:5px;
+    border-radius:5px;
+}
+
+#panel .leadersboard .name {
+    display:inline-block;
+    width:95px;
+}
+
+#panel .leadersboard .num {
+    font-family:Georgia;
+}
+
+#panel .user {
+    margin-top:5px;
+    text-align:left;
+}
+
+#panel .user .num {
+    margin:0 2px;
+    color:#fff;
+    font-size:20px;
+    font-family:Georgia;
+    text-shadow:0 0 10px #fff;
+}
+
+#panel .user .name {
+    border-bottom:1px dotted #ddd;
+    font-size:10px;
+    color:#fff;
+    cursor:pointer;
+}
+
+#panel .user .pts {
+    color:#ddd;
+}

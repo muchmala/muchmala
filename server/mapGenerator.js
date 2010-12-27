@@ -9,7 +9,7 @@ var models = require('./models');
 
     db.createConnection(function(client) {
         db.useCollection('maps', function(error, mapsCollection) {
-            var mapsLoader = models.MapsLoader(mapsCollection);
+            var mapsLoader = models.maps.load(mapsCollection);
 
             mapsLoader.generateMap(
                 imageSize.width,

@@ -1,14 +1,17 @@
-BorbitPuzzle.server = function server() {
+Puzzle.Server = function server() {
     var socket = new io.Socket('io.puzzle.home', {
         transports: ['websocket', 'flashsocket', 'xhr-multipart']
     });
     
-    var observer = BorbitUtils.Observer();
+    var observer = Utils.Observer();
     observer.register(server.events.map);
+    observer.register(server.events.user);
     observer.register(server.events.locked);
     observer.register(server.events.unlocked);
-    observer.register(server.events.changed);
+    observer.register(server.events.selected);
+    observer.register(server.events.unselected);
     observer.register(server.events.connected);
+    observer.register(server.events.flipped);
     
     socket.on('message', function(data) {
         var parsed = JSON.parse(data);
@@ -42,37 +45,60 @@ BorbitPuzzle.server = function server() {
         return JSON.stringify({action: action, data: data});
     }
 
-    function map() {
-        sendMessage(createMessage('map'));
+    function getMap(mapId) {
+        sendMessage(createMessage('map', mapId));
     }
 
-    function lock(x, y) {
+    function getUserData(userId) {
+        sendMessage(createMessage('user', userId));
+    }
+
+    function updateUserName(userName) {
+        sendMessage(createMessage('updateUserName', userName));
+    }
+
+    function lockPice(x, y) {
         sendMessage(createMessage('lock', [x, y]));
     }
 
-    function unlock(x, y) {
+    function unlockPice(x, y) {
         sendMessage(createMessage('unlock', [x, y]));
     }
 
-    function change(x1, y1, x2, y2) {
-        sendMessage(createMessage('change', [[x1, y1], [x2, y2]]));
+    function selectPice(x, y) {
+        sendMessage(createMessage('select', [x, y]));
+    }
+
+    function unselectPice(x, y) {
+        sendMessage(createMessage('unselect', [x, y]));
+    }
+
+    function flipPices(x1, y1, x2, y2) {
+        sendMessage(createMessage('flip', [[x1, y1], [x2, y2]]));
     }
 
     return {
-        map: map,
-        lock: lock,
-        unlock: unlock,
-        change: change,
         connect: connect,
+        getMap: getMap,
+        lockPice: lockPice,
+        unlockPice: unlockPice,
+        selectPice: selectPice,
+        unselectPice: unselectPice,
+        flipPices: flipPices,
+        getUserData: getUserData,
+        updateUserName: updateUserName,
         subscribe: observer.subscribe,
         unsubscribe: observer.unsubscribe
     };
 };
 
-BorbitPuzzle.server.events = {
+Puzzle.Server.events = {
     map: 'map',
+    user: 'user',
     locked: 'locked',
     unlocked: 'unlocked',
-    changed: 'changed',
-    conncted: 'conncted'
+    selected: 'selected',
+    unselected: 'unselected',
+    conncted: 'conncted',
+    flipped: 'flipped'
 };

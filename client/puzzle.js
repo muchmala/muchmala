@@ -1,10 +1,11 @@
 $(function() {
-    var layout = BorbitPuzzle.layout(
+    var layout = Puzzle.Layout(
         $('#viewport'),
         $('#display'),
         $('#binder'),
-        $('#loading')
-    );
+        $('#loading'));
+
+    var panel = Puzzle.Panel($('#panel'));
     
-    BorbitPuzzle.handlers(BorbitPuzzle.server(), layout);
+    Puzzle.handlers(Puzzle.Server(), layout, panel);
 });

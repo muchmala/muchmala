@@ -1,83 +1,72 @@
-var db = require('./db');
+var db = require('../db');
 
-var MapsLoader = function(mapsCollection) {
+var loader = function(mapsCollection) {
     var Map = function(id, callback) {
+        var _id = new db.ObjectId(id);
 
-        mapsCollection.findOne({_id: new db.ObjectId(id)}, function(error, mapInfo) {
-            function findElement(x, y) {
-                for (var i in mapInfo.pieces) {
-                    if (mapInfo.pieces[i].x == x && mapInfo.pieces[i].y == y) {
-                        return i;
-                    }
-                }
-            }
-
-            var mapInterface = {
-                lock: function(x, y, userId, callback) {
-                    var i = findElement(x, y);
-                    if (mapInfo.pieces[i].locked &&
-                        mapInfo.pieces[i].locked != userId) {
-
-                        callback.call(this, false);
-                        return;
-                    }
-
-                    mapInfo.pieces[i].locked = userId;
-                    callback.call(this, true);
-                },
-
-                unlock: function(x, y, userId, callback) {
-                    var i = findElement(x, y);
-                    if (mapInfo.pieces[i].locked == userId) {
-                        mapInfo.pieces[i].locked = '';
-
+        callback.call(this, {
+            lock: function(x, y, userId, callback) {
+                mapsCollection.update(
+                    {_id: _id, pieces: {$elemMatch: {x: +x, y: +y, locked: ''}}},
+//                    {_id: _id, 'pieces.x': x, 'pieces.y': y, 'pieces.locked': ''},
+                    {$set: {"pieces.$.locked": userId}},
+                    function(error, result) {
                         callback.call(this, true);
-                        return;
-                    }
+                    });
+            },
 
-                    callback.call(this, false);
-                },
+            unlock: function(x, y, userId, callback) {
+                mapsCollection.update(
+                    {_id: _id, pieces: {$elemMatch: {x: +x, y: +y, locked: userId}}},
+                    {$set: {"pieces.$.locked": ''}},
+                    function(error, result) {
+                        callback.call(this, true);
+                    });
+            },
 
-                unlockAll: function(userId, callback) {
+            unlockAll: function(userId, callback) {
+                mapsCollection.findOne({_id: _id}, function(error, mapInfo) {
                     var lockedItems = [];
 
                     for (var i in mapInfo.pieces) {
                         if (mapInfo.pieces[i].locked == userId) {
-                            mapInfo.pieces[i].locked = '';
+                        mapsCollection.update(
+                            {_id: _id, pieces: {$elemMatch: {x: mapInfo.pieces[i].x, y: mapInfo.pieces[i].y, locked: userId}}},
+                            {$set: {"pieces.$.locked": ''}});
 
                             lockedItems.push([mapInfo.pieces[i].x, mapInfo.pieces[i].y]);
                         }
                     }
 
                     callback.call(this, lockedItems);
-                },
+                });
+            },
 
-                flip: function(x1, y1, x2, y2, userId, callback) {
-                    var i = findElement(x1, y1);
-                    var j = findElement(x2, y2);
+            flip: function(x1, y1, x2, y2, userId, callback) {
+                mapsCollection.findOne({_id: _id, pieces: {$elemMatch: {x: +x1, y: +y1, locked: userId}}},
+                    function(error, mapInfo) {
+                        if (mapInfo === undefined) {
+                            callback.call(this, false);
+                        } else {
+                            mapsCollection.update(
+                                {_id: _id, pieces: {$elemMatch: {x: +x2, y: +y2, locked: ''}}},
+                                {$set: {"pieces.$.x": +x1, "pieces.$.y": +y1}},
+                                function(error, result) {
+                                    mapsCollection.update(
+                                        {_id: _id, pieces: {$elemMatch: {x: +x1, y: +y1, locked: userId}}, $atomic : 1},
+                                        {$set: {"pieces.$.locked": '', "pieces.$.x": +x2, "pieces.$.y": +y2}},
+                                        function(error, result) {
+                                            callback.call(this, true);
+                                        });
+                                });
+                        }
+                    });
+            },
 
-                    if (mapInfo.pieces[i].locked == userId &&
-                        mapInfo.pieces[j].locked == '') {
-
-                        mapInfo.pieces[i].locked = '';
-
-                        var c = mapInfo.pieces[j].x;
-                        mapInfo.pieces[j].x = mapInfo.pieces[i].x;
-                        mapInfo.pieces[i].x = c;
-
-                        c = mapInfo.pieces[j].y;
-                        mapInfo.pieces[j].y = mapInfo.pieces[i].y;
-                        mapInfo.pieces[i].y = c;
-
-                        callback.call(this, true);
-                        return;
-                    }
-
-                    callback.call(this, false);
-                },
-
-                getCompactInfo: function(callback) {
+            getCompactInfo: function(callback) {
+                mapsCollection.findOne({_id: _id}, function(error, mapInfo) {
                     var compactData = {
+                        id: id,
                         imageSrc: mapInfo.imageSrc,
                         piceSize: mapInfo.pieceSize,
                         map: []
@@ -102,18 +91,12 @@ var MapsLoader = function(mapsCollection) {
                     }
 
                     callback.call(this, compactData);
-                }
-            };
+                });
+            },
 
-            for (var i in mapInfo) {
-                mapInterface.__defineGetter__(i, (function(value){
-                    return function() {
-                        return value;
-                    };
-                })(mapInfo[i]));
+            get _id () {
+                return _id;
             }
-
-            callback.call(this, mapInterface);
         });
     };
 
@@ -240,4 +223,4 @@ function generatePieces(width, height, pieceSize) {
 
 }
 
-exports.MapsLoader = MapsLoader;
+exports.load = loader;

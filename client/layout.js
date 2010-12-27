@@ -1,5 +1,4 @@
-BorbitPuzzle.layout = function(viewport, display, binder, loading) {
-
+Puzzle.Layout = function(viewport, display, binder, loading) {
     var offsetX = 0,
         offsetY = 0,
         viewportX = 0,
@@ -9,19 +8,27 @@ BorbitPuzzle.layout = function(viewport, display, binder, loading) {
         viewportHeight,
         viewportWidth;
 
-    viewport.draggable({
-        containment: 'parent',
-        stop: function(event, ui) {
-            if(viewportX != ui.position.top) {
-                centerH = false;
+    init();
+
+    function init() {
+        viewport.draggable({
+            containment: 'parent',
+            stop: function(event, ui) {
+                if(viewportX != ui.position.top) {
+                    centerH = false;
+                }
+                if(viewportY != ui.position.left) {
+                    centerW = false;
+                }
+                viewportX = ui.position.top;
+                viewportY = ui.position.left;
             }
-            if(viewportY != ui.position.left) {
-                centerW = false;
-            }
-            viewportX = ui.position.top;
-            viewportY = ui.position.left;
-        }
-    });
+        });
+
+        $(window).resize(function() {
+            processArranging();
+        });
+    }
 
     function arrange(width, height) {
         viewportHeight = height;
@@ -93,16 +100,12 @@ BorbitPuzzle.layout = function(viewport, display, binder, loading) {
     }
 
     function showLoading() {
-        loading.show();
+        loading.animate({top: 0}, 200);
     }
 
     function hideLoading() {
-        loading.hide();
+        loading.animate({top: -28}, 200);
     }
-
-    $(window).resize(function() {
-        processArranging();
-    });
 
     return {
         viewport: viewport,
