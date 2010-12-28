@@ -21,18 +21,15 @@ function createConnection(callback) {
 
 function useCollection(collectionName, callback) {
     if (collections[collectionName] === undefined) {
-        client.collection(collectionName, function(err, collection) {
-            if(!err) {
-                collections[collectionName] = collection;
-                callback.call(this, collections[collectionName]);
-            } else {
-                throw err;
-            }
+        client.collection(collectionName, function(error, collection) {
+            collections[collectionName] = collection;
+            callback.call(this, error, collections[collectionName]);
         });
     } else {
-        callback.call(this, collections[collectionName]);
+        callback.call(this, null, collections[collectionName]);
     }
 }
 
 exports.createConnection = createConnection;
 exports.useCollection = useCollection;
+exports.ObjectId = mongodb.ObjectID;

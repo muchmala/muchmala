@@ -1,5 +1,5 @@
 Puzzle.FieldHelper = function(field, pices) {
-    
+
     function isSameType(first, second) {
         if(first.ears.left == second.ears.left &&
            first.ears.bottom == second.ears.bottom &&
@@ -27,6 +27,7 @@ Puzzle.FieldHelper = function(field, pices) {
         var second = field.getPice(coords[1][0], coords[1][1]);
         first.unlock();
         second.unlock();
+        flipPices(first, second);
     }
 
     function buildField(map) {

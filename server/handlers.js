@@ -51,7 +51,8 @@ function handlers(client, maps, users) {
     }
 
     function mapHandler(data) {
-        maps.getMap(data.mapId, function(map) {
+        //data.mapId
+        maps.getLastMap(function(map) {
             currentMap = map;
             currentMap.getCompactInfo(function(compactMap) {
                  client.send(createMessage(events.map, compactMap));

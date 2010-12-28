@@ -1,8 +1,8 @@
-var config = require('./config');
-var db = require('./db');
 var http = require('http');
 var io = require('socket.io');
 
+var config = require('./config');
+var db = require('./db');
 var models = require('./models');
 var handlers = require('./handlers').handlers;
 
@@ -10,16 +10,16 @@ var server = http.createServer();
 server.listen(config.server.port, config.server.host);
 
 db.createConnection(function(client) {
-    var maps = models.maps.load('collection');
+    db.useCollection('maps', function(error, mapsCollection) {
+        db.useCollection('users', function(error, usersCollection) {
 
-    db.useCollection('users', function(usersCollection) {
+            var maps = models.maps.load(mapsCollection);
+            var users = models.users.load(usersCollection);
+            var socket = io.listen(server);
 
-        var users = models.users.load(usersCollection);
-        var socket = io.listen(server);
-
-        socket.on('connection', function(client) {
-            handlers(client, maps, users);
+            socket.on('connection', function(client) {
+                handlers(client, maps, users);
+            });
         });
-        
     });
 });
