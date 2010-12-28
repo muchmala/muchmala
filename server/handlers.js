@@ -36,11 +36,11 @@ function handlers(client, maps, users) {
                     currentUser = user;
                     sendCurrentUserData();
                 } else {
-                    addAnonimus();
+                    addAnonymous();
                 }
             });
         } else {
-            addAnonimus();
+            addAnonymous();
         }
     }
 
@@ -80,6 +80,7 @@ function handlers(client, maps, users) {
     function flipHandler(coords) {
         currentMap.flip(coords[0][0], coords[0][1], coords[1][0], coords[1][1], client.sessionId, function(done) {
             if (done) {
+                client.send(createMessage(events.flipped, coords));
                 client.broadcast(createMessage(events.flipped, coords));
             }
         });
@@ -115,8 +116,8 @@ function handlers(client, maps, users) {
         });
     }
 
-    function addAnonimus() {
-        users.addUser('anonimus', function(user) {
+    function addAnonymous() {
+        users.addUser('anonymous', function(user) {
             currentUser = user;
             sendCurrentUserData();
         });
