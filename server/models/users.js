@@ -1,4 +1,4 @@
-var ObjectID = require('mongodb').ObjectID;
+var db = require('../db');
 
 function loader(collection) {
     function addUser(name, callback) {
@@ -18,11 +18,11 @@ function loader(collection) {
     }
 
     function getUser(userId, callback) {
-        var clause = {_id: new ObjectID(userId)};
-        collection.findOne(clause, function(err, userData) {
+        var _id = new db.ObjectId(userId);
+        collection.findOne({_id: _id}, function(err, userData) {
             if(!err) {
                 if(userData) {
-                    callback.call(null, user(userId));
+                    callback.call(null, user(_id));
                 } else {
                     callback.call(null);
                 }
@@ -35,8 +35,7 @@ function loader(collection) {
     function user(userId) {
 
         function getData(callback) {
-            var clause = {_id: new ObjectID(userId)};
-            collection.findOne(clause, function(err, userData) {
+            collection.findOne({_id: userId}, function(err, userData) {
                 if(!err) {
                     callback.call(null, userData);
                 } else {
@@ -47,8 +46,7 @@ function loader(collection) {
 
         function updateData(data, callback) {
             var update = {$set: data};
-            var clause = {_id: new ObjectID(userId)};
-            collection.update(clause, update, function(err, userData) {
+            collection.update({_id: userId}, update, function(err, userData) {
                 if(!err) {
                     callback.call(null, userData);
                 } else {
@@ -78,30 +76,38 @@ function loader(collection) {
         function link2Map(mapId, callback) {
             getData(function(userData) {
                 userData.maps.push({mapId: mapId, score: 0});
-                collection.save(userData, function(err, userData) {
-                    if(!err) {
-                        callback.call(null, userData);
-                    } else {
-                        throw err;
+                collection.save(userData, function(error, userData) {
+                    if(!error) {
+                        if(callback) {
+                            callback.call(null, userData);
+                        }
                     }
                 });
             });
         }
 
         function linked2Map(mapId, callback) {
-            getData(function(data) {
-                var linked = false;
-                for(var i in data.maps) {
-                    if(data.maps[i].mapId == mapId) {
-                        linked = true;
-                        break;
+            var clause = {
+                _id: userId, maps: {
+                    $elemMatch: {
+                        mapId: mapId
                     }
+                }
+            };
+            collection.findOne(clause, function(error, userData) {
+                var linked = false;
+                if(!error && userData) {
+                    linked = true;
                 }
                 callback.call(null, linked);
             });
         }
 
         return {
+            get _id() {
+                return userId;
+            },
+
             getData: getData,
             updateData: updateData,
             updateMapData: updateMapData,

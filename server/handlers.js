@@ -5,36 +5,42 @@ var events = {
     unlocked: 'unlocked',
     selected: 'selected',
     unselected: 'unselected',
+    initialized: 'initialized',
+    connectedUsersCount: 'connectedUsersCount',
     flipped: 'flipped'
 };
 
 function handlers(client, maps, users) {
-    var actions = {
+    var base = handlersBase();
+
+    base.actions = {
         map: mapHandler,
         user: userHandler,
         flip: flipHandler,
         select: selectHandler,
         unselect: unselectHandler,
+        initialize: initializeHandler,
         updateUserName: updateUserNameHandler
     };
 
     var currentMap = null;
     var currentUser = null;
+    var countDown = null;
 
     client.on('message', function(data) {
-        process(JSON.parse(data));
+        base.process(JSON.parse(data));
     });
 
     client.on('disconnect', function() {
         disconnectHandler();
     });
 
-    function userHandler(userId) {
-        if(userId) {
-            users.getUser(userId, function(user) {
+    function initializeHandler(params) {
+        if(params.userId) {
+            users.getUser(params.userId, function(user) {
                 if(user) {
                     currentUser = user;
-                    sendCurrentUserData();
+                    getMapThenLinkToUserAndSend();
                 } else {
                     addAnonymous();
                 }
@@ -42,74 +48,39 @@ function handlers(client, maps, users) {
         } else {
             addAnonymous();
         }
-    }
 
-    function updateUserNameHandler(userName) {
-        currentUser.updateData({name: userName}, function(userData) {
-            sendCurrentUserData();
-        });
-    }
-
-    function mapHandler(data) {
-        //data.mapId
-        maps.getLastMap(function(map) {
-            currentMap = map;
-            currentMap.getCompactInfo(function(compactMap) {
-                 client.send(createMessage(events.map, compactMap));
+        function addAnonymous() {
+            users.addUser('anonymous', function(user) {
+                currentUser = user;
+                getMapThenLinkToUserAndSend();
             });
-        });
-    }
+        }
 
-    function selectHandler(coords) {
-        currentMap.lock(coords[0], coords[1], client.sessionId, function(done) {
-            if (done) {
-                client.send(createMessage(events.selected, coords));
-                client.broadcast(createMessage(events.locked, coords));
-            }
-        });
-    }
+        function getMapThenLinkToUserAndSend() {
+            maps.getLastMap(function(map) {
+                currentMap = map;
 
-    function unselectHandler(coords) {
-        currentMap.unlock(coords[0], coords[1], client.sessionId, function(done) {
-            if (done) {
-                client.send(createMessage(events.unselected, coords));
-                client.broadcast(createMessage(events.unlocked, [coords]));
-            }
-        });
-    }
+                currentUser.linked2Map(currentMap._id, function(linked) {
+                    if(!linked) {
+                        currentUser.link2Map(currentMap._id);
+                    }
+                });
+                
+                currentMap.addConnectedUser(currentUser._id, function() {
+                    currentMap.getConnectedUsers(function(connectedUsers) {
+                        client.send(base.createMessage(events.connectedUsersCount, connectedUsers.length));
+                        client.broadcast(base.createMessage(events.connectedUsersCount, connectedUsers.length));
+                    });
+                });
 
-    function flipHandler(coords) {
-        currentMap.flip(coords[0][0], coords[0][1], coords[1][0], coords[1][1], client.sessionId, function(done) {
-            if (done) {
-                client.send(createMessage(events.flipped, coords));
-                client.broadcast(createMessage(events.flipped, coords));
-            }
-        });
-    }
-
-    function disconnectHandler() {
-        currentMap.unlockAll(client.sessionId, function(pices) {
-            client.broadcast(createMessage(events.unlocked, pices));
-        });
-    }
-
-    function createMessage(event, data) {
-        return JSON.stringify({
-            event: event,
-            data: data
-        });
-    }
-
-    function process(message) {
-        if(message.action != null &&
-           actions[message.action] != null) {
-            actions[message.action].call(null, message.data);
+                client.send(base.createMessage(events.initialized));
+            });
         }
     }
 
-    function sendCurrentUserData() {
+    function userHandler() {
         currentUser.getData(function(data) {
-            client.send(createMessage(events.user, {
+            client.send(base.createMessage(events.user, {
                 id: data._id,
                 name: data.name,
                 score: 0
@@ -117,12 +88,94 @@ function handlers(client, maps, users) {
         });
     }
 
-    function addAnonymous() {
-        users.addUser('anonymous', function(user) {
-            currentUser = user;
-            sendCurrentUserData();
+    function updateUserNameHandler(userName) {
+        currentUser.updateData({name: userName}, function(userData) {
+            userHandler();
         });
     }
+
+    function mapHandler() {
+        currentMap.getCompactInfo(function(compactMap) {
+             client.send(base.createMessage(events.map, compactMap));
+        });
+    }
+
+    function selectHandler(coords) {
+        currentMap.lock(coords[0], coords[1], client.sessionId, function(done) {
+            if (done) {
+                startCountDown();
+                client.send(base.createMessage(events.selected, coords));
+                client.broadcast(base.createMessage(events.locked, coords));
+            }
+        });
+    }
+
+    function unselectHandler(coords) {
+        currentMap.unlock(coords[0], coords[1], client.sessionId, function(done) {
+            if (done) {
+                stopCountDown();
+                client.send(base.createMessage(events.unselected, coords));
+                client.broadcast(base.createMessage(events.unlocked, [coords]));
+            }
+        });
+    }
+
+    function flipHandler(coords) {
+        currentMap.flip(coords[0][0], coords[0][1], coords[1][0], coords[1][1], client.sessionId, function(done) {
+            if (done) {
+                stopCountDown();
+                client.send(base.createMessage(events.flipped, coords));
+                client.broadcast(base.createMessage(events.flipped, coords));
+            }
+        });
+    }
+
+    function disconnectHandler() {
+        if(!currentMap || !currentUser) {
+            return;
+        }
+
+        currentMap.removeConnectedUser(currentUser._id, function() {
+            currentMap.getConnectedUsers(function(connectedUsers) {
+                client.broadcast(base.createMessage(events.connectedUsersCount, connectedUsers.length));
+            });
+        });
+
+        currentMap.unlockAll(client.sessionId, function(pices) {
+            client.broadcast(base.createMessage(events.unlocked, pices));
+        });
+    }
+
+    function startCountDown() {
+        countDown = setTimeout(function() {
+            currentMap.unlockAll(client.sessionId, function(pices) {
+                client.send(base.createMessage(events.unlocked, pices));
+                client.broadcast(base.createMessage(events.unlocked, pices));
+            });
+        }, 20000);
+    }
+
+    function stopCountDown() {
+        clearTimeout(countDown);
+    }
+}
+
+function handlersBase() {
+    return {
+        actions: {},
+        createMessage: function(event, data) {
+            return JSON.stringify({
+                event: event,
+                data: data
+            });
+        },
+        process: function(message) {
+            if(message.action != null &&
+               this.actions[message.action] != null) {
+                this.actions[message.action].call(null, message.data);
+            }
+        }
+    };
 }
 
 exports.handlers = handlers;

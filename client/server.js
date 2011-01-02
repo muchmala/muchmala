@@ -1,17 +1,12 @@
 Puzzle.Server = function server() {
+    var observer = Utils.Observer();
+    for(var i in server.events) {
+        observer.register(server.events[i]);
+    }
+
     var socket = new io.Socket('io.puzzle.home', {
         transports: ['websocket', 'flashsocket', 'xhr-multipart']
     });
-    
-    var observer = Utils.Observer();
-    observer.register(server.events.map);
-    observer.register(server.events.user);
-    observer.register(server.events.locked);
-    observer.register(server.events.unlocked);
-    observer.register(server.events.selected);
-    observer.register(server.events.unselected);
-    observer.register(server.events.connected);
-    observer.register(server.events.flipped);
     
     socket.on('message', function(data) {
         var parsed = JSON.parse(data);
@@ -43,6 +38,16 @@ Puzzle.Server = function server() {
 
     function createMessage(action, data) {
         return JSON.stringify({action: action, data: data});
+    }
+
+    function initialize(mapId, userId) {
+        var data = {mapId: mapId};
+
+        if(userId) {
+            data.userId = userId
+        }
+
+        sendMessage(createMessage('initialize', data));
     }
 
     function getMap(mapId) {
@@ -85,6 +90,7 @@ Puzzle.Server = function server() {
         selectPice: selectPice,
         unselectPice: unselectPice,
         flipPices: flipPices,
+        initialize: initialize,
         getUserData: getUserData,
         updateUserName: updateUserName,
         subscribe: observer.subscribe,
@@ -99,6 +105,8 @@ Puzzle.Server.events = {
     unlocked: 'unlocked',
     selected: 'selected',
     unselected: 'unselected',
-    conncted: 'conncted',
+    initialized: 'initialized',
+    connectedUsersCount: 'connectedUsersCount',
+    connected: 'connected',
     flipped: 'flipped'
 };

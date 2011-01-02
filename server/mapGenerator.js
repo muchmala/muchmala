@@ -11,14 +11,17 @@ var models = require('./models');
         db.useCollection('maps', function(error, mapsCollection) {
             var mapsLoader = models.maps.load(mapsCollection);
 
-            mapsLoader.generateMap(
+            mapsLoader.addMap(
                 imageSize.width,
                 imageSize.height,
                 options.pieceSize,
                 options.image,
                 options.name, function(map) {
                     console.log('Done. Id is ' + map._id.toHexString());
-                    process.exit();
+                    map.getCompactInfo(function(data) {
+                        console.log(data);
+                        process.exit();
+                    });
                 });
         });
 

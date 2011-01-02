@@ -49,8 +49,13 @@ Puzzle.Panel = function(element) {
         element.find('.user .num').text(score);
     }
 
+    function setConnectedUsersCount(count) {
+        element.find('.statistics .connected').text(count);
+    }
+
     return {
         subscribe: observer.subscribe,
+        setConnectedUsersCount: setConnectedUsersCount,
         setUsername: setUsername,
         setScore: setScore
     }

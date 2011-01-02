@@ -100,11 +100,14 @@ Puzzle.Layout = function(viewport, display, binder, loading) {
     }
 
     function showLoading() {
+        loading.show();
         loading.animate({top: 0}, 200);
     }
 
     function hideLoading() {
-        loading.animate({top: -28}, 200);
+        loading.animate({top: -28}, 200, function() {
+            loading.hide();
+        });
     }
 
     return {
