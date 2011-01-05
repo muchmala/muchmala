@@ -14,9 +14,9 @@ I use npm (http://npmjs.org/) so it is really simple:
     npm install mongodb
 
 You can look for modules here:
-- https://bitbucket.org/mazzarelli/js-opts/wiki/Home
-- http://socket.io/
-- https://github.com/christkv/node-mongodb-native
+* https://bitbucket.org/mazzarelli/js-opts/wiki/Home
+* http://socket.io/
+* https://github.com/christkv/node-mongodb-native
 
 2. Pull git repository.
 -----------------------
@@ -43,9 +43,9 @@ You can look for modules here:
 3. Create mongodb database and collections
 ------------------------------------------
 Currently we need 3 collections:
-- maps
-- pieces
-- users
+* maps
+* pieces
+* users
 
 4. Check config in ./server/config.js
 -------------------------------------
