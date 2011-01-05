@@ -1,69 +1,73 @@
 var db = require('../db');
 
-var loader = function(collection) {
+var loader = function(mapsCollection, piecesCollection) {
+
     var Map = function(id, callback) {
         var _id = new db.ObjectId(id);
 
         callback.call(this, {
             lock: function(x, y, userId, callback) {
-                collection.update(
-                    {_id: _id, pieces: {$elemMatch: {x: +x, y: +y, locked: ''}}},
-                    {$set: {"pieces.$.locked": userId}},
+                piecesCollection.update(
+                    {mapId: _id, x: +x, y: +y, locked: ''},
+                    {$set: {locked: userId}},
                     function(error, result) {
                         callback.call(this, true);
                     });
             },
 
             unlock: function(x, y, userId, callback) {
-                collection.update(
-                    {_id: _id, pieces: {$elemMatch: {x: +x, y: +y, locked: userId}}},
-                    {$set: {"pieces.$.locked": ''}},
+                piecesCollection.update(
+                    {mapId: _id, x: +x, y: +y, locked: userId},
+                    {$set: {locked: ''}},
                     function(error, result) {
                         callback.call(this, true);
                     });
             },
 
             unlockAll: function(userId, callback) {
-                collection.findOne({_id: _id}, function(error, mapInfo) {
-                    var lockedItems = [];
+                piecesCollection.find(
+                    {mapId: _id, locked: userId},
+                    function(error, cursor) {
+                        cursor.toArray(function(error, pieces) {
+                            var lockedItems = [];
 
-                    for (var i in mapInfo.pieces) {
-                        if (mapInfo.pieces[i].locked == userId) {
-                        collection.update(
-                            {_id: _id, pieces: {$elemMatch: {x: mapInfo.pieces[i].x, y: mapInfo.pieces[i].y, locked: userId}}},
-                            {$set: {"pieces.$.locked": ''}});
+                            for (var i in pieces) {
+                                lockedItems.push([pieces[i].x, pieces[i].y]);
+                            }
 
-                            lockedItems.push([mapInfo.pieces[i].x, mapInfo.pieces[i].y]);
-                        }
-                    }
-
-                    callback.call(this, lockedItems);
-                });
-            },
-
-            flip: function(x1, y1, x2, y2, userId, callback) {
-                collection.findOne({_id: _id, pieces: {$elemMatch: {x: +x1, y: +y1, locked: userId}}},
-                    function(error, mapInfo) {
-                        if (mapInfo === undefined) {
-                            callback.call(this, false);
-                        } else {
-                            collection.update(
-                                {_id: _id, pieces: {$elemMatch: {x: +x2, y: +y2, locked: ''}}},
-                                {$set: {"pieces.$.x": +x1, "pieces.$.y": +y1}},
-                                function(error, result) {
-                                    collection.update(
-                                        {_id: _id, pieces: {$elemMatch: {x: +x1, y: +y1, locked: userId}}, $atomic : 1},
-                                        {$set: {"pieces.$.locked": '', "pieces.$.x": +x2, "pieces.$.y": +y2}},
-                                        function(error, result) {
-                                            callback.call(this, true);
-                                        });
+                            piecesCollection.update(
+                                {mapId: _id, locked: userId},
+                                {$set: {"locked": ''}},
+                                {multi: true},
+                                function(error, mapInfo) {
+                                    callback.call(this, lockedItems);
                                 });
-                        }
+                        });
                     });
             },
 
+            flip: function(x1, y1, x2, y2, userId, callback) {
+                piecesCollection.findOne({mapId: _id, x: +x1, y: +y1, locked: userId},
+                function(error, piece) {
+                    if (piece === undefined) {
+                        callback.call(this, false);
+                    } else {
+                        piecesCollection.update({mapId: _id, x: +x2, y: +y2, locked: ''},
+                            {$set: {x: +x1, y: +y1}},
+                            function(error, result) {
+
+                                piecesCollection.update({mapId: _id, x: +x1, y: +y1, locked: userId},
+                                    {$set: {x: +x2, y: +y2, locked: ''}},
+                                    function(error, result) {
+                                        callback.call(this, true);
+                                    });
+                            });
+                    }
+                });
+            },
+
             getCompactInfo: function(callback) {
-                collection.findOne({_id: _id}, function(error, mapInfo) {
+                mapsCollection.findOne({_id: _id}, function(error, mapInfo) {
                     var compactData = {
                         id: id,
                         imageSrc: mapInfo.imageSrc,
@@ -71,32 +75,38 @@ var loader = function(collection) {
                         map: []
                     };
 
-                    var pieces = mapInfo.pieces.concat();
+                    piecesCollection.find({mapId: _id}, function(error, cursor) {
+                        cursor.toArray(function(error, pieces) {
+                            var piece;
+                            for (var i in pieces) {
+                                piece = pieces[i];
 
-                    for (var i in pieces) {
-                        if (compactData.map[pieces[i].y] === undefined) {
-                            compactData.map[pieces[i].y] = [];
-                        }
+                                if (compactData.map[piece.y] === undefined) {
+                                    compactData.map[piece.y] = [];
+                                }
 
-                        compactData.map[pieces[i].y][pieces[i].x] = {
-                            t: pieces[i].top,
-                            l: pieces[i].left,
-                            b: pieces[i].bottom,
-                            r: pieces[i].right,
-                            x: pieces[i].realX,
-                            y: pieces[i].realY,
-                            d: !!pieces[i].locked
-                        };
-                    }
+                                compactData.map[piece.y][piece.x] = {
+                                    t: piece.top,
+                                    l: piece.left,
+                                    b: piece.bottom,
+                                    r: piece.right,
+                                    x: piece.realX,
+                                    y: piece.realY,
+                                    d: !!piece.locked
+                                };
+                            }
 
-                    callback.call(this, compactData);
+                            callback.call(this, compactData);
+                        });
+                    });
+
                 });
             },
 
             addConnectedUser: function(userId, callback) {
                 userId = new db.ObjectId(userId);
 
-                collection.findOne({_id: _id}, function(error, mapData) {
+                mapsCollection.findOne({_id: _id}, function(error, mapData) {
                     if(!error) {
                         var inArray = false;
                         for(var i = 0, len = mapData.connectedUsers.length; i < len; i++) {
@@ -108,7 +118,7 @@ var loader = function(collection) {
 
                         if(!inArray) {
                             mapData.connectedUsers.push(userId);
-                            collection.save(mapData, function(error) {
+                            mapsCollection.save(mapData, function(error) {
                                 if(!error) {
                                     callback.call(null, true)
                                 }
@@ -123,7 +133,7 @@ var loader = function(collection) {
             removeConnectedUser: function(userId, callback) {
                 userId = new db.ObjectId(userId);
 
-                collection.findOne({_id: _id}, function(error, mapData) {
+                mapsCollection.findOne({_id: _id}, function(error, mapData) {
                     if(!error) {
                         var index = -1;
                         for(var i = 0, len = mapData.connectedUsers.length; i < len; i++) {
@@ -135,7 +145,7 @@ var loader = function(collection) {
 
                         if(index >= 0) {
                             mapData.connectedUsers.splice(index, 1);
-                            collection.save(mapData, function(error) {
+                            mapsCollection.save(mapData, function(error) {
                                 if(!error) {
                                     callback.call(null, true)
                                 }
@@ -148,11 +158,11 @@ var loader = function(collection) {
             },
 
             removeConnectedUsers: function(callback) {
-                collection.findOne({_id: _id}, function(error, mapData) {
+                mapsCollection.findOne({_id: _id}, function(error, mapData) {
                     if(!error) {
                         if(mapData.connectedUsers.length) {
                             mapData.connectedUsers = [];
-                            collection.save(mapData, function(error) {
+                            mapsCollection.save(mapData, function(error) {
                                 if(!error) {
                                     callback.call(null, true)
                                 }
@@ -165,7 +175,7 @@ var loader = function(collection) {
             },
 
             getConnectedUsers: function(callback) {
-                collection.findOne({_id: _id}, function(error, mapData) {
+                mapsCollection.findOne({_id: _id}, function(error, mapData) {
                     if(!error) {
                         callback.call(null, mapData.connectedUsers)
                     }
@@ -180,24 +190,49 @@ var loader = function(collection) {
 
     return {
         addMap: function(width, height, pieceSize, imageSrc, name, callback) {
+            var pieces = generatePieces(width, height, pieceSize);
+            var piecesCount = pieces.length;
+
             var mapData = {
                 name: name,
+                visible: false,
+
                 imageSrc: imageSrc,
                 pieceSize: pieceSize,
+                piecesCount: piecesCount,
+
                 width: width,
                 height: height,
                 created: new Date(),
-                connectedUsers: [],
-                pieces: generatePieces(width, height, pieceSize)
+                connectedUsers: []
             };
 
-            collection.insert(mapData, function(error, ids) {
-                Map(ids[0]._id.toHexString(), callback);
+
+            mapsCollection.insert(mapData, function(error, ids) {
+                var mapId = ids[0]._id;
+
+                for (var i = 0, j = 1; i < piecesCount; ++i) {
+                    pieces[i].mapId = mapId;
+                    piecesCollection.insert(pieces[i], function(error, ids) {
+                        ++j;
+
+                        if (j == piecesCount) {
+                            mapsCollection.update(
+                                {_id: mapId},
+                                {$set: {"visible": true}},
+                                function(error, result) {
+                                    if (!error) {
+                                        Map(mapId.toHexString(), callback);
+                                    }
+                                });
+                        }
+                    });
+                }
             });
         },
 
         getLastMap: function(callback) {
-            collection.find({created:{$lt:new Date()}}, {sort: [['created', -1]], limit: 1}, function(error, cursor) {
+            mapsCollection.find({visible: true, created:{$lt:new Date()}}, {sort: [['created', -1]], limit: 1}, function(error, cursor) {
                 cursor.toArray(function(error, items) {
                     Map(items[0]._id.toHexString(), callback);
                 });
@@ -228,7 +263,8 @@ function generatePiece(x, y) {
         bottom: rand(1),
         left: rand(1),
         right: rand(1),
-        locked: ''
+        locked: '',
+        mapId: ''
     };
 }
 

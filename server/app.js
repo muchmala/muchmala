@@ -11,14 +11,16 @@ server.listen(config.server.port, config.server.host);
 
 db.createConnection(function(client) {
     db.useCollection('maps', function(error, mapsCollection) {
-        db.useCollection('users', function(error, usersCollection) {
+        db.useCollection('pieces', function(error, piecesCollection) {
+            db.useCollection('users', function(error, usersCollection) {
 
-            var maps = models.maps.load(mapsCollection);
-            var users = models.users.load(usersCollection);
-            var socket = io.listen(server);
+                var maps = models.maps.load(mapsCollection, piecesCollection);
+                var users = models.users.load(usersCollection);
+                var socket = io.listen(server);
 
-            socket.on('connection', function(client) {
-                handlers(client, maps, users);
+                socket.on('connection', function(client) {
+                    handlers(client, maps, users);
+                });
             });
         });
     });
