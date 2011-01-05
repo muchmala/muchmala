@@ -3,20 +3,24 @@ Instalation
 
 0. Install mongoDB, nginx, node.js
 ----------------------------------
+
 1. Install node.js modules
 --------------------------
 
 I use npm (http://npmjs.org/) so it is really simple:
 
+    npm install opts
     npm install socket.io
     npm install mongodb
 
 You can look for modules here:
-http://socket.io/
-https://github.com/christkv/node-mongodb-native
+- https://bitbucket.org/mazzarelli/js-opts/wiki/Home
+- http://socket.io/
+- https://github.com/christkv/node-mongodb-native
 
 2. Pull git repository.
 -----------------------
+
 3. Create nginx config like this and restart it:
 ------------------------------------------------
 
@@ -36,14 +40,21 @@ https://github.com/christkv/node-mongodb-native
         }
     }
 
-3. Check config in ./server/config.js
+3. Create mongodb database and collections
+------------------------------------------
+Currently we need 3 collections:
+- maps
+- pieces
+- users
+
+4. Check config in ./server/config.js
 -------------------------------------
 
 Basicly you need to check port. Check if it is not used
 
     netstat -an | grep :9999
 
-4. Start server
+5. Start server
 ---------------
 
     node ./server/app.js
@@ -64,7 +75,7 @@ If somth is wrong it'll yell:
 
 So try to check config.
 
-5. Finally open page in your browser: http://puzzle.dev
+6. Finally open page in your browser: http://puzzle.dev
 --------------------------------------------------------------
 
 You should see your puzzle ;)
