@@ -7,22 +7,23 @@ var models = require('./models');
     var options = getOptions();
     var imageSize = getImageSize(options.image);
 
-    db.createConnection(function(client) {
+    db.createConnection(function() {
         db.useCollection('maps', function(error, mapsCollection) {
-            var mapsLoader = models.maps.load(mapsCollection);
+            db.useCollection('pieces', function(error, piecesCollection) {
 
-            mapsLoader.addMap(
-                imageSize.width,
-                imageSize.height,
-                options.pieceSize,
-                options.image,
-                options.name, function(map) {
-                    console.log('Done. Id is ' + map._id.toHexString());
-                    map.getCompactInfo(function(data) {
-                        console.log(data);
+                var mapsLoader = models.maps.load(mapsCollection, piecesCollection);
+
+                mapsLoader.addMap(
+                    imageSize.width,
+                    imageSize.height,
+                    options.pieceSize,
+                    options.image,
+                    options.name, function(map) {
+                        console.log('Done. Id is ' + map._id.toHexString());
                         process.exit();
                     });
-                });
+
+            });
         });
 
     });

@@ -1,266 +1,267 @@
 var db = require('../db');
 
-function loader(collection) {
-    function Map(id, callback) {
+var loader = function(mapsCollection, piecesCollection) {
+
+    var Map = function(id, callback) {
         var _id = new db.ObjectId(id);
 
-        function lock(x, y, userId, callback) {
-            collection.update(
-                {_id: _id, pieces: {$elemMatch: {x: +x, y: +y, locked: ''}}},
-                {$set: {"pieces.$.locked": userId}},
-                function(error, result) {
-                    callback.call(null);
-                });
-        }
+        callback.call(this, {
+            lock: function(x, y, userId, callback) {
+                piecesCollection.update(
+                    {mapId: _id, x: +x, y: +y, locked: ''},
+                    {$set: {locked: userId}},
+                    function(error, result) {
+                        callback.call(this, true);
+                    });
+            },
 
-        function unlock(x, y, userId, callback) {
-            collection.update(
-                {_id: _id, pieces: {$elemMatch: {x: +x, y: +y, locked: userId}}},
-                {$set: {"pieces.$.locked": ''}},
-                function(error, result) {
-                    callback.call(null);
-                });
-        }
+            unlock: function(x, y, userId, callback) {
+                piecesCollection.update(
+                    {mapId: _id, x: +x, y: +y, locked: userId},
+                    {$set: {locked: ''}},
+                    function(error, result) {
+                        callback.call(this, true);
+                    });
+            },
 
-        function unlockAll(userId, callback) {
-            collection.findOne({_id: _id}, function(error, mapInfo) {
-                var lockedItems = [];
+            unlockAll: function(userId, callback) {
+                piecesCollection.find(
+                    {mapId: _id, locked: userId},
+                    function(error, cursor) {
+                        cursor.toArray(function(error, pieces) {
+                            var lockedItems = [];
 
-                for (var i in mapInfo.pieces) {
-                    if (mapInfo.pieces[i].locked.id == userId.id) {
-                    collection.update(
-                        {_id: _id, pieces: {$elemMatch: {x: mapInfo.pieces[i].x, y: mapInfo.pieces[i].y, locked: userId}}},
-                        {$set: {"pieces.$.locked": ''}});
+                            for (var i in pieces) {
+                                lockedItems.push([pieces[i].x, pieces[i].y]);
+                            }
 
-                        lockedItems.push([mapInfo.pieces[i].x, mapInfo.pieces[i].y]);
+                            piecesCollection.update(
+                                {mapId: _id, locked: userId},
+                                {$set: {"locked": ''}},
+                                {multi: true},
+                                function(error, mapInfo) {
+                                    callback.call(this, lockedItems);
+                                });
+                        });
+                    });
+            },
+
+            flip: function(x1, y1, x2, y2, userId, callback) {
+                piecesCollection.findOne({mapId: _id, x: +x1, y: +y1, locked: userId},
+                function(error, piece) {
+                    if (piece === undefined) {
+                        callback.call(this, false);
+                    } else {
+                        piecesCollection.update({mapId: _id, x: +x2, y: +y2, locked: ''},
+                            {$set: {x: +x1, y: +y1}},
+                            function(error, result) {
+
+                                piecesCollection.update({mapId: _id, x: +x1, y: +y1, locked: userId},
+                                    {$set: {x: +x2, y: +y2, locked: ''}},
+                                    function(error, result) {
+                                        callback.call(this, true);
+                                    });
+                            });
                     }
-                }
-
-                callback.call(this, lockedItems);
-            });
-        }
-
-        function flip(x1, y1, x2, y2, userId, callback) {
-
-            function updateFirstPiece() {
-                var clause = {_id: _id, pieces: {$elemMatch: {x: +x2, y: +y2, locked: ''}}, $atomic : 1};
-                var update = {$set: {"pieces.$.x": +x1, "pieces.$.y": +y1}};
-
-                collection.update(clause, update, function(error, result) {
-                    if(!error) {
-                        updateSecondPiece();
-                    }
                 });
-            }
+            },
 
-            function updateSecondPiece() {
-                var clause = {_id: _id, pieces: {$elemMatch: {x: +x1, y: +y1, locked: userId}}, $atomic : 1};
-                var update = {$set: {"pieces.$.locked": '', "pieces.$.x": +x2, "pieces.$.y": +y2}};
-
-                collection.update(clause, update, function(error) {
-                    if(!error) {
-                        callback.call(null);
-                    }
-                });
-            }
-
-            var clause = {_id: _id, pieces: {$elemMatch: {x: +x1, y: +y1, locked: userId}}};
-
-            collection.findOne(clause, function(error, mapData) {
-                if (!error && mapData != null) {
-                    updateFirstPiece();
-                }
-            });
-        }
-
-        function getCompactInfo(callback) {
-            collection.findOne({_id: _id}, function(error, mapInfo) {
-                console.log(mapInfo.created);
-                var compactData = {
-                    id: id,
-                    imageSrc: mapInfo.imageSrc,
-                    piceSize: mapInfo.pieceSize,
-                    created: mapInfo.created,
-                    map: []
-                };
-
-                var pieces = mapInfo.pieces.concat();
-
-                for (var i in pieces) {
-                    if (compactData.map[pieces[i].y] === undefined) {
-                        compactData.map[pieces[i].y] = [];
-                    }
-
-                    compactData.map[pieces[i].y][pieces[i].x] = {
-                        t: pieces[i].top,
-                        l: pieces[i].left,
-                        b: pieces[i].bottom,
-                        r: pieces[i].right,
-                        x: pieces[i].realX,
-                        y: pieces[i].realY,
-                        d: !!pieces[i].locked
+            getCompactInfo: function(callback) {
+                mapsCollection.findOne({_id: _id}, function(error, mapInfo) {
+                    var compactData = {
+                        id: id,
+                        imageSrc: mapInfo.imageSrc,
+                        piceSize: mapInfo.pieceSize,
+                        created: mapInfo.created,
+                        map: []
                     };
-                }
 
-                callback.call(this, compactData);
-            });
-        }
+                    piecesCollection.find({mapId: _id}, function(error, cursor) {
+                        cursor.toArray(function(error, pieces) {
+                            var piece;
+                            for (var i in pieces) {
+                                piece = pieces[i];
 
-        function addConnectedUser(userId, callback) {
-            userId = new db.ObjectId(userId);
+                                if (compactData.map[piece.y] === undefined) {
+                                    compactData.map[piece.y] = [];
+                                }
 
-            collection.findOne({_id: _id}, function(error, mapData) {
-                if(!error) {
-                    var inArray = false;
-                    for(var i = 0, len = mapData.connectedUsers.length; i < len; i++) {
-                        if(mapData.connectedUsers[i].id == userId.id) {
-                            inArray = true;
-                            break;
+                                compactData.map[piece.y][piece.x] = {
+                                    t: piece.top,
+                                    l: piece.left,
+                                    b: piece.bottom,
+                                    r: piece.right,
+                                    x: piece.realX,
+                                    y: piece.realY,
+                                    d: !!piece.locked
+                                };
+                            }
+
+                            callback.call(this, compactData);
+                        });
+                    });
+
+                });
+            },
+
+            addConnectedUser: function(userId, callback) {
+                userId = new db.ObjectId(userId);
+
+                mapsCollection.findOne({_id: _id}, function(error, mapData) {
+                    if(!error) {
+                        var inArray = false;
+                        for(var i = 0, len = mapData.connectedUsers.length; i < len; i++) {
+                            if(mapData.connectedUsers[i].id == userId.id) {
+                                inArray = true;
+                                break;
+                            }
+                        }
+
+                        if(!inArray) {
+                            mapData.connectedUsers.push(userId);
+                            mapsCollection.save(mapData, function(error) {
+                                if(!error) {
+                                    callback.call(null, true)
+                                }
+                            });
+                        } else {
+                            callback.call(null, false)
                         }
                     }
+                });
+            },
 
-                    if(!inArray) {
-                        mapData.connectedUsers.push(userId);
-                        collection.save(mapData, function(error) {
-                            if(!error) {
-                                callback.call(null, true)
+            removeConnectedUser: function(userId, callback) {
+                userId = new db.ObjectId(userId);
+
+                mapsCollection.findOne({_id: _id}, function(error, mapData) {
+                    if(!error) {
+                        var index = -1;
+                        for(var i = 0, len = mapData.connectedUsers.length; i < len; i++) {
+                            if(mapData.connectedUsers[i].id == userId.id) {
+                                index = i;
+                                break;
                             }
-                        });
-                    } else {
-                        callback.call(null, false)
-                    }
-                }
-            });
-        }
+                        }
 
-        function removeConnectedUser(userId, callback) {
-            userId = new db.ObjectId(userId);
-
-            collection.findOne({_id: _id}, function(error, mapData) {
-                if(!error) {
-                    var index = -1;
-                    for(var i = 0, len = mapData.connectedUsers.length; i < len; i++) {
-                        if(mapData.connectedUsers[i].id == userId.id) {
-                            index = i;
-                            break;
+                        if(index >= 0) {
+                            mapData.connectedUsers.splice(index, 1);
+                            mapsCollection.save(mapData, function(error) {
+                                if(!error) {
+                                    callback.call(null, true)
+                                }
+                            });
+                        } else {
+                            callback.call(null, false)
                         }
                     }
+                });
+            },
 
-                    if(index >= 0) {
-                        mapData.connectedUsers.splice(index, 1);
-                        collection.save(mapData, function(error) {
-                            if(!error) {
-                                callback.call(null, true)
+            removeConnectedUsers: function(callback) {
+                mapsCollection.findOne({_id: _id}, function(error, mapData) {
+                    if(!error) {
+                        if(mapData.connectedUsers.length) {
+                            mapData.connectedUsers = [];
+                            mapsCollection.save(mapData, function(error) {
+                                if(!error) {
+                                    callback.call(null, true)
+                                }
+                            });
+                        } else {
+                            callback.call(null, false)
+                        }
+                    }
+                });
+            },
+
+            getConnectedUsers: function(callback) {
+                mapsCollection.findOne({_id: _id}, function(error, mapData) {
+                    if(!error) {
+                        callback.call(null, mapData.connectedUsers)
+                    }
+                });
+            },
+
+            getCompleteLevel: function(callback) {
+                piecesCollection.find({mapId: _id}, function(error, cursor) {
+                    cursor.toArray(function(error, pieces) {
+                        var totalCount = pieces.length;
+                        var completedCount = 0;
+
+                        for (var i = 0; i < totalCount; i++) {
+                            if(pieces[i].x == pieces[i].realX &&
+                               pieces[i].y == pieces[i].realY) {
+                                completedCount++;
                             }
-                        });
-                    } else {
-                        callback.call(null, false)
-                    }
-                }
-            });
-        }
+                        }
+                        callback.call(null, parseInt(100 / totalCount * completedCount));
+                    });
+                });
+            },
 
-        function removeConnectedUsers(callback) {
-            collection.findOne({_id: _id}, function(error, mapData) {
-                if(!error) {
-                    if(mapData.connectedUsers.length) {
-                        mapData.connectedUsers = [];
-                        collection.save(mapData, function(error) {
-                            if(!error) {
-                                callback.call(null, true)
-                            }
-                        });
-                    } else {
-                        callback.call(null, false)
-                    }
-                }
-            });
-        }
-
-        function getConnectedUsers(callback) {
-            collection.findOne({_id: _id}, function(error, mapData) {
-                if(!error) {
-                    callback.call(null, mapData.connectedUsers)
-                }
-            });
-        }
-
-        function getCompleteLevel(callback) {
-            collection.findOne({_id: _id}, function(error, mapData) {
-                var pieces = mapData.pieces.concat();
-                var totalCount = pieces.length;
-                var completedCount = 0;
-
-                for (var i = 0; i < totalCount; i++) {
-                    if(pieces[i].x == pieces[i].realX &&
-                       pieces[i].y == pieces[i].realY) {
-                        completedCount++;
-                    }
-                }
-                callback.call(null, parseInt(100 / totalCount * completedCount));
-            });
-        }
-
-        function getPiece(x, y, callback) {
-            var clause = {_id: _id, pieces: {$elemMatch: {x: +x, y: +y}}};
-            collection.findOne(clause, function(error, mapData) {
-                
-                if (!error && mapData != null) {
+            getPiece: function(x, y, callback) {
+                var clause = {mapId: _id, x: +x, y: +y};
+                piecesCollection.findOne(clause, function(error, pieceData) {
                     var result = null;
-                
-                    for(var i = 0; i < mapData.pieces.length; i++) {
-                        var piece = mapData.pieces[i];
-                        if(piece.x == x && piece.y == y) {
-                            result = piece;
-                            break;
-                        }
+                    if (!error && pieceData != null) {
+                        result = pieceData;
                     }
                     callback.call(null, result);
-                }
-            });
-        }
+                });
+            },
 
-        callback.call(this, {
-            lock: lock,
-            unlock: unlock,
-            flip: flip,
-            unlockAll: unlockAll,
-            getCompactInfo: getCompactInfo,
-            addConnectedUser: addConnectedUser,
-            removeConnectedUser: removeConnectedUser,
-            getConnectedUsers: getConnectedUsers,
-            getCompleteLevel: getCompleteLevel,
-            getPiece: getPiece,
             get _id () {
                 return _id;
             }
         });
-    }
+    };
 
     return {
         addMap: function(width, height, pieceSize, imageSrc, name, callback) {
+            var pieces = generatePieces(width, height, pieceSize);
+            var piecesCount = pieces.length;
+
             var mapData = {
                 name: name,
+                visible: false,
+
                 imageSrc: imageSrc,
                 pieceSize: pieceSize,
+                piecesCount: piecesCount,
+
                 width: width,
                 height: height,
-                connectedUsers: [],
                 created: +(new Date())+'',
-                pieces: generatePieces(width, height, pieceSize)
+                connectedUsers: []
             };
 
-            collection.insert(mapData, function(error, ids) {
-                Map(ids[0]._id.toHexString(), callback);
+
+            mapsCollection.insert(mapData, function(error, ids) {
+                var mapId = ids[0]._id;
+
+                for (var i = 0, j = 1; i < piecesCount; ++i) {
+                    pieces[i].mapId = mapId;
+                    piecesCollection.insert(pieces[i], function(error, ids) {
+                        ++j;
+
+                        if (j == piecesCount) {
+                            mapsCollection.update(
+                                {_id: mapId},
+                                {$set: {"visible": true}},
+                                function(error, result) {
+                                    if (!error) {
+                                        Map(mapId.toHexString(), callback);
+                                    }
+                                });
+                        }
+                    });
+                }
             });
         },
 
         getLastMap: function(callback) {
-
-            var clause = {created:{$lt:+(new Date())+''}};
-            var options = {sort: [['created', -1]], limit: 1};
-
-            collection.find(clause, options, function(error, cursor) {
+            mapsCollection.find({visible: true, created:{$lt:+(new Date())+''}}, {sort: [['created', -1]], limit: 1}, function(error, cursor) {
                 cursor.toArray(function(error, items) {
                     Map(items[0]._id.toHexString(), callback);
                 });
@@ -271,7 +272,7 @@ function loader(collection) {
             Map(id, callback);
         }
     };
-}
+};
 
 function toInt(value) {
     return parseInt(value, 10);
@@ -291,7 +292,8 @@ function generatePiece(x, y) {
         bottom: rand(1),
         left: rand(1),
         right: rand(1),
-        locked: ''
+        locked: '',
+        mapId: ''
     };
 }
 
