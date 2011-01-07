@@ -42,6 +42,13 @@ Puzzle.Pices = function(data) {
         });
     }
 
+    function cover(pice) {
+        drawer.cover({
+            ctx: pice.ctx,
+            ears: pice.ears
+        });
+    }
+
     function hasPoint(pice, x, y) {
         var s = settings.piceSize / 6;
         var xc = pice.xCoord;
@@ -75,6 +82,9 @@ Puzzle.Pices = function(data) {
             ears: {
                 left: null, bottom: null,
                 right: null, top: null
+            },
+            get onRightPlace() {
+                return pice.realX == pice.x && pice.realY == pice.y;
             }
         }, data);
 
@@ -86,11 +96,23 @@ Puzzle.Pices = function(data) {
 
             draw: function() {
                 draw(pice);
+
+                if(pice.locked) {
+                    lock(pice);
+                }
+
+                if(pice.selected) {
+                    select(pice);
+                }
+
+                if(!pice.locked && !pice.selected && !pice.onRightPlace) {
+                    cover(pice);
+                }
             },
 
             select: function() {
                 pice.selected = true;
-                select(pice);
+                this.draw();
             },
 
             unselect: function() {
@@ -100,7 +122,7 @@ Puzzle.Pices = function(data) {
 
             lock: function() {
                 pice.locked = true;
-                lock(pice);
+                this.draw();
             },
 
             unlock: function() {

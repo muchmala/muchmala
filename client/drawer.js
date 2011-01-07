@@ -123,9 +123,17 @@ Puzzle.piceDrawer = function(settings) {
         settings.ctx.fillRect(center-1, center, 2, 4);
     }
 
+    function cover(settings) {
+        var center = toInt(piceSize / 2);
+        drawPath(settings.ctx, settings.ears);
+        settings.ctx.fillStyle = 'rgba(255,255,255,0.3)';
+        settings.ctx.fill();        
+    }
+
     return {
         draw: draw,
         lock: lock,
+        cover: cover,
         select: select
     };
 };

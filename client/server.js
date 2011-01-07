@@ -10,9 +10,9 @@ Puzzle.Server = function server() {
     
     socket.on('message', function(data) {
         var parsed = JSON.parse(data);
+        log('received ' + parsed.event);
         if(parsed.event != null &&
            observer.isRegistered(parsed.event)) {
-            log('received ' + parsed.event);
             observer.fire(parsed.event, parsed.data);
         }
     });
@@ -101,12 +101,13 @@ Puzzle.Server = function server() {
 Puzzle.Server.events = {
     map: 'map',
     user: 'user',
-    locked: 'locked',
-    unlocked: 'unlocked',
-    selected: 'selected',
-    unselected: 'unselected',
-    initialized: 'initialized',
-    connectedUsersCount: 'connectedUsersCount',
     connected: 'connected',
-    flipped: 'flipped'
+    initialized: 'initialized',
+    pieceLocked: 'pieceLocked',
+    pieceSelected: 'pieceSelected',
+    piecesUnlocked: 'piecesUnlocked',
+    pieceUnselected: 'pieceUnselected',
+    piecesFlipped: 'piecesFlipped',
+    completeLevel: 'completeLevel',
+    connectedUsersCount: 'connectedUsersCount'
 };

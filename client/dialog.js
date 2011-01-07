@@ -1,4 +1,9 @@
-Puzzle.dialog = function(content) {
+Puzzle.Dialog = function(content) {
+    var events = Puzzle.Dialog.events;
+    var observer = Utils.Observer();
+    observer.register(events.shown);
+    observer.register(events.hidden);
+    
     var element = $('<div class="dialog"></div>');
     var close = $('<span class="close">close</span>');
     element.append(close)
@@ -7,7 +12,7 @@ Puzzle.dialog = function(content) {
 
     var elementHeight = $(element).height();
     var elementWidth = $(element).width();
-
+    var shown = false;
     close.click(hide);
 
     function show() {
@@ -20,7 +25,10 @@ Puzzle.dialog = function(content) {
 
         element.animate({
             top: toInt(windowHeight/2) - toInt(element.height()/2)
-        }, 100);
+        }, 100, function() {
+            shown = true;
+            observer.shown();
+        });
     }
 
     function shake() {
@@ -38,18 +46,29 @@ Puzzle.dialog = function(content) {
             top: elementHeight * -1
         }, 100, function() {
             element.hide();
+            shown = false;
+            observer.hidden();
         });
     }
 
     return {
         show: show,
         hide: hide,
-        shake: shake
-    }
+        shake: shake,
+        get shown() {
+            return shown;
+        },
+        subscribe: observer.subscribe
+    };
 };
 
-Puzzle.userNameDialog = function() {
-    var events = Puzzle.userNameDialog.events;
+Puzzle.Dialog.events = {
+    shown: 'shown',
+    hidden: 'hidden'
+};
+
+Puzzle.UserNameDialog = function() {
+    var events = Puzzle.UserNameDialog.events;
     var observer = Utils.Observer();
     observer.register(events.entered);
 
@@ -58,7 +77,10 @@ Puzzle.userNameDialog = function() {
     element.append('<div class="title">Your name:</div>')
            .append(input);
 
-    var dialog = Puzzle.dialog(element);
+    var dialog = Puzzle.Dialog(element);
+    dialog.subscribe(Puzzle.Dialog.events.shown, function() {
+        input.focus();
+    });
 
     input.keypress(function(event) {
         if(event.which == 13) {
@@ -72,16 +94,11 @@ Puzzle.userNameDialog = function() {
         }
     });
 
-    return {
-        show: function() {
-            dialog.show();
-            input.focus();
-        },
-        hide: dialog.hide,
-        subscribe: observer.subscribe
-    }
+    dialog.subscribe = observer.subscribe;
+    
+    return dialog;
 };
 
-Puzzle.userNameDialog.events = {
+Puzzle.UserNameDialog.events = {
     entered: 'entered'
 };

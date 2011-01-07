@@ -1,19 +1,13 @@
 #panel {
     display:none;
     position:absolute;
-    top:-245px;
-    right:-30px;
+    top:10px;
+    right:10px;
     width:170px;
     background:rgba(0,0,0,0.7);
     color:#fff;
-    border-bottom-left-radius:10px;
-    -moz-border-radius-bottomleft:10px;
     -webkit-box-shadow:0 0 5px #fff;
     -moz-box-shadow:0 0 5px #fff;
-}
-
-#panel.clickable {
-    cursor:pointer;
 }
 
 #panel .content {
@@ -23,6 +17,8 @@
 }
 
 #panel .logo {
+    display:none;
+    margin-right:10px;
     color:#ccc;
 }
 
@@ -36,6 +32,7 @@
 }
 
 #panel .backgrounds {
+    display:none;
     text-align:left;
 }
 
@@ -51,36 +48,46 @@
     width:8px;
     height:8px;
     border:1px solid #ddd;
+    cursor:pointer;
+}
+
+#panel .backgrounds li:hover,
+#panel .backgrounds li.selected {
+    margin:4px 4px -1px -1px;
+    width:8px;
+    height:8px;
+    border:2px solid #ddd;
 }
 
 #panel .statistics {
+    display:none;
     clear:both;
     line-height:14px;
     text-align:left;
 }
 
 #panel .statistics span {
+    float:right;
     display:inline-block;
-    padding-right:5px;
-    width:70px;
+    padding-left:5px;
+    width:40px;
     font-family:Georgia;
-    font-size:12px;
-    text-align:right;
 }
 
-#panel .leadersboard {
-    margin-top:5px;
-    line-height:12px;
-    text-align:left;
-}
-
-#panel .leadersboard .borders {
+#panel .borders {
     margin:5px 10px 0 0;
     padding:5px;
     border:1px solid #fff;
     background:rgba(0,0,0,0.5);
     -moz-border-radius:5px;
     border-radius:5px;
+}
+
+#panel .leadersboard {
+    display:none;
+    margin:5px 0;
+    line-height:12px;
+    text-align:left;
 }
 
 #panel .leadersboard .name {
@@ -93,8 +100,7 @@
 }
 
 #panel .user {
-    margin-top:5px;
-    text-align:left;
+    margin-right:10px;
 }
 
 #panel .user .num {
@@ -106,12 +112,42 @@
 }
 
 #panel .user .name {
+    display:inline-block;
+    margin-bottom:2px;
     border-bottom:1px dotted #ddd;
     font-size:10px;
     color:#fff;
     cursor:pointer;
 }
 
+#panel .user .name:hover {
+    border-bottom-color:transparent;
+}
+
 #panel .user .pts {
     color:#ddd;
+}
+
+#panel .expcol {
+    display:inline-block;
+    position:absolute;
+    top:5px;
+    right:5px;
+    height:14px;
+    width:14px;
+    line-height:12px;
+    background:#fff;
+    color:#000;
+    text-align:center;
+    cursor:pointer;
+    -webkit-border-radius:7px;
+    -moz-border-radius:7px;
+}
+
+#panel .expcol:before {
+    content: '+';
+}
+
+#panel .expcol.opened:before {
+    content: '-';
 }
