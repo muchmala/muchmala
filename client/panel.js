@@ -1,43 +1,32 @@
-Puzzle.Panel = function(element) {
-    var events = Puzzle.Panel.events;
+Puzzle.Panel = function panel(element) {
     var observer = Utils.Observer();
-    observer.register(events.userNameChanged);
-
-    var height = element.height();
-    var initTop = (height - 30) * -1;
-    var initRight = -30;
-    element.css('top', initTop);
-    element.css('right', initRight);
+    observer.register(panel.events.userNameChanged);
     element.show();
-
-    element.click(function() {
-        element.animate({
-            right: 0,
-            top: 0
-        }, 200, function() {
-            element.removeClass('clickable');
-        });
-    });
     
-    element.mouseleave(function() {
-        element.animate({
-            right: initRight,
-            top: initTop
-        }, 200, function() {
-            element.addClass('clickable');
-        });
+    $('.expcol', element).click(function() {
+        if($('.expcol', element).hasClass('opened')) {
+            $('.logo', element).hide();
+            $('.statistics', element).hide();
+            $('.leadersboard', element).hide();
+            $('.expcol', element).removeClass('opened');
+        } else {
+            $('.logo', element).show();
+            $('.statistics', element).show();
+            $('.leadersboard', element).show();
+            $('.expcol', element).addClass('opened');
+        }
     });
 
-    var userNameDialog = Puzzle.userNameDialog();
+    var userNameDialog = Puzzle.UserNameDialog();
     var userNameElement = element.find('.user .name');
 
     userNameElement.click(function(event) {
-        userNameDialog.show();
-        event.stopPropagation();
+        if(!userNameDialog.shown) {
+            userNameDialog.show();
+        }
     });
 
-    userNameDialog.subscribe(Puzzle.userNameDialog.events.entered, function(value) {
-        setUsername(value);
+    userNameDialog.subscribe(Puzzle.UserNameDialog.events.entered, function(value) {
         observer.userNameChanged(value);
     });
 
@@ -53,10 +42,40 @@ Puzzle.Panel = function(element) {
         element.find('.statistics .connected').text(count);
     }
 
+    function setCompleteLevel(percent) {
+        element.find('.statistics .complete').text(percent+'%');
+    }
+
+    function setTimeSpent(createdAtTime) {
+        updateTimeSpent(createdAtTime);
+
+        setInterval(function() {
+            updateTimeSpent(createdAtTime);
+        }, 60000);
+    }
+
+    function updateTimeSpent(createdAtTime) {
+        var diff = parseInt((+(new Date()) - createdAtTime) / 1000);
+        var hours = parseInt(diff / 3600);
+        var minutes = parseInt((diff % 3600) / 60);
+
+        if((hours+'').length == 1) {
+            hours = '0' + hours;
+        }
+
+        if((minutes+'').length == 1) {
+            minutes = '0' + minutes;
+        }
+
+        element.find('.statistics .timeSpent').text(hours + ':' + minutes);
+    }
+
     return {
         subscribe: observer.subscribe,
         setConnectedUsersCount: setConnectedUsersCount,
+        setCompleteLevel: setCompleteLevel,
         setUsername: setUsername,
+        setTimeSpent: setTimeSpent,
         setScore: setScore
     }
 };

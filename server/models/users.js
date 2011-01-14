@@ -32,6 +32,10 @@ function loader(collection) {
         });
     }
 
+    function getUsersLinked2Map(mapId, callback) {
+
+    }
+
     function user(userId) {
 
         function getData(callback) {
@@ -45,8 +49,7 @@ function loader(collection) {
         }
 
         function updateData(data, callback) {
-            var update = {$set: data};
-            collection.update({_id: userId}, update, function(err, userData) {
+            collection.update({_id: userId}, {$set: data}, function(err, userData) {
                 if(!err) {
                     callback.call(null, userData);
                 } else {
@@ -56,16 +59,25 @@ function loader(collection) {
         }
 
         function updateMapData(mapId, data, callback) {
+            var clause = {_id: userId, maps: {$elemMatch: {mapId: mapId}}, $atomic : 1};
+            var update = {$set: {"maps.$.score": data.score}};
+
+            collection.update(clause, update, function(err, userData) {
+                if(!err) {
+                    callback.call(null, userData);
+                }
+            });
+        }
+
+        function addScore(mapId, points, callback) {
             getData(function(userData) {
                 for(var i in userData.maps) {
-                    if(userData.maps[i].mapId == mapId) {
-                        userData.maps[i].score = data.score;
-                        collection.save(userData, function(err, userData) {
-                            if(!err) {
-                                callback.call(null, userData);
-                            } else {
-                                throw err;
-                            }
+                    if(userData.maps[i].mapId.id == mapId.id) {
+                        var currentScore = userData.maps[i].score + points;
+                        var totalScore = userData.score + points;
+
+                        updateData({score: totalScore}, function() {
+                            updateMapData(mapId, {score: currentScore}, callback);
                         });
                         break;
                     }
@@ -112,13 +124,15 @@ function loader(collection) {
             updateData: updateData,
             updateMapData: updateMapData,
             link2Map: link2Map,
-            linked2Map: linked2Map
+            linked2Map: linked2Map,
+            addScore: addScore
         };
     }
 
     return {
         addUser: addUser,
-        getUser: getUser
+        getUser: getUser,
+        getUsersLinked2Map: getUsersLinked2Map
     };
 }
 

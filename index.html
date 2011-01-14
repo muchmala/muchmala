@@ -13,46 +13,20 @@
         <div id="binder">
             <div id="viewport"></div>
         </div>
-        <div id="panel" class="clickable">
+        <div id="panel">
             <div class="content">
+                <div class="expcol"></div>
                 <div class="logo">
                     Medness? No! This is
                     <h1>Puzzle</h1>
                 </div>
-                <div class="backgrounds">
-                    Backgrounds:
-                    <ul>
-                        <li style="background:#fff;"></li>
-                        <li style="background:#000;"></li>
-                        <li style="background:#f00;"></li>
-                        <li style="background:#0f0;"></li>
-                        <li style="background:#00f;"></li>
-                        <li style="background:#0ff;"></li>
-                        <li style="background:#ff0;"></li>
-                        <li style="background:#f0f;"></li>
-                        <li style="background:#c0c0c0;"></li>
-                        <li style="background:#800000;"></li>
-                        <li style="background:#808000;"></li>
-                        <li style="background:#008000;"></li>
-                        <li style="background:#008080;"></li>
-                        <li style="background:#000080;"></li>
-                        <li style="background:#800080;"></li>
-                        <li style="background:#6a5acd;"></li>
-                        <li style="background:#ffd700;"></li>
-                        <li style="background:#ff4500;"></li>
-                        <li style="background:#ff8c00;"></li>
-                        <li style="background:#a52a2a;"></li>
-                        <li style="background:#f0f8ff;"></li>
-                        <li style="background:#63C;"></li>
-                        <li style="background:#09F;"></li>
-                        <li style="background:#36F;"></li>
-                    </ul>
-                </div>
                 <div class="statistics">
                     Statistics:<br/>
-                    <span class="connected">8</span>connected<br/>
-                    <span>54%</span>complete<br/>
-                    <span>11:32</span>time spent<br/>
+                    <div class="borders">
+                        connected<span class="connected"></span><br/>
+                        complete<span class="complete"></span><br/>
+                        time spent<span class="timeSpent">11:32</span><br/>
+                    </div>
                 </div>
                 <div class="leadersboard">
                     Leaders board:<br/>
@@ -69,7 +43,8 @@
                     </div>
                 </div>
                 <div class="user">
-                    <span class="name"></span>
+                    <span class="name"></span><br/>
+                    <span class="score">Score:</span>
                     <span class="num"></span>
                     <span class="pts">pts.</span>
                 </div>
@@ -80,8 +55,10 @@
     <div id="loading">Loading puzzle</div>
 
     <script src="http://io.puzzle.home/socket.io/socket.io.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/jquery-ui.min.js"></script>
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/jquery-ui.min.js"></script>-->
+    <script src="/jquery.js"></script>
+    <script src="/jquery-ui.js"></script>
     <script src="client/functions.js"></script>
     <script src="client/drawer.js"></script>
     <script src="client/observer.js"></script>

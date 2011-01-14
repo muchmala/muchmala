@@ -58,7 +58,7 @@ Puzzle.FieldHelper = function(field, pices) {
                 var pice = field.getPice(x, y);
 
                 if(pice.selected) {
-                    pice.unselect();
+                    pice.select();
                 }
 
                 if(pice.realX != cell.x || pice.realY != cell.y) {

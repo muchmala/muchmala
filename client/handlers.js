@@ -1,78 +1,79 @@
 Puzzle.handlers = function(server, layout, panel) {
+
+    var handlers = {
+        connected: function() {
+            server.initialize(1, Puzzle.storage.getUserId());
+        },
+
+        initialized: function() {
+            server.getMap();
+            server.getUserData();
+        },
+        
+        map: function(data) {
+            if(!image) {
+                image = new Image();
+                image.src = data.imageSrc;
+                image.onload = function() {
+                    init(data);
+                };
+            } else {
+                field.updateField(data.map);
+            }
+        },
+
+        user: function(data) {
+            Puzzle.storage.setUserId(data.id);
+            panel.setUsername(data.name);
+            panel.setScore(data.currentScore);
+        },
+
+        pieceLocked: function(coords) {
+            field.getPice(coords[0], coords[1]).lock();
+        },
+
+        piecesUnlocked: function(coords) {
+            for(var i = 0, len = coords.length; i < len; i++) {
+                field.getPice(coords[i][0], coords[i][1]).unlock();
+            }
+        },
+
+        pieceSelected: function(coords) {
+            selected = field.getPice(coords[0], coords[1]);
+            selected.select();
+        },
+
+        pieceUnselected: function(coords) {
+            field.getPice(coords[0], coords[1]).unselect();
+        },
+
+        piecesFlipped: function(coord) {
+            field.flipPicesByCoords(coord);
+        },
+
+        connectedUsersCount: function(count) {
+            panel.setConnectedUsersCount(count);
+        },
+
+        completeLevel: function(percent) {
+            panel.setCompleteLevel(percent);
+        }
+    };
+
     var field, pices, image, selected;
     var fieldEvents = Puzzle.Field.events;
     var panelEvents = Puzzle.Panel.events;
     var serverEvents = Puzzle.Server.events;
 
-    server.subscribe(serverEvents.map, mapHandler);
-    server.subscribe(serverEvents.user, userHandler);
-    server.subscribe(serverEvents.locked, pieceLockedHandler);
-    server.subscribe(serverEvents.unlocked, pieceUnlockedHandler);
-    server.subscribe(serverEvents.selected, pieceSelectedHandler);
-    server.subscribe(serverEvents.unselected, pieceUnselectedHandler);
-    server.subscribe(serverEvents.initialized, initializedHandler);
-    server.subscribe(serverEvents.connectedUsersCount, connectedUsersCountHandler);
-    server.subscribe(serverEvents.connected, connectedHandler);
-    server.subscribe(serverEvents.flipped, piecesFlippedHandler);
+    for(var i in serverEvents) {
+        if(serverEvents[i] in handlers) {
+            server.subscribe(serverEvents[i], handlers[i]);
+        }
+    }
 
     panel.subscribe(panelEvents.userNameChanged, server.updateUserName);
-
     server.connect();
     layout.showLoading();
-
-    function mapHandler(data) {
-        if(!image) {
-            image = new Image();
-            image.src = data.imageSrc;
-            image.onload = function() {
-                init(data);
-            };
-        } else {
-            field.updateField(data.map);
-        }
-    }
-
-    function userHandler(data) {
-        Puzzle.storage.setUserId(data.id);
-        panel.setUsername(data.name);
-        panel.setScore(data.score);
-    }
-
-    function pieceLockedHandler(coords) {
-        field.getPice(coords[0], coords[1]).lock();
-    }
-
-    function pieceUnlockedHandler(coords) {
-        for(var i = 0, len = coords.length; i < len; i++) {
-            field.getPice(coords[i][0], coords[i][1]).unlock();
-        }
-    }
-
-    function pieceSelectedHandler(coords) {
-        selected = field.getPice(coords[0], coords[1]);
-        selected.select();
-    }
-
-    function pieceUnselectedHandler(coords) {
-        field.getPice(coords[0], coords[1]).unselect();
-    }
-
-    function connectedHandler() {
-        server.initialize(1, Puzzle.storage.getUserId());
-    }
-
-    function initializedHandler() {
-        server.getMap();
-        server.getUserData();
-    }
-
-    function piecesFlippedHandler(coord) {
-        field.flipPicesByCoords(coord);
-    }
-
-    function connectedUsersCountHandler(count) {
-        panel.setConnectedUsersCount(count);
-    }
 
     function init(data) {
         field = Puzzle.FieldHelper(
@@ -90,6 +91,8 @@ Puzzle.handlers = function(server, layout, panel) {
         var vQnt = data.map[0].length;
         var hQnt = data.map.length;
 
+        panel.setTimeSpent(data.created);
+
         field.subscribe(fieldEvents.clicked, processClickedPice);
         field.buildField(data.map);
         
@@ -98,7 +101,7 @@ Puzzle.handlers = function(server, layout, panel) {
     }
     
     function processClickedPice(pice) {
-        if(!pice.locked) {
+        if(!pice.locked && !pice.onRightPlace) {
             if(pice.selected) {
                 server.unselectPice(pice.x, pice.y);
             } else if(!selected || !selected.selected) {

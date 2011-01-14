@@ -72,6 +72,7 @@ var loader = function(mapsCollection, piecesCollection) {
                         id: id,
                         imageSrc: mapInfo.imageSrc,
                         piceSize: mapInfo.pieceSize,
+                        created: mapInfo.created,
                         map: []
                     };
 
@@ -182,6 +183,34 @@ var loader = function(mapsCollection, piecesCollection) {
                 });
             },
 
+            getCompleteLevel: function(callback) {
+                piecesCollection.find({mapId: _id}, function(error, cursor) {
+                    cursor.toArray(function(error, pieces) {
+                        var totalCount = pieces.length;
+                        var completedCount = 0;
+
+                        for (var i = 0; i < totalCount; i++) {
+                            if(pieces[i].x == pieces[i].realX &&
+                               pieces[i].y == pieces[i].realY) {
+                                completedCount++;
+                            }
+                        }
+                        callback.call(null, parseInt(100 / totalCount * completedCount));
+                    });
+                });
+            },
+
+            getPiece: function(x, y, callback) {
+                var clause = {mapId: _id, x: +x, y: +y};
+                piecesCollection.findOne(clause, function(error, pieceData) {
+                    var result = null;
+                    if (!error && pieceData != null) {
+                        result = pieceData;
+                    }
+                    callback.call(null, result);
+                });
+            },
+
             get _id () {
                 return _id;
             }
@@ -203,7 +232,7 @@ var loader = function(mapsCollection, piecesCollection) {
 
                 width: width,
                 height: height,
-                created: new Date(),
+                created: +(new Date())+'',
                 connectedUsers: []
             };
 
@@ -232,7 +261,7 @@ var loader = function(mapsCollection, piecesCollection) {
         },
 
         getLastMap: function(callback) {
-            mapsCollection.find({visible: true, created:{$lt:new Date()}}, {sort: [['created', -1]], limit: 1}, function(error, cursor) {
+            mapsCollection.find({visible: true, created:{$lt:+(new Date())+''}}, {sort: [['created', -1]], limit: 1}, function(error, cursor) {
                 cursor.toArray(function(error, items) {
                     Map(items[0]._id.toHexString(), callback);
                 });
