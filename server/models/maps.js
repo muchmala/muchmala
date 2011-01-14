@@ -214,8 +214,6 @@ var loader = function(mapsCollection, piecesCollection) {
                 for (var i = 0, j = 1; i < piecesCount; ++i) {
                     pieces[i].mapId = mapId;
                     piecesCollection.insert(pieces[i], function(error, ids) {
-                        ++j;
-
                         if (j == piecesCount) {
                             mapsCollection.update(
                                 {_id: mapId},
@@ -226,6 +224,8 @@ var loader = function(mapsCollection, piecesCollection) {
                                     }
                                 });
                         }
+
+                        ++j;
                     });
                 }
             });
