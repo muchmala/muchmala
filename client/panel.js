@@ -2,7 +2,7 @@ Puzzle.Panel = function panel(element) {
     var observer = Utils.Observer();
     observer.register(panel.events.userNameChanged);
     element.show();
-    
+
     $('.expcol', element).click(function() {
         if($('.expcol', element).hasClass('opened')) {
             $('.logo', element).hide();
@@ -47,15 +47,16 @@ Puzzle.Panel = function panel(element) {
     }
 
     function setTimeSpent(createdAtTime) {
-        updateTimeSpent(createdAtTime);
+        var creationDate = new Date(createdAtTime);
+        updateTimeSpent(creationDate);
 
         setInterval(function() {
-            updateTimeSpent(createdAtTime);
+            updateTimeSpent(creationDate);
         }, 60000);
     }
 
     function updateTimeSpent(createdAtTime) {
-        var diff = parseInt((+(new Date()) - createdAtTime) / 1000);
+        var diff = parseInt((new Date() - createdAtTime) / 1000);
         var hours = parseInt(diff / 3600);
         var minutes = parseInt((diff % 3600) / 60);
 

@@ -232,7 +232,7 @@ var loader = function(mapsCollection, piecesCollection) {
 
                 width: width,
                 height: height,
-                created: +(new Date())+'',
+                created: new Date(),
                 connectedUsers: []
             };
 
@@ -261,7 +261,7 @@ var loader = function(mapsCollection, piecesCollection) {
         },
 
         getLastMap: function(callback) {
-            mapsCollection.find({visible: true, created:{$lt:+(new Date())+''}}, {sort: [['created', -1]], limit: 1}, function(error, cursor) {
+            mapsCollection.find({visible: true, created:{$lt:new Date()}}, {sort: [['created', -1]], limit: 1}, function(error, cursor) {
                 cursor.toArray(function(error, items) {
                     Map(items[0]._id.toHexString(), callback);
                 });
