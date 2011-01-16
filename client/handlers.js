@@ -26,6 +26,7 @@ Puzzle.handlers = function(server, layout, panel) {
             Puzzle.storage.setUserId(data.id);
             panel.setUsername(data.name);
             panel.setScore(data.currentScore);
+            panel.show();
         },
 
         pieceLocked: function(coords) {

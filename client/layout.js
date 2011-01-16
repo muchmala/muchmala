@@ -101,7 +101,7 @@ Puzzle.Layout = function(viewport, display, binder, loading) {
 
     function showLoading() {
         loading.show();
-        loading.animate({top: 0}, 200);
+        loading.animate({top: 10}, 200);
     }
 
     function hideLoading() {

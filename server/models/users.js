@@ -39,9 +39,10 @@ exports.load = function(collection) {
                     var result = [];
 
                     for(var i = 0; i < users.length; i++) {
-                        var user = users[i];
+                        var user = users[i]
+                        var curMapScore = 0;
 
-                        for(j = 0; j < user.maps.length; j++) {
+                        for(var j = 0; j < user.maps.length; j++) {
                             if(user.maps[j].mapId.id == mapId.id) {
                                 curMapScore = user.maps[j].score;
                             }

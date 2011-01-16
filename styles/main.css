@@ -28,21 +28,17 @@ input {
     top:-28px;
     left:50%;
     margin-left:-70px;
-    padding-left:10px;
+    padding:0 10px;
     height:28px;
     width:95px;
     line-height:26px;
-    background:rgba(0,0,0,0.7) url('/images/loadinfo.net.gif') no-repeat 83px 5px;
+    background:rgba(0,0,0,0.7);
     color:#fff;
     font-size:10px;
-    border-bottom-left-radius:10px;
-    border-bottom-right-radius:10px;
-    -moz-border-radius-bottomleft:10px;
-    -moz-border-radius-bottomright:10px;
     -webkit-box-shadow:0 0 5px #fff;
     -moz-box-shadow:0 0 5px #fff;
 }
 
-#loading img {
-    display:inline-block;
+#loading div {
+    background:url('/images/loadinfo.net.gif') no-repeat right 5px;
 }

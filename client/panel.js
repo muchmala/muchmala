@@ -1,7 +1,6 @@
 Puzzle.Panel = function panel(element) {
     var observer = Utils.Observer();
     observer.register(panel.events.userNameChanged);
-    element.show();
 
     $('.expcol', element).click(function() {
         if($('.expcol', element).hasClass('opened')) {
@@ -76,9 +75,13 @@ Puzzle.Panel = function panel(element) {
         leadersBoard.empty();
         for(var i = 0, len = users.length; i < len; i++) {
             leadersBoard.append('<span class="name">'+users[i].name+'</span>');
-            leadersBoard.append('<span class="num">'+users[i].curMapScore+'</span>');
+            leadersBoard.append('<span class="num">'+users[i].score+'</span>');
             leadersBoard.append('<span class="pts">pts.</span><br/>');
         }
+    }
+
+    function show() {
+        element.show();
     }
 
     return {
@@ -88,7 +91,8 @@ Puzzle.Panel = function panel(element) {
         setCompleteLevel: setCompleteLevel,
         setUsername: setUsername,
         setTimeSpent: setTimeSpent,
-        setScore: setScore
+        setScore: setScore,
+        show: show
     }
 };
 
