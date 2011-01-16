@@ -74,9 +74,9 @@ Puzzle.Panel = function panel(element) {
         var leadersBoard = element.find('.leadersboard .borders');
         leadersBoard.empty();
         for(var i = 0, len = users.length; i < len; i++) {
-            leadersBoard.append('<span class="name">'+users[i].name+'</span>');
-            leadersBoard.append('<span class="num">'+users[i].score+'</span>');
-            leadersBoard.append('<span class="pts">pts.</span><br/>');
+            leadersBoard.append('<span class="name">' + users[i].name + '</span>');
+            leadersBoard.append('<span class="num">' + users[i].curMapScore +
+                                '<span class="pts">pts.</span></span><br/>');
         }
     }
 

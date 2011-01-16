@@ -31,9 +31,8 @@ exports.load = function(collection) {
 
     function getUsersLinked2Map(mapId, callback) {
         var clause = {maps: {$elemMatch: {mapId: mapId}}};
-        var sort = {sort: [['score', -1]]};
 
-        collection.find(clause, sort, function(error, cursor) {
+        collection.find(clause, function(error, cursor) {
             if(!error) {
                 cursor.toArray(function(error, users) {
                     var result = [];
@@ -52,6 +51,10 @@ exports.load = function(collection) {
                             name: user.name,
                             score: user.score,
                             curMapScore: curMapScore
+                        });
+
+                        result.sort(function(a, b) {
+                            return b.curMapScore - a.curMapScore;
                         });
                     }
                     
