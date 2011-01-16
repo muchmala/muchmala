@@ -138,14 +138,14 @@ function handlers(client, maps, users) {
                 currentMap = map;
                 base.initialized = true;
                 base.send(events.initialized);
-
                 currentUser.linked2Map(currentMap._id, function(linked) {
                     if(!linked) {
                         currentUser.link2Map(currentMap._id);
                     }
                 });
-
-                currentMap.addConnectedUser(currentUser._id);
+                currentMap.addConnectedUser(currentUser._id, this);
+            },
+            function() {
                 currentMap.getConnectedUsers(this);
             },
             function(connectedUsers) {
@@ -155,7 +155,6 @@ function handlers(client, maps, users) {
 
             },
             function(completeLevel) {
-                currentMap.addConnectedUser(currentUser._id);
                 users.getUsersLinked2Map(currentMap._id, this);
                 base.send(events.completeLevel, completeLevel);
             },
