@@ -1,6 +1,6 @@
-var db = require('../db');
+var user = require('./user');
 
-function loader(collection) {
+exports.load = function(collection) {
     function addUser(name, callback) {
         var userData = {
             name: name,
@@ -10,7 +10,7 @@ function loader(collection) {
 
         collection.insert(userData, function(err, data) {
             if(!err) {
-                callback.call(null, user(data[0]._id));
+                callback.call(null, user.load(collection, data[0]._id));
             } else {
                 throw err;
             }
@@ -18,115 +18,46 @@ function loader(collection) {
     }
 
     function getUser(userId, callback) {
-        var _id = new db.ObjectId(userId);
-        collection.findOne({_id: _id}, function(err, userData) {
+        collection.findOne({_id: userId}, function(err, userData) {
             if(!err) {
                 if(userData) {
-                    callback.call(null, user(_id));
+                    callback.call(null, user.load(collection, userId));
                 } else {
                     callback.call(null);
                 }
-            } else {
-                throw err;
             }
         });
     }
 
     function getUsersLinked2Map(mapId, callback) {
+        var clause = {maps: {$elemMatch: {mapId: mapId}}};
+        var sort = {sort: [['score', -1]]};
 
-    }
+        collection.find(clause, sort, function(error, cursor) {
+            if(!error) {
+                cursor.toArray(function(error, users) {
+                    var result = [];
 
-    function user(userId) {
+                    for(var i = 0; i < users.length; i++) {
+                        var user = users[i];
 
-        function getData(callback) {
-            collection.findOne({_id: userId}, function(err, userData) {
-                if(!err) {
-                    callback.call(null, userData);
-                } else {
-                    throw err;
-                }
-            });
-        }
-
-        function updateData(data, callback) {
-            collection.update({_id: userId}, {$set: data}, function(err, userData) {
-                if(!err) {
-                    callback.call(null, userData);
-                } else {
-                    throw err;
-                }
-            });
-        }
-
-        function updateMapData(mapId, data, callback) {
-            var clause = {_id: userId, maps: {$elemMatch: {mapId: mapId}}, $atomic : 1};
-            var update = {$set: {"maps.$.score": data.score}};
-
-            collection.update(clause, update, function(err, userData) {
-                if(!err) {
-                    callback.call(null, userData);
-                }
-            });
-        }
-
-        function addScore(mapId, points, callback) {
-            getData(function(userData) {
-                for(var i in userData.maps) {
-                    if(userData.maps[i].mapId.id == mapId.id) {
-                        var currentScore = userData.maps[i].score + points;
-                        var totalScore = userData.score + points;
-
-                        updateData({score: totalScore}, function() {
-                            updateMapData(mapId, {score: currentScore}, callback);
-                        });
-                        break;
-                    }
-                }
-            });
-        }
-
-        function link2Map(mapId, callback) {
-            getData(function(userData) {
-                userData.maps.push({mapId: mapId, score: 0});
-                collection.save(userData, function(error, userData) {
-                    if(!error) {
-                        if(callback) {
-                            callback.call(null, userData);
+                        for(j = 0; j < user.maps.length; j++) {
+                            if(user.maps[j].mapId.id == mapId.id) {
+                                curMapScore = user.maps[j].score;
+                            }
                         }
+
+                        result.push({
+                            name: user.name,
+                            score: user.score,
+                            curMapScore: curMapScore
+                        });
                     }
+                    
+                    callback.call(null, result);
                 });
-            });
-        }
-
-        function linked2Map(mapId, callback) {
-            var clause = {
-                _id: userId, maps: {
-                    $elemMatch: {
-                        mapId: mapId
-                    }
-                }
-            };
-            collection.findOne(clause, function(error, userData) {
-                var linked = false;
-                if(!error && userData) {
-                    linked = true;
-                }
-                callback.call(null, linked);
-            });
-        }
-
-        return {
-            get _id() {
-                return userId;
-            },
-
-            getData: getData,
-            updateData: updateData,
-            updateMapData: updateMapData,
-            link2Map: link2Map,
-            linked2Map: linked2Map,
-            addScore: addScore
-        };
+            }
+        });
     }
 
     return {
@@ -134,6 +65,4 @@ function loader(collection) {
         getUser: getUser,
         getUsersLinked2Map: getUsersLinked2Map
     };
-}
-
-exports.load = loader;
+};

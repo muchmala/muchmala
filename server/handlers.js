@@ -1,3 +1,7 @@
+var handlersBase = require('./handlersBase');
+var flow = require('./flow');
+var db = require('./db');
+
 var events = {
     map: 'map', user: 'user',
     initialized: 'initialized',
@@ -7,11 +11,12 @@ var events = {
     pieceUnselected: 'pieceUnselected',
     piecesFlipped: 'piecesFlipped',
     completeLevel: 'completeLevel',
+    leadersBoard: 'leadersBoard',
     connectedUsersCount: 'connectedUsersCount'
 };
 
 function handlers(client, maps, users) {
-    var base = handlersBase(client);
+    var base = handlersBase.create(client);
     var currentMap = null;
     var currentUser = null;
     var countDown = null;
@@ -36,7 +41,7 @@ function handlers(client, maps, users) {
 
     base.handlers.initialize = function(params) {
         if(params.userId) {
-            users.getUser(params.userId, function(user) {
+            users.getUser(new db.ObjectId(params.userId), function(user) {
                 if(user) {
                     currentUser = user;
                     getMapThenLinkToUserAndSend();
@@ -46,38 +51,6 @@ function handlers(client, maps, users) {
             });
         } else {
             addAnonymous();
-        }
-
-        function addAnonymous() {
-            users.addUser('anonymous', function(user) {
-                currentUser = user;
-                getMapThenLinkToUserAndSend();
-            });
-        }
-
-        function getMapThenLinkToUserAndSend() {
-            maps.getLastMap(function(map) {
-                currentMap = map;
-
-                base.initialized = true;
-                base.send(events.initialized);
-
-                currentUser.linked2Map(currentMap._id, function(linked) {
-                    if(!linked) {
-                        currentUser.link2Map(currentMap._id);
-                    }
-                });
-
-                currentMap.addConnectedUser(currentUser._id, function() {
-                    currentMap.getConnectedUsers(function(connectedUsers) {
-                        currentMap.getCompleteLevel(function(completeLevel) {
-                            base.send(events.completeLevel, completeLevel);
-                            base.send(events.connectedUsersCount, connectedUsers.length);
-                            base.broadcast(events.connectedUsersCount, connectedUsers.length);
-                        });
-                    });
-                });
-            });
         }
     };
 
@@ -132,7 +105,6 @@ function handlers(client, maps, users) {
             stopCountDown();
             base.send(events.piecesFlipped, coords);
             base.broadcast(events.piecesFlipped, coords);
-
             var correctFlipsNum = 0;
 
             for(var i = 0, gotPiecesQnt = 0; i < coords.length; i++) {
@@ -142,25 +114,79 @@ function handlers(client, maps, users) {
                     if(piece.x == piece.realX && piece.y == piece.realY) {
                         correctFlipsNum++;
                         if(gotPiecesQnt == coords.length) {
-                            addScore();
+                            addScore(correctFlipsNum);
                         }
                     }
                 });
             }
-
-            function addScore() {
-                currentMap.getCompleteLevel(function(percent) {
-                    var points = parseInt((100 - percent) / 2) * correctFlipsNum;
-                    currentUser.addScore(currentMap._id, points, function() {
-                        base.handlers.user();
-                        currentMap.getCompleteLevel(function(completeLevel) {
-                            base.send(events.completeLevel, completeLevel);
-                        });
-                    });
-                });
-            }
         });
     };
+
+    function addAnonymous() {
+        users.addUser('anonymous', function(user) {
+            currentUser = user;
+            getMapThenLinkToUserAndSend();
+        });
+    }
+
+    function getMapThenLinkToUserAndSend() {
+        flow.exec(
+            function() {
+                maps.getLastMap(this);
+            },
+            function(map) {
+                currentMap = map;
+                base.initialized = true;
+                base.send(events.initialized);
+
+                currentUser.linked2Map(currentMap._id, function(linked) {
+                    if(!linked) {
+                        currentUser.link2Map(currentMap._id);
+                    }
+                });
+
+                currentMap.addConnectedUser(currentUser._id);
+                currentMap.getConnectedUsers(this);
+            },
+            function(connectedUsers) {
+                currentMap.getCompleteLevel(this);
+                base.send(events.connectedUsersCount, connectedUsers.length);
+                base.broadcast(events.connectedUsersCount, connectedUsers.length);
+
+            },
+            function(completeLevel) {
+                currentMap.addConnectedUser(currentUser._id);
+                users.getUsersLinked2Map(currentMap._id, this);
+                base.send(events.completeLevel, completeLevel);
+            },
+            function(users) {
+                base.send(events.leadersBoard, users);
+            }
+        );
+    }
+
+    function addScore(correctFlipsNum) {
+        flow.exec(
+            function() {
+                currentMap.getCompleteLevel(this);
+            },
+            function(percent) {
+                var points = parseInt((100 - percent) / 2) * correctFlipsNum;
+                currentUser.addScore(currentMap._id, points, this);
+            },
+            function() {
+                base.handlers.user();
+                currentMap.getCompleteLevel(this);
+            },
+            function(completeLevel) {
+                base.send(events.completeLevel, completeLevel);
+                users.getUsersLinked2Map(currentMap._id, this);
+            },
+            function(users) {
+                base.send(events.leadersBoard, users);
+                base.broadcast(events.leadersBoard, users);
+            });
+    }
 
     function startCountDown() {
         countDown = setTimeout(function() {
@@ -174,42 +200,6 @@ function handlers(client, maps, users) {
     function stopCountDown() {
         clearTimeout(countDown);
     }
-}
-
-function handlersBase(client) {
-
-    function send(event, data) {
-        client.send(this.createMessage(event, data));
-    }
-
-    function broadcast(event, data) {
-        client.broadcast(this.createMessage(event, data));
-    }
-
-    function createMessage(event, data) {
-        return JSON.stringify({
-            event: event,
-            data: data
-        });
-    }
-
-    function process(message) {
-        var handlerExists = message.action != null && this.handlers[message.action] != null;
-        var handlerAvailable = this.initialized || message.action == 'initialize';
-
-        if(handlerExists && handlerAvailable) {
-            this.handlers[message.action].call(null, message.data);
-        }
-    }
-    
-    return {
-        handlers: {},
-        initialized: false,    
-        send: send,
-        broadcast: broadcast,
-        createMessage: createMessage,
-        process: process
-    };
 }
 
 exports.handlers = handlers;

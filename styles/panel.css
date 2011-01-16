@@ -99,6 +99,11 @@
     font-family:Georgia;
 }
 
+#panel .leadersboard .pts {
+    margin-left:3px;
+    color:#ddd;
+}
+
 #panel .user {
     margin-right:10px;
 }

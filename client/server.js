@@ -109,5 +109,6 @@ Puzzle.Server.events = {
     pieceUnselected: 'pieceUnselected',
     piecesFlipped: 'piecesFlipped',
     completeLevel: 'completeLevel',
+    leadersBoard: 'leadersBoard',
     connectedUsersCount: 'connectedUsersCount'
 };

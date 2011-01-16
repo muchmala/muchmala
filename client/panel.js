@@ -71,8 +71,19 @@ Puzzle.Panel = function panel(element) {
         element.find('.statistics .timeSpent').text(hours + ':' + minutes);
     }
 
+    function updateLeadersBoard(users) {
+        var leadersBoard = element.find('.leadersboard .borders');
+        leadersBoard.empty();
+        for(var i = 0, len = users.length; i < len; i++) {
+            leadersBoard.append('<span class="name">'+users[i].name+'</span>');
+            leadersBoard.append('<span class="num">'+users[i].curMapScore+'</span>');
+            leadersBoard.append('<span class="pts">pts.</span><br/>');
+        }
+    }
+
     return {
         subscribe: observer.subscribe,
+        updateLeadersBoard: updateLeadersBoard,
         setConnectedUsersCount: setConnectedUsersCount,
         setCompleteLevel: setCompleteLevel,
         setUsername: setUsername,
