@@ -11,9 +11,10 @@ Puzzle.handlers = function(server, layout, panel) {
         },
         
         map: function(data) {
-            if(!image) {
-                image = new Image();
-                image.src = data.imageSrc;
+            if(!imageSrc) {
+                
+                var image = new Image();
+                image.src = '/img/' + data.name + '/pieces.png';
                 image.onload = function() {
                     init(data);
                 };
@@ -65,7 +66,7 @@ Puzzle.handlers = function(server, layout, panel) {
         }
     };
 
-    var field, pices, image, selected;
+    var field, pices, imageSrc, selected;
     var fieldEvents = Puzzle.Field.events;
     var panelEvents = Puzzle.Panel.events;
     var serverEvents = Puzzle.Server.events;
@@ -81,16 +82,13 @@ Puzzle.handlers = function(server, layout, panel) {
     layout.showLoading();
 
     function init(data) {
-        field = Puzzle.FieldHelper(
-            Puzzle.Field({
-                piceSize: data.piceSize,
-                viewport: layout.viewport
-            }),
-            Puzzle.Pices({
-                piceSize: data.piceSize,
-                image: image
-            }));
+        field = Puzzle.Field({
+            piceSize: data.piceSize,
+            imageSrc: '/img/' + data.name + '/pieces.png',
+            viewport: layout.viewport
+        });
 
+        imageSrc = data.imageSrc;
         var step = toInt(data.piceSize / 6);
         var rectSize = step * 4 + 1;
         var vQnt = data.map[0].length;

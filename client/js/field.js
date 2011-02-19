@@ -11,7 +11,6 @@ Puzzle.Field = function field(settings) {
     var index = {};
     var pices = {};
     var observer = Utils.Observer();
-    observer.register(field.events.clicked);
 
     settings.viewport.click(function(event) {
         var offset = settings.viewport.offset();
@@ -27,11 +26,23 @@ Puzzle.Field = function field(settings) {
         }
     });
 
-    function addPice(x, y, pice) {
+    function addPice(x, y, data) {
         if(pices[y] == null) {
             pices[y] = {};
         }
-        pices[y][x] = pice;
+
+        pices[y][x] = new Puzzle.Pice({
+            x: x, y: y,
+            ears: {
+                left: data.l, bottom: data.b,
+                right: data.r, top: data.t
+            },
+            locked: data.d,
+            realX: data.x,
+            realY: data.y,
+            size: settings.piceSize,
+            imageSrc: settings.imageSrc
+        });
     }
 
     function getPice(x, y) {
@@ -42,15 +53,9 @@ Puzzle.Field = function field(settings) {
     }
 
     function build() {
-        var rectSize = toInt(settings.piceSize / 3 * 2);
-        
         for(var y in pices) {
             for(var x in pices[y]) {
-                pices[y][x].xCoord = x * (rectSize + 1);
-                pices[y][x].yCoord = y * (rectSize + 1);
-                pices[y][x].build();
-                pices[y][x].draw();
-                settings.viewport.append(pices[y][x].canvas);
+                settings.viewport.append(pices[y][x].build());
             }
         }
         
@@ -103,12 +108,71 @@ Puzzle.Field = function field(settings) {
         }}
     }
 
+    function isSameType(first, second) {
+        if(first.ears.left == second.ears.left &&
+           first.ears.bottom == second.ears.bottom &&
+           first.ears.right == second.ears.right &&
+           first.ears.top == second.ears.top) {
+            return true;
+        }
+        return false;
+    }
+
+    function flipPices(first, second) {
+        var tmpX = first.realX;
+        var tmpY = first.realY;
+        first.realX = second.realX;
+        first.realY = second.realY;
+        second.realX = tmpX;
+        second.realY = tmpY;
+        second.draw();
+        first.draw();
+        first.unselect();
+    }
+
+    function flipPicesByCoords(coords) {
+        var first = getPice(coords[0][0], coords[0][1]);
+        var second = getPice(coords[1][0], coords[1][1]);
+        first.unlock();
+        second.unlock();
+        flipPices(first, second);
+    }
+
+    function buildField(map) {
+        for(var y = 0, rLen = map.length; y < rLen; y++) {
+            for(var x = 0, cLen = map[y].length; x < cLen; x++) {
+                addPice(x, y, map[y][x]);
+            }
+        }
+        build();
+        log('field is built');
+    }
+
+    function updateField(map) {
+        for(var y = 0, rLen = map.length; y < rLen; y++) {
+            for(var x = 0, cLen = map[y].length; x < cLen; x++) {
+                var cell = map[y][x];
+                var pice = getPice(x, y);
+
+                if(pice.selected) {
+                    pice.select();
+                }
+
+                if(pice.realX != cell.x || pice.realY != cell.y) {
+                    pice.realX = cell.x;
+                    pice.realY = cell.y;
+                    pice.draw();
+                }
+            }
+        }
+        log('field is updated');
+    }
+
     return {
         build: build,
-        addPice: addPice,
+        buildField: buildField,
         getPice: getPice,
-        subscribe: observer.subscribe,
-        unsubscribe: observer.unsubscribe
+        subscribe: observer.subscribe
     };
 };
 

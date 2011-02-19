@@ -1,144 +1,61 @@
-Puzzle.Pices = function(data) {
-    var settings = $.extend({
-        piceSize: null,
-        image: null
-    }, data);
+Puzzle.Pice = function(settings) {
+    this.x = settings.x;
+    this.y = settings.y;
+    this.ears = settings.ears;
+            
+    this.locked = settings.locked;
+    this.realX = settings.realX;
+    this.realY = settings.realY;
+    this.size = settings.size;
+    this.imageSrc = settings.imageSrc;
 
-    var drawer = Puzzle.piceDrawer({
-        image: settings.image,
-        piceSize: settings.piceSize
-    });
+    var rectSize = Math.floor(this.size / 3 * 2);
+    this.xCoord = this.x * (rectSize + 1);
+    this.yCoord = this.y * (rectSize + 1);
 
-    function build(pice) {
-        var canvas = document.createElement('canvas');
-        canvas.height = settings.piceSize;
-        canvas.width = settings.piceSize;
-        canvas.style.position = 'absolute';
-        canvas.style.top = pice.yCoord + 'px';
-        canvas.style.left = pice.xCoord + 'px';
-        pice.canvas = canvas;
+    this.element = null;
+};
+
+Puzzle.Pice.prototype.build = function() {
+    this.element = $(document.createElement('div'));
+    this.element.height(this.size);
+    this.element.width(this.size);
+    this.element.css('position', 'absolute');
+    this.element.css('left', this.xCoord);
+    this.element.css('top', this.yCoord);
+    this.element.css('background', 'url('+this.imageSrc+')');
+    this.element.css('background-position', '-' + (this.realX * this.size) + 'px ' +
+                                            '-' + (this.realY * this.size) + 'px');
+
+    return this.element;
+};
+
+Puzzle.Pice.prototype.select = function() {};
+Puzzle.Pice.prototype.unselect = function() {};
+Puzzle.Pice.prototype.lock = function() {};
+Puzzle.Pice.prototype.unlock = function() {};
+Puzzle.Pice.prototype.cover = function() {};
+Puzzle.Pice.prototype.uncover = function() {};
+
+Puzzle.Pice.prototype.hasPoint = function(x, y) {
+    var s = this.size / 6;
+    var xc = this.xCoord;
+    var yc = this.yCoord;
+
+    if((x >= xc+s && y >= yc+s && x <= xc+s*2.5 && y <= yc+s*2.5) ||
+       (x >= xc+s*3.5 && y >= yc+s && x <= xc+s*5 && y <= yc+s*2.5) ||
+       (x >= xc+s && y >= yc+s*3.5 && x <= xc+s*2.5 && y <= yc+s*5) ||
+       (x >= xc+s*3.5 && y >= yc+s*3.5 && x <= xc+s*5 && y <= yc+s*5) ||
+       (x >= xc+s*2 && y >= yc+s*2 && x <= xc+s*4 && y <= yc+s*4) ||
+       (this.ears.left && x >= xc && y >= yc+s*2.5 && x <= xc+s*2 && y <= yc+s*3.5) ||
+       (this.ears.bottom && x >= xc+s*2.5 && y >= yc+s*4 && x <= xc+s*3.5 && y <= yc+s*6) ||
+       (this.ears.right && x >= xc+s*4 && y >= yc+s*2.5 && x <= xc+s*6 && y <= yc+s*3.5) ||
+       (this.ears.top && x >= xc+s*2.5 && y >= yc && x <= xc+s*3.5 && y <= yc+s*2)) {
+        return true;
     }
+    return false;
+};
 
-    function draw(pice) {
-        drawer.draw({
-            x: pice.realX,
-            y: pice.realY,
-            ctx: pice.ctx,
-            ears: pice.ears
-        });
-    }
-
-    function select(pice) {
-        drawer.select({
-            ctx: pice.ctx,
-            ears: pice.ears
-        });
-    }
-
-    function lock(pice) {
-        drawer.lock({
-            ctx: pice.ctx,
-            ears: pice.ears
-        });
-    }
-
-    function cover(pice) {
-        drawer.cover({
-            ctx: pice.ctx,
-            ears: pice.ears
-        });
-    }
-
-    function hasPoint(pice, x, y) {
-        var s = settings.piceSize / 6;
-        var xc = pice.xCoord;
-        var yc = pice.yCoord;
-
-        if((x >= xc+s && y >= yc+s && x <= xc+s*2.5 && y <= yc+s*2.5) ||
-           (x >= xc+s*3.5 && y >= yc+s && x <= xc+s*5 && y <= yc+s*2.5) ||
-           (x >= xc+s && y >= yc+s*3.5 && x <= xc+s*2.5 && y <= yc+s*5) ||
-           (x >= xc+s*3.5 && y >= yc+s*3.5 && x <= xc+s*5 && y <= yc+s*5) ||
-           (x >= xc+s*2 && y >= yc+s*2 && x <= xc+s*4 && y <= yc+s*4) ||
-           (pice.ears.left && x >= xc && y >= yc+s*2.5 && x <= xc+s*2 && y <= yc+s*3.5) ||
-           (pice.ears.bottom && x >= xc+s*2.5 && y >= yc+s*4 && x <= xc+s*3.5 && y <= yc+s*6) ||
-           (pice.ears.right && x >= xc+s*4 && y >= yc+s*2.5 && x <= xc+s*6 && y <= yc+s*3.5) ||
-           (pice.ears.top && x >= xc+s*2.5 && y >= yc && x <= xc+s*3.5 && y <= yc+s*2)) {
-            return true;
-        }
-        return false;
-    }
-
-    function factory(data) {
-        var pice = $.extend({
-            ctx: null,
-            canvas: null,
-            locked: false,
-            selected: false,
-            xCoord: null,
-            yCoord: null,
-            realX: null,
-            realY: null,
-            x: null, y: null,
-            ears: {
-                left: null, bottom: null,
-                right: null, top: null
-            },
-            get onRightPlace() {
-                return pice.realX == pice.x && pice.realY == pice.y;
-            }
-        }, data);
-
-        $.extend(pice, {
-            build: function() {
-                build(pice);
-                pice.ctx = pice.canvas.getContext('2d');
-            },
-
-            draw: function() {
-                draw(pice);
-
-                if(pice.locked) {
-                    lock(pice);
-                }
-
-                if(pice.selected) {
-                    select(pice);
-                }
-
-                if(!pice.locked && !pice.selected && !pice.onRightPlace) {
-                    cover(pice);
-                }
-            },
-
-            select: function() {
-                pice.selected = true;
-                this.draw();
-            },
-
-            unselect: function() {
-                pice.selected = false;
-                this.draw();
-            },
-
-            lock: function() {
-                pice.locked = true;
-                this.draw();
-            },
-
-            unlock: function() {
-                pice.locked = false;
-                this.draw();
-            },
-
-            hasPoint: function(x, y) {
-                return hasPoint(pice, x, y);
-            }
-        });
-
-        return pice;
-    }
-
-    return {
-        factory: factory
-    };
+Puzzle.Pice.prototype.onRightPlace = function() {
+    return this.realX == this.x && this.realY == this.y;
 };

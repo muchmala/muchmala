@@ -1,8 +1,6 @@
 Puzzle.Dialog = function(content) {
     var events = Puzzle.Dialog.events;
     var observer = Utils.Observer();
-    observer.register(events.shown);
-    observer.register(events.hidden);
     
     var element = $('<div class="dialog"></div>');
     var close = $('<span class="close">close</span>');
@@ -27,7 +25,7 @@ Puzzle.Dialog = function(content) {
             top: toInt(windowHeight/2) - toInt(element.height()/2)
         }, 100, function() {
             shown = true;
-            observer.shown();
+            observer.fire('shown');
         });
     }
 
@@ -47,7 +45,7 @@ Puzzle.Dialog = function(content) {
         }, 100, function() {
             element.hide();
             shown = false;
-            observer.hidden();
+            observer.fire('hidden');
         });
     }
 
@@ -70,7 +68,6 @@ Puzzle.Dialog.events = {
 Puzzle.UserNameDialog = function() {
     var events = Puzzle.UserNameDialog.events;
     var observer = Utils.Observer();
-    observer.register(events.entered);
 
     var element = $('<div></div>');
     var input = $('<input type="text" class="inputText" />');
@@ -86,7 +83,7 @@ Puzzle.UserNameDialog = function() {
         if(event.which == 13) {
             var newName = input.val();
             if(newName.length) {
-                observer.entered(newName);
+                observer.fire('entered', newName);
                 dialog.hide();
             } else {
                 dialog.shake();

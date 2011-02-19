@@ -64,7 +64,7 @@ exports.load = function(mapsCollection, piecesCollection, _id) {
         mapsCollection.findOne({_id: _id}, function(error, mapInfo) {
             var compactData = {
                 id: _id,
-                imageSrc: mapInfo.imageSrc,
+                name: mapInfo.name,
                 piceSize: mapInfo.pieceSize,
                 created: mapInfo.created,
                 map: []

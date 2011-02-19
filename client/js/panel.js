@@ -1,6 +1,5 @@
 Puzzle.Panel = function panel(element) {
     var observer = Utils.Observer();
-    observer.register(panel.events.userNameChanged);
 
     $('.expcol', element).click(function() {
         if($('.expcol', element).hasClass('opened')) {
@@ -26,7 +25,7 @@ Puzzle.Panel = function panel(element) {
     });
 
     userNameDialog.subscribe(Puzzle.UserNameDialog.events.entered, function(value) {
-        observer.userNameChanged(value);
+        observer.fire(panel.events.userNameChanged, value);
     });
 
     function setUsername(name) {

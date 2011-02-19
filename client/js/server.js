@@ -1,9 +1,5 @@
 Puzzle.Server = function server() {
     var observer = Utils.Observer();
-    for(var i in server.events) {
-        observer.register(server.events[i]);
-    }
-
     var socket = new io.Socket('io.puzzle.home', {
         transports: ['websocket', 'flashsocket', 'xhr-multipart']
     });
@@ -11,8 +7,7 @@ Puzzle.Server = function server() {
     socket.on('message', function(data) {
         var parsed = JSON.parse(data);
         log('received ' + parsed.event);
-        if(parsed.event != null &&
-           observer.isRegistered(parsed.event)) {
+        if(parsed.event != null) {
             observer.fire(parsed.event, parsed.data);
         }
     });
@@ -93,8 +88,7 @@ Puzzle.Server = function server() {
         initialize: initialize,
         getUserData: getUserData,
         updateUserName: updateUserName,
-        subscribe: observer.subscribe,
-        unsubscribe: observer.unsubscribe
+        subscribe: observer.subscribe
     };
 };
 

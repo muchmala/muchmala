@@ -1,5 +1,5 @@
 var handlersBase = require('./handlersBase');
-var flow = require('./flow');
+var flow = require('../shared/flow');
 var db = require('./db');
 
 var events = {
