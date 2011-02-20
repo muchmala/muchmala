@@ -1,4 +1,4 @@
-Puzzle.handlers = function(server, layout, panel) {
+Puzzle.Handlers = function(server, layout, panel) {
 
     var handlers = {
         connected: function() {
@@ -9,15 +9,10 @@ Puzzle.handlers = function(server, layout, panel) {
             server.getMap();
             server.getUserData();
         },
-        
+
         map: function(data) {
-            if(!imageSrc) {
-                
-                var image = new Image();
-                image.src = '/img/' + data.name + '/pieces.png';
-                image.onload = function() {
-                    init(data);
-                };
+            if(!field) {
+                init(data);
             } else {
                 field.updateField(data.map);
             }
@@ -36,7 +31,7 @@ Puzzle.handlers = function(server, layout, panel) {
 
         piecesUnlocked: function(coords) {
             for(var i = 0, len = coords.length; i < len; i++) {
-                field.getPice(coords[i][0], coords[i][1]).clear();
+                field.getPice(coords[i][0], coords[i][1]).unlock();
             }
         },
 
@@ -46,7 +41,7 @@ Puzzle.handlers = function(server, layout, panel) {
         },
 
         pieceUnselected: function(coords) {
-            field.getPice(coords[0], coords[1]).clear();
+            field.getPice(coords[0], coords[1]).unselect();
         },
 
         piecesFlipped: function(coord) {
@@ -66,10 +61,11 @@ Puzzle.handlers = function(server, layout, panel) {
         }
     };
 
-    var field, pices, imageSrc, selected;
+    var field, pices, selected;
     var fieldEvents = Puzzle.Field.events;
     var panelEvents = Puzzle.Panel.events;
     var serverEvents = Puzzle.Server.events;
+    var preloader = new Puzzle.Preloader();
 
     for(var i in serverEvents) {
         if(serverEvents[i] in handlers) {
@@ -82,28 +78,27 @@ Puzzle.handlers = function(server, layout, panel) {
     layout.showLoading();
 
     function init(data) {
-        field = Puzzle.Field({
-            piceSize: data.piceSize,
+        var images = {
             spriteSrc: '/img/' + data.name + '/pieces.png',
             defaultCoverSrc: '/img/' + data.name + '/default_covers.png',
             selectCoverSrc: '/img/' + data.name + '/select_covers.png',
-            lockCoverSrc: '/img/' + data.name + '/lock_covers.png',
-            viewport: layout.viewport
+            lockCoverSrc: '/img/' + data.name + '/lock_covers.png'
+        };
+
+        preloader.loadImages(images, function() {
+            field = Puzzle.Field(_.extend({
+                piceSize: data.piceSize,
+                viewport: layout.viewport
+            }, images));
+
+            panel.setTimeSpent(data.created);
+
+            field.subscribe(fieldEvents.clicked, processClickedPice);
+            field.buildField(data.map);
+            
+            layout.arrange(data.piceSize, data.map.length, data.map[0].length);
+            layout.hideLoading();
         });
-
-        imageSrc = data.imageSrc;
-        var step = toInt(data.piceSize / 6);
-        var rectSize = step * 4 + 1;
-        var vQnt = data.map[0].length;
-        var hQnt = data.map.length;
-
-        panel.setTimeSpent(data.created);
-
-        field.subscribe(fieldEvents.clicked, processClickedPice);
-        field.buildField(data.map);
-        
-        layout.arrange(vQnt*rectSize + step*2, hQnt*rectSize + step*2);
-        layout.hideLoading();
     }
     
     function processClickedPice(pice) {
@@ -114,7 +109,7 @@ Puzzle.handlers = function(server, layout, panel) {
                 server.selectPice(pice.x, pice.y);
             } else {
                 if(field.isSameType(selected, pice)) {
-                    selected.clear();
+                    selected.unselect();
                     server.flipPices(selected.x, selected.y, pice.x, pice.y);
                 }
             }

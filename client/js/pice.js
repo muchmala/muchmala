@@ -39,12 +39,14 @@ Puzzle.Pice.prototype.render = function() {
                                '-' + (this.realY * this.size) + 'px'
     });
 
+    this.clear();
+    
     if(this.locked) {
-        this.lock();
+        this.cover(this.images.lockCoverSrc);
     } else if(this.selected) {
-        this.select();
+        this.cover(this.images.selectCoverSrc);
     } else if(!this.isCollected()) {
-        this.befog();
+        this.cover(this.images.defaultCoverSrc);
     }
 
     return this.element;
@@ -66,27 +68,24 @@ Puzzle.Pice.prototype.cover = function(coverSrc) {
     this.element.append(cover);
 };
 
-Puzzle.Pice.prototype.befog = function() {
-    this.cover(this.images.defaultCoverSrc);
-};
 Puzzle.Pice.prototype.select = function() {
-    this.clear();
-    this.cover(this.images.selectCoverSrc);
     this.selected = true;
+    this.render();
 };
 Puzzle.Pice.prototype.lock = function() {
-    this.clear();
-    this.cover(this.images.lockCoverSrc);
     this.locked = true;
+    this.render();
+};
+Puzzle.Pice.prototype.unselect = function() {
+    this.selected = false;
+    this.render();
+};
+Puzzle.Pice.prototype.unlock = function() {
+    this.locked = false;
+    this.render();
 };
 Puzzle.Pice.prototype.clear = function() {
     this.element.find('.cover').remove();
-    this.selected = false;
-    this.locked = false;
-
-    if(!this.isCollected()) {
-        this.befog();
-    }
 };
 
 Puzzle.Pice.prototype.hasPoint = function(x, y) {

@@ -7,5 +7,5 @@ $(function() {
 
     var panel = Puzzle.Panel($('#panel'));
     
-    Puzzle.handlers(Puzzle.Server(), layout, panel);
+    Puzzle.Handlers(Puzzle.Server(), layout, panel);
 });

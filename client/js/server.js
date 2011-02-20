@@ -44,35 +44,27 @@ Puzzle.Server = function server() {
 
         sendMessage(createMessage('initialize', data));
     }
-
     function getMap(mapId) {
         sendMessage(createMessage('map', mapId));
     }
-
     function getUserData(userId) {
         sendMessage(createMessage('user', userId));
     }
-
     function updateUserName(userName) {
         sendMessage(createMessage('updateUserName', userName));
     }
-
     function lockPice(x, y) {
         sendMessage(createMessage('lock', [x, y]));
     }
-
     function unlockPice(x, y) {
         sendMessage(createMessage('unlock', [x, y]));
     }
-
     function selectPice(x, y) {
         sendMessage(createMessage('select', [x, y]));
     }
-
     function unselectPice(x, y) {
         sendMessage(createMessage('unselect', [x, y]));
     }
-
     function flipPices(x1, y1, x2, y2) {
         sendMessage(createMessage('flip', [[x1, y1], [x2, y2]]));
     }

@@ -25,12 +25,11 @@ Puzzle.Field = function field(settings) {
         var eventY = event.clientY - offset.top;
         var found = checkIndexByCoordinates(eventX, eventY);
         
-        for(var i in found) {
-            if(found[i].hasPoint(eventX, eventY)) {
-                observer.fire(field.events.clicked, found[i]);
-                break;
+        _.each(found, function(piece) {
+            if(piece.hasPoint(eventX, eventY)) {
+                observer.fire(field.events.clicked, piece);
             }
-        }
+        });
     });
 
     function checkIndexByCoordinates(x, y) {
@@ -97,15 +96,12 @@ Puzzle.Field = function field(settings) {
         second.realX = tmpX;
         second.realY = tmpY;
         second.render();
-        first.clear();
         first.render();
     }
 
     function flipPicesByCoords(coords) {
         var first = getPice(coords[0][0], coords[0][1]);
         var second = getPice(coords[1][0], coords[1][1]);
-        first.clear();
-        second.clear();
         flipPices(first, second);
     }
 
@@ -164,6 +160,9 @@ Puzzle.Field = function field(settings) {
         getPice: getPice,
         buildField: buildField,
         updateField: updateField,
+        isSameType: isSameType,
+        flipPices: flipPices,
+        flipPicesByCoords: flipPicesByCoords,
         subscribe: observer.subscribe
     };
 };

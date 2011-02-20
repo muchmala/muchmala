@@ -30,7 +30,12 @@ Puzzle.Layout = function(viewport, display, binder, loading) {
         });
     }
 
-    function arrange(width, height) {
+    function arrange(pieceSize, vLength, hLength) {
+        var step = Math.floor(pieceSize / 6);
+        var rectSize = step * 4 + 1;
+        var height = rectSize * vLength + step * 2;
+        var width = rectSize * hLength + step * 2;
+
         viewportHeight = height;
         viewportWidth = width;
         viewport.height(height);
