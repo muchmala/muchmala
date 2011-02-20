@@ -5,6 +5,13 @@ Puzzle.Field = function field(settings) {
         indexCellSize: 60
     }, settings);
 
+    Puzzle.Pice.setImages({
+        spriteSrc: settings.spriteSrc,
+        defaultCoverSrc: settings.defaultCoverSrc,
+        selectCoverSrc: settings.selectCoverSrc,
+        lockCoverSrc: settings.lockCoverSrc
+    });
+
     // TMP
     settings.indexCellSize = toInt(settings.piceSize/3*2);
 
@@ -26,48 +33,12 @@ Puzzle.Field = function field(settings) {
         }
     });
 
-    function addPice(x, y, data) {
-        if(pices[y] == null) {
-            pices[y] = {};
-        }
-
-        pices[y][x] = new Puzzle.Pice({
-            x: x, y: y,
-            ears: {
-                left: data.l, bottom: data.b,
-                right: data.r, top: data.t
-            },
-            locked: data.d,
-            realX: data.x,
-            realY: data.y,
-            size: settings.piceSize,
-            imageSrc: settings.imageSrc
-        });
-    }
-
-    function getPice(x, y) {
-        if(pices[y] != null && pices[y][x] != null) {
-            return pices[y][x];
-        }
-        return false;
-    }
-
-    function build() {
-        for(var y in pices) {
-            for(var x in pices[y]) {
-                settings.viewport.append(pices[y][x].build());
-            }
-        }
-        
-        buildIndex();
-    }
-
     function checkIndexByCoordinates(x, y) {
         var xIndex = x - (x % settings.indexCellSize);
         var yIndex = y - (y % settings.indexCellSize);
         
-        if (index[xIndex] != undefined &&
-            index[xIndex][yIndex] != undefined) {
+        if (!_.isUndefined(index[xIndex]) &&
+            !_.isUndefined(index[xIndex][yIndex])) {
             return index[xIndex][yIndex];
         }
 
@@ -78,10 +49,9 @@ Puzzle.Field = function field(settings) {
         var piceSize = settings.piceSize;
         var cellSize = settings.indexCellSize;
 
-        for(var y in pices) {
-        for(var x in pices[y]) {
+        _.each(pices, function(row) {
+            _.each(row, function(pice) {
 
-            var pice = pices[y][x];
             var cellsCount = 1;
             
             if (piceSize > cellSize) {
@@ -105,7 +75,8 @@ Puzzle.Field = function field(settings) {
                     index[xIndex][yIndex].push(pice);
                 }
             }
-        }}
+            });
+        });
     }
 
     function isSameType(first, second) {
@@ -125,53 +96,74 @@ Puzzle.Field = function field(settings) {
         first.realY = second.realY;
         second.realX = tmpX;
         second.realY = tmpY;
-        second.draw();
-        first.draw();
-        first.unselect();
+        second.render();
+        first.clear();
+        first.render();
     }
 
     function flipPicesByCoords(coords) {
         var first = getPice(coords[0][0], coords[0][1]);
         var second = getPice(coords[1][0], coords[1][1]);
-        first.unlock();
-        second.unlock();
+        first.clear();
+        second.clear();
         flipPices(first, second);
     }
 
-    function buildField(map) {
-        for(var y = 0, rLen = map.length; y < rLen; y++) {
-            for(var x = 0, cLen = map[y].length; x < cLen; x++) {
-                addPice(x, y, map[y][x]);
-            }
+    function addPice(x, y, data) {
+        var pice = new Puzzle.Pice({
+            ears: {
+                left: data.l, bottom: data.b,
+                right: data.r, top: data.t
+            },
+            x: x, y: y, locked: data.d,
+            realX: data.x, realY: data.y,
+            size: settings.piceSize
+        });
+
+        settings.viewport.append(pice.element);
+
+        if(pices[y] == null) {
+            pices[y] = {};
         }
-        build();
-        log('field is built');
+
+        pices[y][x] = pice;
+    }
+
+    function getPice(x, y) {
+        if(!_.isUndefined(pices[y]) && !_.isUndefined(pices[y][x])) {
+            return pices[y][x];
+        }
+        return false;
+    }
+
+    function buildField(map) {
+        _.each(map, function(row, y) {
+            _.each(row, function(piceData, x) {
+                addPice(x, y, piceData);
+            });
+        });
+        
+        buildIndex();
     }
 
     function updateField(map) {
-        for(var y = 0, rLen = map.length; y < rLen; y++) {
-            for(var x = 0, cLen = map[y].length; x < cLen; x++) {
-                var cell = map[y][x];
+        _.each(map, function(row, y) {
+            _.each(row, function(piceData, x) {
                 var pice = getPice(x, y);
-
-                if(pice.selected) {
-                    pice.select();
-                }
-
-                if(pice.realX != cell.x || pice.realY != cell.y) {
-                    pice.realX = cell.x;
-                    pice.realY = cell.y;
-                    pice.draw();
-                }
-            }
-        }
+                pice.locked = piceData.d;
+                pice.realX = piceData.x;
+                pice.realY = piceData.y;
+                pice.render();
+            });
+        });
+        
         log('field is updated');
     }
 
     return {
-        build: build,
-        buildField: buildField,
         getPice: getPice,
+        buildField: buildField,
+        updateField: updateField,
         subscribe: observer.subscribe
     };
 };

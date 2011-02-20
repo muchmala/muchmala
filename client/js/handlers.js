@@ -36,7 +36,7 @@ Puzzle.handlers = function(server, layout, panel) {
 
         piecesUnlocked: function(coords) {
             for(var i = 0, len = coords.length; i < len; i++) {
-                field.getPice(coords[i][0], coords[i][1]).unlock();
+                field.getPice(coords[i][0], coords[i][1]).clear();
             }
         },
 
@@ -46,7 +46,7 @@ Puzzle.handlers = function(server, layout, panel) {
         },
 
         pieceUnselected: function(coords) {
-            field.getPice(coords[0], coords[1]).unselect();
+            field.getPice(coords[0], coords[1]).clear();
         },
 
         piecesFlipped: function(coord) {
@@ -84,7 +84,10 @@ Puzzle.handlers = function(server, layout, panel) {
     function init(data) {
         field = Puzzle.Field({
             piceSize: data.piceSize,
-            imageSrc: '/img/' + data.name + '/pieces.png',
+            spriteSrc: '/img/' + data.name + '/pieces.png',
+            defaultCoverSrc: '/img/' + data.name + '/default_covers.png',
+            selectCoverSrc: '/img/' + data.name + '/select_covers.png',
+            lockCoverSrc: '/img/' + data.name + '/lock_covers.png',
             viewport: layout.viewport
         });
 
@@ -104,14 +107,14 @@ Puzzle.handlers = function(server, layout, panel) {
     }
     
     function processClickedPice(pice) {
-        if(!pice.locked && !pice.onRightPlace) {
+        if(!pice.locked && !pice.isCollected()) {
             if(pice.selected) {
                 server.unselectPice(pice.x, pice.y);
             } else if(!selected || !selected.selected) {
                 server.selectPice(pice.x, pice.y);
             } else {
                 if(field.isSameType(selected, pice)) {
-                    selected.unselect();
+                    selected.clear();
                     server.flipPices(selected.x, selected.y, pice.x, pice.y);
                 }
             }
