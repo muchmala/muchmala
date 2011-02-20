@@ -18,11 +18,11 @@ Puzzle.Dialog = function(content) {
         var windowWidth = $(window).width();
         
         element.css('top', elementHeight * -1)
-               .css('left', toInt(windowWidth/2) - toInt(elementWidth/2))
+               .css('left', Math.floor(windowWidth/2) - Math.floor(elementWidth/2))
                .show();
 
         element.animate({
-            top: toInt(windowHeight/2) - toInt(element.height()/2)
+            top: Math.floor(windowHeight/2) - Math.floor(element.height()/2)
         }, 100, function() {
             shown = true;
             observer.fire('shown');

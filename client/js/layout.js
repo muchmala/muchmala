@@ -53,7 +53,7 @@ Puzzle.Layout = function(viewport, display, binder, loading) {
             binder.css('top', hDiff * -1);
 
             if(centerH) {
-                viewportX = toInt(hDiff / 2);
+                viewportX = Math.floor(hDiff / 2);
                 viewport.css('top', viewportX);
             } else {
                 var newX = viewportX - (hDiff - offsetX)*-1;
@@ -68,8 +68,8 @@ Puzzle.Layout = function(viewport, display, binder, loading) {
             centerH = true;
             viewport.css('top', 0);
             binder.height(viewportHeight);
-            binder.css('top', toInt(displayHeight / 2) -
-                              toInt(viewportHeight / 2));
+            binder.css('top', Math.floor(displayHeight / 2) -
+                              Math.floor(viewportHeight / 2));
         }
 
         if(viewportWidth > displayWidth) {
@@ -78,7 +78,7 @@ Puzzle.Layout = function(viewport, display, binder, loading) {
             binder.css('left', wDiff * -1);
 
             if(centerW) {
-                viewportY = toInt(wDiff / 2);
+                viewportY = Math.floor(wDiff / 2);
                 viewport.css('left', viewportY);
             } else {
                 var newY = viewportY - (wDiff - offsetY)*-1;
@@ -92,8 +92,8 @@ Puzzle.Layout = function(viewport, display, binder, loading) {
             centerW = true;
             viewport.css('left', 0);
             binder.width(viewportWidth);
-            binder.css('left', toInt(displayWidth / 2) -
-                               toInt(viewportWidth / 2));
+            binder.css('left', Math.floor(displayWidth / 2) -
+                               Math.floor(viewportWidth / 2));
         }
 
         if(viewportHeight > displayHeight ||

@@ -13,7 +13,7 @@ Puzzle.Field = function field(settings) {
     });
 
     // TMP
-    settings.indexCellSize = toInt(settings.piceSize/3*2);
+    settings.indexCellSize = Math.floor(settings.piceSize/3*2);
 
     var index = {};
     var pices = {};
@@ -27,7 +27,7 @@ Puzzle.Field = function field(settings) {
         
         _.each(found, function(piece) {
             if(piece.hasPoint(eventX, eventY)) {
-                observer.fire(field.events.clicked, piece);
+                observer.fire(field.EVENTS.clicked, piece);
             }
         });
     });
@@ -54,7 +54,7 @@ Puzzle.Field = function field(settings) {
             var cellsCount = 1;
             
             if (piceSize > cellSize) {
-                cellsCount += toInt(piceSize / cellSize);
+                cellsCount += Math.floor(piceSize / cellSize);
             }
 
             for (var h = 0; h < cellsCount; h++) {
@@ -167,6 +167,6 @@ Puzzle.Field = function field(settings) {
     };
 };
 
-Puzzle.Field.events = {
+Puzzle.Field.EVENTS = {
     clicked: 'clicked'
 };

@@ -2,7 +2,7 @@ var handlersBase = require('./handlersBase');
 var flow = require('../shared/flow');
 var db = require('./db');
 
-var events = {
+var EVENTS = {
     map: 'map', user: 'user',
     initialized: 'initialized',
     pieceLocked: 'pieceLocked',
@@ -29,12 +29,12 @@ function handlers(client, maps, users) {
         if(base.initialized) {
             currentMap.removeConnectedUser(currentUser._id, function() {
                 currentMap.getConnectedUsers(function(connectedUsers) {
-                    base.broadcast(events.connectedUsersCount, connectedUsers.length);
+                    base.broadcast(EVENTS.connectedUsersCount, connectedUsers.length);
                 });
             });
 
             currentMap.unlockAll(currentUser._id, function(pices) {
-                base.broadcast(events.piecesUnlocked, pices);
+                base.broadcast(EVENTS.piecesUnlocked, pices);
             });
         }
     });
@@ -68,13 +68,13 @@ function handlers(client, maps, users) {
                     break;
                 }
             }
-            base.send(events.user, result);
+            base.send(EVENTS.user, result);
         });
     };
 
     base.handlers.map = function() {
         currentMap.getCompactInfo(function(compactMap) {
-             base.send(events.map, compactMap);
+             base.send(EVENTS.map, compactMap);
         });
     };
 
@@ -87,24 +87,24 @@ function handlers(client, maps, users) {
     base.handlers.select = function(coords) {
         currentMap.lock(coords[0], coords[1], currentUser._id, function() {
             startCountDown();
-            base.send(events.pieceSelected, coords);
-            base.broadcast(events.pieceLocked, coords);
+            base.send(EVENTS.pieceSelected, coords);
+            base.broadcast(EVENTS.pieceLocked, coords);
         });
     };
 
     base.handlers.unselect = function(coords) {
         currentMap.unlock(coords[0], coords[1], currentUser._id, function() {
             stopCountDown();
-            base.send(events.pieceUnselected, coords);
-            base.broadcast(events.piecesUnlocked, [coords]);
+            base.send(EVENTS.pieceUnselected, coords);
+            base.broadcast(EVENTS.piecesUnlocked, [coords]);
         });
     };
 
     base.handlers.flip = function(coords) {
         currentMap.flip(coords[0][0], coords[0][1], coords[1][0], coords[1][1], currentUser._id, function() {
             stopCountDown();
-            base.send(events.piecesFlipped, coords);
-            base.broadcast(events.piecesFlipped, coords);
+            base.send(EVENTS.piecesFlipped, coords);
+            base.broadcast(EVENTS.piecesFlipped, coords);
             var correctFlipsNum = 0;
 
             for(var i = 0, gotPiecesQnt = 0; i < coords.length; i++) {
@@ -137,7 +137,7 @@ function handlers(client, maps, users) {
             function(map) {
                 currentMap = map;
                 base.initialized = true;
-                base.send(events.initialized);
+                base.send(EVENTS.initialized);
                 currentUser.linked2Map(currentMap._id, function(linked) {
                     if(!linked) {
                         currentUser.link2Map(currentMap._id);
@@ -150,16 +150,16 @@ function handlers(client, maps, users) {
             },
             function(connectedUsers) {
                 currentMap.getCompleteLevel(this);
-                base.send(events.connectedUsersCount, connectedUsers.length);
-                base.broadcast(events.connectedUsersCount, connectedUsers.length);
+                base.send(EVENTS.connectedUsersCount, connectedUsers.length);
+                base.broadcast(EVENTS.connectedUsersCount, connectedUsers.length);
 
             },
             function(completeLevel) {
                 users.getUsersLinked2Map(currentMap._id, this);
-                base.send(events.completeLevel, completeLevel);
+                base.send(EVENTS.completeLevel, completeLevel);
             },
             function(users) {
-                base.send(events.leadersBoard, users);
+                base.send(EVENTS.leadersBoard, users);
             }
         );
     }
@@ -178,20 +178,20 @@ function handlers(client, maps, users) {
                 currentMap.getCompleteLevel(this);
             },
             function(completeLevel) {
-                base.send(events.completeLevel, completeLevel);
+                base.send(EVENTS.completeLevel, completeLevel);
                 users.getUsersLinked2Map(currentMap._id, this);
             },
             function(users) {
-                base.send(events.leadersBoard, users);
-                base.broadcast(events.leadersBoard, users);
+                base.send(EVENTS.leadersBoard, users);
+                base.broadcast(EVENTS.leadersBoard, users);
             });
     }
 
     function startCountDown() {
         countDown = setTimeout(function() {
             currentMap.unlockAll(currentUser._id, function(pices) {
-                client.send(base.createMessage(events.piecesUnlocked, pices));
-                client.broadcast(base.createMessage(events.piecesUnlocked, pices));
+                client.send(base.createMessage(EVENTS.piecesUnlocked, pices));
+                client.broadcast(base.createMessage(EVENTS.piecesUnlocked, pices));
             });
         }, 20000);
     }
