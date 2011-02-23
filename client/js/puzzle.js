@@ -106,6 +106,7 @@ Puzzle.Field = function field(settings) {
     }
 
     function addPice(x, y, data) {
+        console.log(data.d);
         var pice = new Puzzle.Pice({
             ears: {
                 left: data.l, bottom: data.b,

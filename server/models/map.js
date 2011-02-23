@@ -2,7 +2,7 @@ exports.load = function(mapsCollection, piecesCollection, _id) {
     
     function lock(x, y, userId, callback) {
         piecesCollection.update(
-            {mapId: _id, x: +x, y: +y, locked: ''},
+            {mapId: _id, x: x, y: y, locked: ''},
             {$set: {locked: userId}},
             function(error, result) {
                 callback.call(this, true);

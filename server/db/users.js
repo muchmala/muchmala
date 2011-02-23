@@ -1,0 +1,87 @@
+var mongoose = require('mongoose');
+var models = require('./models');
+var _ = require('../../shared/underscore')._;
+
+var Query = mongoose.Query;
+var Users = models.Users;
+var UsersToPuzzles = models.UsersToPuzzles;
+
+Users.all = function(callback) {
+    Users.find(function(error, users) {
+        if(error) {throw error;}
+        callback.call(null, users);
+    });
+};
+
+Users.allLinkedWith = function(puzzleId, callback) {
+    var query = new Query();
+    query.where('puzzleId', puzzleId);
+    UsersToPuzzles.find(query, function(error, links) {
+        if(error) {throw error;}
+
+        var usersIds = _.map(links, function(link) {
+            return link.userId;
+        });
+
+        var query = new Query();
+        query.in('_id', usersIds);
+        Users.find(query, function(error, users) {
+            if(error) {throw error;}
+            callback.call(null, users);
+        });
+    });
+};
+
+Users.add = function(name, callback) {
+    var user = new Users();
+    user.name = name;
+    user.save(function(error) {
+        if(error) {throw error;}
+        callback.call(null, user);
+    });
+};
+
+Users.get = function(userId, callback) {
+    Users.findById(userId, function(error, user) {
+        if(error) {throw error;}
+        callback.call(null, user);
+    });
+};
+
+Users.prototype.setName = function(name, callback) {
+    this.name = name;
+    this.save(function(error) {
+        if(error) {throw error;}
+        callback.call(null);
+    });
+};
+
+Users.prototype.setScore = function(score, callback) {
+    this.score = score;
+    this.save(function(error) {
+        if(error) {throw error;}
+        callback.call(null);
+    });
+};
+
+Users.prototype.linkWith = function(puzzleId, callback) {
+    var link = new UsersToPuzzles();
+    link.userId = this._id;
+    link.puzzleId = puzzleId;
+    link.save(function(error) {
+        if(error) {throw error;}
+        callback.call(null);
+    });
+};
+
+Users.prototype.isLinkedWith = function(puzzleId, callback) {
+    var query = new Query();
+    query.where('userId', this._id);
+    query.where('puzzleId', puzzleId);
+    UsersToPuzzles.findOne(query, function(error, doc) {
+        if(error) {throw error;}
+        callback.call(null, _.isNull(doc) ? false : true);
+    });
+};
+
+module.exports = Users;
