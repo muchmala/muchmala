@@ -62,7 +62,7 @@ Puzzles.prototype.getPiece = function(x, y, callback) {
         .where('y', y)
         .where('puzzleId', this._id);
 
-    Puzzles.findOne(query, function(error, piece) {
+    Pieces.findOne(query, function(error, piece) {
         if(error) {throw error;}
         callback(piece);
     });

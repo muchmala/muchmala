@@ -5,4 +5,4 @@ function log(message) {
     }
 }
 
-Puzzle = {};
+window.Puzzle = {};

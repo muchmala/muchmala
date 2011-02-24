@@ -13,9 +13,9 @@ Puzzle.Server = function server() {
     });
 
     socket.on('disconnect', connect);
-
+    
     socket.on('connect', function() {
-        observer.fire(server.events.connected);
+        observer.fire('connected');
     });
 
     function connect() {
@@ -37,64 +37,47 @@ Puzzle.Server = function server() {
 
     function initialize(mapId, userId) {
         var data = {mapId: mapId};
-
         if(userId) {
             data.userId = userId
         }
-
-        sendMessage(createMessage('initialize', data));
+        sendMessage(createMessage(MESSAGES.initialize, data));
     }
-    function getMap(mapId) {
-        sendMessage(createMessage('puzzle', mapId));
+    function getPuzzle(puzzleId) {
+        sendMessage(createMessage(MESSAGES.puzzleData, puzzleId));
     }
     function getUserData(userId) {
-        sendMessage(createMessage('user', userId));
+        sendMessage(createMessage(MESSAGES.userData, userId));
     }
     function updateUserName(userName) {
-        sendMessage(createMessage('updateUserName', userName));
+        sendMessage(createMessage(MESSAGES.updateUserName, userName));
     }
-    function lockPice(x, y) {
-        sendMessage(createMessage('lock', [x, y]));
+    function lockPiece(x, y) {
+        sendMessage(createMessage(MESSAGES.lockPiece, [x, y]));
     }
-    function unlockPice(x, y) {
-        sendMessage(createMessage('unlock', [x, y]));
+    function unlockPiece(x, y) {
+        sendMessage(createMessage(MESSAGES.unlockPieces, [[x, y]]));
     }
-    function selectPice(x, y) {
-        sendMessage(createMessage('select', [x, y]));
+    function selectPiece(x, y) {
+        sendMessage(createMessage(MESSAGES.selectPiece, [x, y]));
     }
-    function unselectPice(x, y) {
-        sendMessage(createMessage('unselect', [x, y]));
+    function releasePiece(x, y) {
+        sendMessage(createMessage(MESSAGES.releasePiece, [x, y]));
     }
-    function flipPices(x1, y1, x2, y2) {
-        sendMessage(createMessage('flip', [[x1, y1], [x2, y2]]));
+    function swapPieces(x1, y1, x2, y2) {
+        sendMessage(createMessage(MESSAGES.swapPieces, [[x1, y1], [x2, y2]]));
     }
 
     return {
         connect: connect,
-        getMap: getMap,
-        lockPice: lockPice,
-        unlockPice: unlockPice,
-        selectPice: selectPice,
-        unselectPice: unselectPice,
-        flipPices: flipPices,
         initialize: initialize,
+        getPuzzle: getPuzzle,
+        lockPiece: lockPiece,
+        unlockPiece: unlockPiece,
+        selectPiece: selectPiece,
+        releasePiece: releasePiece,
+        swapPieces: swapPieces,
         getUserData: getUserData,
         updateUserName: updateUserName,
         subscribe: observer.subscribe
     };
-};
-
-Puzzle.Server.events = {
-    user: 'user',
-    puzzle: 'puzzle',
-    connected: 'connected',
-    initialized: 'initialized',
-    pieceLocked: 'pieceLocked',
-    pieceSelected: 'pieceSelected',
-    piecesUnlocked: 'piecesUnlocked',
-    pieceUnselected: 'pieceUnselected',
-    piecesFlipped: 'piecesFlipped',
-    completeLevel: 'completeLevel',
-    leadersBoard: 'leadersBoard',
-    connectedUsersCount: 'connectedUsersCount'
 };

@@ -1,22 +1,17 @@
 Puzzle.Handlers = function(server, layout, panel) {
-
     var handlers = {};
     var field, selected;
     var preloader = new Puzzle.Preloader();
 
     server.connect();
     layout.showLoading();
-    
-    handlers.connected = function() {
-        server.initialize(1, Puzzle.storage.getUserId());
-    };
 
-    handlers.initialized = function() {
-        server.getMap();
+    handlers.initialize = function() {
+        server.getPuzzle();
         server.getUserData();
     };
 
-    handlers.puzzle = function(data) {console.log(data);
+    handlers.puzzleData = function(data) {console.log(data);
         if(!field) {
             initialize(data);
         } else {
@@ -24,33 +19,33 @@ Puzzle.Handlers = function(server, layout, panel) {
         }
     };
 
-    handlers.user = function(data) {
+    handlers.userData = function(data) {
         Puzzle.storage.setUserId(data.id);
         panel.setUsername(data.name);
         panel.setScore(data.currentScore);
         panel.show();
     };
 
-    handlers.pieceLocked = function(coords) {
+    handlers.lockPiece = function(coords) {
         field.getPice(coords[0], coords[1]).lock();
     };
 
-    handlers.piecesUnlocked = function(coords) {
+    handlers.unlockedPieces = function(coords) {
         for(var i = 0, len = coords.length; i < len; i++) {
             field.getPice(coords[i][0], coords[i][1]).unlock();
         }
     };
 
-    handlers.pieceSelected = function(coords) {
+    handlers.selectPiece = function(coords) {
         selected = field.getPice(coords[0], coords[1]);
         selected.select();
     };
 
-    handlers.pieceUnselected = function(coords) {
+    handlers.releasePiece = function(coords) {
         field.getPice(coords[0], coords[1]).unselect();
     };
 
-    handlers.piecesFlipped = function(coord) {
+    handlers.swapPieces = function(coord) {
         field.flipPicesByCoords(coord);
     };
 
@@ -58,7 +53,7 @@ Puzzle.Handlers = function(server, layout, panel) {
         panel.setConnectedUsersCount(count);
     };
 
-    handlers.completeLevel = function(percent) {
+    handlers.completionPercentage = function(percent) {
         panel.setCompleteLevel(percent);
     };
 
@@ -66,7 +61,11 @@ Puzzle.Handlers = function(server, layout, panel) {
         panel.updateLeadersBoard(users);
     };
 
-    _.each(Puzzle.Server.events, function(event) {
+    server.subscribe('connected', function() {
+        server.initialize(1, Puzzle.storage.getUserId());
+    });
+
+    _.each(MESSAGES, function(event) {
         if(event in handlers) {
             server.subscribe(event, handlers[event]);
         }
@@ -101,13 +100,13 @@ Puzzle.Handlers = function(server, layout, panel) {
     function processClickedPice(pice) {
         if(!pice.locked && !pice.isCollected()) {
             if(pice.selected) {
-                server.unselectPice(pice.x, pice.y);
+                server.releasePiece(pice.x, pice.y);
             } else if(!selected || !selected.selected) {
-                server.selectPice(pice.x, pice.y);
+                server.selectPiece(pice.x, pice.y);
             } else {
                 if(field.isSameType(selected, pice)) {
                     selected.unselect();
-                    server.flipPices(selected.x, selected.y, pice.x, pice.y);
+                    server.swapPieces(selected.x, selected.y, pice.x, pice.y);
                 }
             }
         }
