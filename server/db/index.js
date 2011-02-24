@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var Puzzles = require('./puzzles');
 var Users = require('./users');
 
 module.exports = {
@@ -11,27 +12,23 @@ module.exports = {
 };
 
 module.exports.connect(function() {
-    Users.add('user', function(user) {
-        
-        user.linkWith('123123123123123123123123', function() {
-            Users.get(user._id, function(user) {
-                //Users.test(user._id, function(users) {
-                    //console.log(users);
-                //user.score = 100;
-                //user.save(function() {
-                    console.log(user.toObject());
-                    console.log('Done');
-                    process.exit();
-                //});
-                //});
-            });
-        });
+    var dummyPieces = [
+        {x: 1, y: 1, realX: 2, realY: 2, top: true, bottom: true, left: true, right: true},
+        {x: 2, y: 2, realX: 1, realY: 1, top: true, bottom: true, left: true, right: true}/*,
+        {x: 1, y: 0, realX: 2, realY: 0, top: true, bottom: true, left: true, right: true},
+        {x: 2, y: 0, realX: 1, realY: 0, top: true, bottom: true, left: true, right: true},
+        {x: 0, y: 0, realX: 0, realY: 0, top: true, bottom: true, left: true, right: true},
+        {x: 0, y: 0, realX: 0, realY: 0, top: true, bottom: true, left: true, right: true},
+        {x: 0, y: 0, realX: 0, realY: 0, top: true, bottom: true, left: true, right: true}*/
+    ];
 
-        /*user.linkPuzzle('123123123123123', function() {
-            user.setPuzzleScore(user.puzzles[0]._id, 100, function() {
+    Users.add('username', function(user) {
+        Puzzles.add(dummyPieces, 150, 100, 100, 'puzzleName', function(newPuzzle) {
+            newPuzzle.swap(1, 1, 2, 2, user._id, function(swaped) {
+                console.log(swaped);
                 console.log('Done');
                 process.exit();
             });
-        });*/
+        });
     });
 });

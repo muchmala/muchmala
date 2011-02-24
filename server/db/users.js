@@ -9,7 +9,7 @@ var UsersToPuzzles = models.UsersToPuzzles;
 Users.all = function(callback) {
     Users.find(function(error, users) {
         if(error) {throw error;}
-        callback.call(null, users);
+        callback(users);
     });
 };
 
@@ -27,7 +27,7 @@ Users.allLinkedWith = function(puzzleId, callback) {
         query.in('_id', usersIds);
         Users.find(query, function(error, users) {
             if(error) {throw error;}
-            callback.call(null, users);
+            callback(users);
         });
     });
 };
@@ -37,14 +37,14 @@ Users.add = function(name, callback) {
     user.name = name;
     user.save(function(error) {
         if(error) {throw error;}
-        callback.call(null, user);
+        callback(user);
     });
 };
 
-Users.get = function(userId, callback) {
-    Users.findById(userId, function(error, user) {
+Users.get = function(id, callback) {
+    Users.findById(id, function(error, user) {
         if(error) {throw error;}
-        callback.call(null, user);
+        callback(user);
     });
 };
 
@@ -52,7 +52,7 @@ Users.prototype.setName = function(name, callback) {
     this.name = name;
     this.save(function(error) {
         if(error) {throw error;}
-        callback.call(null);
+        callback();
     });
 };
 
@@ -60,7 +60,7 @@ Users.prototype.setScore = function(score, callback) {
     this.score = score;
     this.save(function(error) {
         if(error) {throw error;}
-        callback.call(null);
+        callback();
     });
 };
 
@@ -70,7 +70,7 @@ Users.prototype.linkWith = function(puzzleId, callback) {
     link.puzzleId = puzzleId;
     link.save(function(error) {
         if(error) {throw error;}
-        callback.call(null);
+        callback();
     });
 };
 
@@ -80,7 +80,7 @@ Users.prototype.isLinkedWith = function(puzzleId, callback) {
     query.where('puzzleId', puzzleId);
     UsersToPuzzles.findOne(query, function(error, doc) {
         if(error) {throw error;}
-        callback.call(null, _.isNull(doc) ? false : true);
+        callback(_.isNull(doc) ? false : true);
     });
 };
 

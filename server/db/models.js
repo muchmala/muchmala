@@ -5,11 +5,11 @@ var ObjectId = Schema.ObjectId;
 
 var PuzzlesSchema = new Schema({
     name        : String,
-    visible     : Boolean,
     pieceSize   : Number,
     piecesCount : Number,
-    created     : {type: Date, 'default': Date.now},
-    connected   : [ObjectId]
+    hLength     : Number,
+    vLength     : Number,
+    created     : {type: Date, 'default': Date.now}
 });
 
 var PiecesSchema = new Schema({
@@ -17,11 +17,13 @@ var PiecesSchema = new Schema({
     y         : Number,
     realX     : Number,
     realY     : Number,
-    earTop    : Boolean,
-    earBottom : Boolean,
-    earLeft   : Boolean,
-    earRight  : Boolean,
-    puzzleId  : ObjectId
+    puzzleId  : ObjectId,
+    ears      : {
+        top     : Boolean,
+        bottom  : Boolean,
+        left    : Boolean,
+        right   : Boolean
+    }
 });
 
 var UsersSchema = new Schema({
