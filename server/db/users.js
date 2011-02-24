@@ -64,13 +64,51 @@ Users.prototype.setScore = function(score, callback) {
     });
 };
 
+Users.prototype.setPuzzleScore = function(score, puzzleId, callback) {
+    var query = new Query();
+    query.where('userId', this._id);
+    query.where('puzzleId', puzzleId);
+    UsersToPuzzles.findOne(query, function(error, link) {
+        if(error) {throw error;}
+        if(_.isNull(link)) {
+            link = new UsersToPuzzles();
+            link.userId = this._id;
+            link.puzzleId = puzzleId;
+        }
+
+        link.score = score;
+        link.save(function(error) {
+            if(error) {throw error;}
+            callback();
+        });
+    });
+};
+
+Users.prototype.getPuzzleScore = function(puzzleId, callback) {
+    var query = new Query();
+    query.where('userId', this._id);
+    query.where('puzzleId', puzzleId);
+    UsersToPuzzles.findOne(query, function(error, link) {
+        if(error) {throw error;}
+
+        var score = 0;
+        if(!_.isNull(link)) {
+            score = link.toObject().score;
+        }
+        callback(score);
+    });
+};
+
 Users.prototype.linkWith = function(puzzleId, callback) {
     var link = new UsersToPuzzles();
     link.userId = this._id;
     link.puzzleId = puzzleId;
     link.save(function(error) {
         if(error) {throw error;}
-        callback();
+        if(!_.isUndefined(callback) &&
+            _.isFunction(callback)) {
+            callback();
+        }
     });
 };
 

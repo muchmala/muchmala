@@ -8,7 +8,7 @@ function createPiece(x, y) {
     };
 }
 
-function createMap(width, height, pieceSize) {
+function createPuzzle(width, height, pieceSize) {
     var rectSize = Math.floor(pieceSize / 3 * 2);
     var countH = Math.floor((width - rectSize / 2) / rectSize);
     var countV = Math.floor((height - rectSize / 2) / rectSize);
@@ -78,5 +78,5 @@ function createMap(width, height, pieceSize) {
     }
 }
 
-exports.map = createMap;
+exports.puzzle = createPuzzle;
 exports.piece = createPiece;

@@ -45,7 +45,7 @@ Puzzle.Server = function server() {
         sendMessage(createMessage('initialize', data));
     }
     function getMap(mapId) {
-        sendMessage(createMessage('map', mapId));
+        sendMessage(createMessage('puzzle', mapId));
     }
     function getUserData(userId) {
         sendMessage(createMessage('user', userId));
@@ -85,8 +85,8 @@ Puzzle.Server = function server() {
 };
 
 Puzzle.Server.events = {
-    map: 'map',
     user: 'user',
+    puzzle: 'puzzle',
     connected: 'connected',
     initialized: 'initialized',
     pieceLocked: 'pieceLocked',

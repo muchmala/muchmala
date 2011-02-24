@@ -27,7 +27,7 @@ Puzzle.Field = function field(settings) {
         
         _.each(found, function(piece) {
             if(piece.hasPoint(eventX, eventY)) {
-                observer.fire(field.EVENTS.clicked, piece);
+                observer.fire(field.MESSAGES.clicked, piece);
             }
         });
     });
@@ -105,25 +105,26 @@ Puzzle.Field = function field(settings) {
         flipPices(first, second);
     }
 
-    function addPice(x, y, data) {
-        console.log(data.d);
+    function addPice(data) {
         var pice = new Puzzle.Pice({
             ears: {
                 left: data.l, bottom: data.b,
                 right: data.r, top: data.t
             },
-            x: x, y: y, locked: data.d,
-            realX: data.x, realY: data.y,
+            x: data.x, 
+            y: data.y,
+            locked: data.d,
+            realX: data.realX,
+            realY: data.realY,
             size: settings.piceSize
         });
 
         settings.viewport.append(pice.element);
 
-        if(pices[y] == null) {
-            pices[y] = {};
+        if(pices[data.y] == null) {
+            pices[data.y] = {};
         }
-
-        pices[y][x] = pice;
+        pices[data.y][data.x] = pice;
     }
 
     function getPice(x, y) {
@@ -133,11 +134,9 @@ Puzzle.Field = function field(settings) {
         return false;
     }
 
-    function buildField(map) {
-        _.each(map, function(row, y) {
-            _.each(row, function(piceData, x) {
-                addPice(x, y, piceData);
-            });
+    function buildField(piecesData) {
+        _.each(piecesData, function(pieceData) {
+            addPice(pieceData);
         });
         
         buildIndex();
@@ -168,6 +167,6 @@ Puzzle.Field = function field(settings) {
     };
 };
 
-Puzzle.Field.EVENTS = {
+Puzzle.Field.MESSAGES = {
     clicked: 'clicked'
 };

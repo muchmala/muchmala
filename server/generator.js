@@ -1,7 +1,6 @@
 var Canvas = require('canvas'),
     cutter = require('./cutter'),
     random = require('./random'),
-    models = require('./models'),
     opts = require('opts'),
     db = require('./db'),
     Image = Canvas.Image;
@@ -39,30 +38,26 @@ image.onerror = function(err) {
 image.onload = function() {
     var mapName = opts.get('name');
     var pieceSize = parseInt(opts.get('piecesize'));
-    var map = random.map(image.width, image.height, pieceSize);
+    var puzzle = random.puzzle(image.width, image.height, pieceSize);
 
     function onCut() {
         console.log('Picture is cut...');
 
-        db.createConnection(function() {
-            db.useCollection('puzzles', function(error, puzzlesCollection) {
-                db.useCollection('pieces', function(error, piecesCollection) {
-                    var puzzles = models.maps.load(puzzlesCollection, piecesCollection);
-
-                    puzzles.addMap(map.pieces, pieceSize, mapName, function(map) {
-                        console.log('Map is added. Id: ' + map._id.toHexString());
-                        process.exit();
-                    });
-                });
+        db.connect(function() {
+            db.Puzzles.add(puzzle.pieces, puzzle.hLength,
+                           puzzle.vLength, pieceSize, mapName, 
+                           function(map) {
+                console.log('Map is added. Id: ' + map._id.toHexString());
+                process.exit();
             });
         });
     }
     
     cutter.cut({
         image: image,
-        hLength: map.hLength,
-        vLength: map.vLength,
-        piecesMap: map.pieces,
+        hLength: puzzle.hLength,
+        vLength: puzzle.vLength,
+        piecesMap: puzzle.pieces,
         pieceSize: pieceSize,
         resultDir: __dirname + '/../client/img/' + mapName,
         onFinish: onCut

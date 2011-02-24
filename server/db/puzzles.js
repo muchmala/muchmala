@@ -56,17 +56,39 @@ Puzzles.last = function(callback) {
     });
 };
 
+Puzzles.prototype.getPiece = function(x, y, callback) {
+    var query = new Query()
+        .where('x', x)
+        .where('y', y)
+        .where('puzzleId', this._id);
+
+    Puzzles.findOne(query, function(error, piece) {
+        if(error) {throw error;}
+        callback(piece);
+    });
+};
+
 Puzzles.prototype.compact = function(callback) {
+    var self = this;
+    var data = self.toObject();
+    var compact = {
+        name: data.name,
+        hLength: data.hLength,
+        vLength: data.vLength,
+        piceSize: data.pieceSize,
+        created: data.created
+    };
+    
     Pieces.find({puzzleId: this._id}, function(error, found) {
         if(error) {throw error;}
         
-        var pieces = _.map(found, function(piece) {
+        compact.pieces = _.map(found, function(piece) {
             piece = piece.toObject();
             var locked = false;
 
-            if(_.isUndefined(this.locked) ||
-               _.isUndefined(this.locked[piece.y]) ||
-               _.isUndefined(this.locked[piece.y][piece.x])) {
+            if(!_.isUndefined(self.locked) &&
+               !_.isUndefined(self.locked[piece.y]) &&
+               !_.isUndefined(self.locked[piece.y][piece.x])) {
                locked = true;
             }
             
@@ -75,21 +97,15 @@ Puzzles.prototype.compact = function(callback) {
                 l: piece.ears.left,
                 b: piece.ears.bottom,
                 r: piece.ears.right,
-                x: piece.realX,
-                y: piece.realY,
+                realX: piece.realX,
+                realY: piece.realY,
+                x: piece.x,
+                y: piece.y,
                 d: locked
             };
         });
-
-        callback({
-            id: this._id,
-            name: this.name,
-            hLength: this.hLength,
-            vLength: this.vLength,
-            piceSize: this.pieceSize,
-            created: this.created,
-            pieces: pieces
-        });
+        
+        callback(compact);
     });
 };
 
@@ -161,7 +177,7 @@ Puzzles.prototype.disconnectUser = function(userId) {
 };
 
 Puzzles.prototype.swap = function(x1, y1, x2, y2, userId, callback) {
-    if(!this.unlock()) {
+    if(!this.unlock(x1, y1, userId)) {
         callback(false);
     }
 
@@ -209,20 +225,28 @@ Puzzles.prototype.swap = function(x1, y1, x2, y2, userId, callback) {
 };
 
 Puzzles.prototype.getCompletionPercentage = function(callback) {
+
     Pieces.find({puzzleId: this._id}, function(error, found) {
         if(error) {throw error;}
 
         var collected = 0;
         _.each(found, function(piece) {
-            piece = piece.toObject();
-            if(piece.x == piece.realX &&
-               piece.y == piece.realY) {
+            if(piece.isCollected()) {
                 collected++;
             }
         });
 
         callback(Math.floor(100 / found.length * collected));
     });
+};
+
+Pieces.prototype.isCollected = function() {
+    var data = this.toObject();
+    if(data.x == data.realX &&
+       data.y == data.realY) {
+        return true;
+    }
+    return false;
 };
 
 module.exports = Puzzles;

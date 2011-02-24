@@ -25,7 +25,7 @@ Puzzle.Panel = function panel(element) {
     });
 
     userNameDialog.subscribe(Puzzle.UserNameDialog.events.entered, function(value) {
-        observer.fire(panel.EVENTS.userNameChanged, value);
+        observer.fire(panel.MESSAGES.userNameChanged, value);
     });
 
     function setUsername(name) {
@@ -95,6 +95,6 @@ Puzzle.Panel = function panel(element) {
     }
 };
 
-Puzzle.Panel.EVENTS = {
+Puzzle.Panel.MESSAGES = {
     userNameChanged: 'userNameChanged'
 };

@@ -16,7 +16,7 @@ Puzzle.Handlers = function(server, layout, panel) {
         server.getUserData();
     };
 
-    handlers.map = function(data) {
+    handlers.puzzle = function(data) {console.log(data);
         if(!field) {
             initialize(data);
         } else {
@@ -88,12 +88,12 @@ Puzzle.Handlers = function(server, layout, panel) {
             }, images));
 
             panel.setTimeSpent(data.created);
-            panel.subscribe(Puzzle.Panel.EVENTS.userNameChanged, server.updateUserName);
+            panel.subscribe(Puzzle.Panel.MESSAGES.userNameChanged, server.updateUserName);
 
-            field.subscribe(Puzzle.Field.EVENTS.clicked, processClickedPice);
-            field.buildField(data.map);
+            field.subscribe(Puzzle.Field.MESSAGES.clicked, processClickedPice);
+            field.buildField(data.pieces);
             
-            layout.arrange(data.piceSize, data.map.length, data.map[0].length);
+            layout.arrange(data.piceSize, data.vLength, data.hLength);
             layout.hideLoading();
         });
     }
