@@ -1,9 +1,9 @@
-var http = require('http');
-var io = require('socket.io');
-
-var db = require('./db');
-var config = require('./config');
-var handlers = require('./handlers').handlers;
+var db = require('./db'),
+    http = require('http'),
+    io = require('socket.io'),
+    config = require('./config'),
+    Handlers = require('./handlers'),
+    Session = require('./session');
 
 var server = http.createServer();
 server.listen(config.server.port, config.server.host);
@@ -11,6 +11,6 @@ server.listen(config.server.port, config.server.host);
 db.connect(function() {
     var socket = io.listen(server);
     socket.on('connection', function(client) {
-        handlers(client);
+        new Handlers(new Session(client));
     });
 });

@@ -6,11 +6,6 @@ Puzzle.Handlers = function(server, layout, panel) {
     server.connect();
     layout.showLoading();
 
-    handlers.initialize = function() {
-        server.getPuzzle();
-        server.getUserData();
-    };
-
     handlers.puzzleData = function(data) {console.log(data);
         if(!field) {
             initialize(data);
@@ -58,6 +53,10 @@ Puzzle.Handlers = function(server, layout, panel) {
     };
 
     handlers.leadersBoard = function(users) {
+        panel.updateLeadersBoard(users);
+    };
+
+    handlers.connected = function(users) {
         panel.updateLeadersBoard(users);
     };
 

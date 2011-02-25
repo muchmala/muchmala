@@ -12,4 +12,8 @@ ns.leadersBoard  = 'leadersBoard';
 ns.completionPercentage = 'completionPercentage';
 ns.connectedUsersCount = 'connectedUsersCount';
 
+ns.create = function(event, data) {
+    return JSON.stringify({event: event, data: data});
+};
+
 }((typeof exports === 'undefined') ? window.MESSAGES = {} : exports));
