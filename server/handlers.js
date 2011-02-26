@@ -80,7 +80,7 @@ Handlers.prototype.selectPieceAction = function(coords) {
         this.session.broadcast(MESSAGES.lockPiece, coords);
         this.session.startCountDown(_.bind(function() {
             var coords = this.puzzle.unlockAll(this.user._id);
-            this.session.send(MESSAGES.unlockPieces, coords);
+            this.session.send(MESSAGES.releasePiece, coords[0]);
             this.session.broadcast(MESSAGES.unlockPieces, coords);
         }, this));
     }
