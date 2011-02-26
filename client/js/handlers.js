@@ -52,8 +52,8 @@ Puzzle.Handlers = function(server, layout, panel) {
         panel.setCompleteLevel(percent);
     };
 
-    handlers.leadersBoard = function(users) {
-        panel.updateLeadersBoard(users);
+    handlers.leadersBoard = function(data) {
+        panel.updateLeadersBoard(data);
     };
 
     handlers.connected = function(users) {

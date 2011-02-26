@@ -42,9 +42,11 @@ Handlers.prototype.initializeAction = function(params) {
 
             self.session.broadcast(MESSAGES.connectedUsersCount,
                                    self.puzzle.connected.length);
-
             self.userDataAction();
             self.puzzleDataAction();
+            self.getLeadersBoardData(function(data) {
+                self.session.send(MESSAGES.leadersBoard, data);
+            });
         });
     });
 };
@@ -97,7 +99,7 @@ Handlers.prototype.releasePieceAction = function(coords) {
 Handlers.prototype.swapPiecesAction = function(coords) {
     var self = this;
     self.puzzle.swap(coords[0][0], coords[0][1], coords[1][0], coords[1][1], self.user._id, function(swaped) {
-        if(!swaped) {return;}
+        if(!swaped) {return;} 
 
         self.session.stopCountDown();
         self.session.send(MESSAGES.swapPieces, coords);
@@ -154,6 +156,33 @@ Handlers.prototype.addScore = function(correctSwapsNum) {
         },
         function() {
             self.userDataAction();
+            self.getLeadersBoardData(function(data) {
+                self.session.send(MESSAGES.leadersBoard, data);
+                self.session.broadcast(MESSAGES.leadersBoard, data);
+            });
+        });
+};
+
+//TODO: Refactor this when bug in mongoose is fixed
+Handlers.prototype.getLeadersBoardData = function(callback) {
+    var self = this;
+    var result = {};
+
+    flow.exec(
+        function() {
+            db.Users.allLinkedWith(self.puzzle._id, this);
+        },
+        function(users) {
+            flow.serialForEach(users, function(user) {
+                user.getPuzzleScore(self.puzzle._id, this);
+                result[user._id] = { name: user.name };
+            }, function(score, userId) {
+                result[userId].score = score;
+            }, function() {
+                callback(_.sortBy(result, function(row) {
+                    return row.score;
+                }));
+            });
         });
 };
 

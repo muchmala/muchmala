@@ -95,7 +95,7 @@ Users.prototype.getPuzzleScore = function(puzzleId, callback) {
         if(!_.isNull(link)) {
             score = link.toObject().score;
         }
-        callback(score);
+        callback(score, link.userId);
     });
 };
 
