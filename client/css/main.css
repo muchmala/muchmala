@@ -22,32 +22,9 @@ input {
     position:relative;
 }
 
-#viewport div {
+#viewport canvas {
     position:absolute;
-    overflow:hidden;
 }
-
-#viewport .cover {
-    height:400%;
-    width:400%;
-}  
-
-#viewport .cover.type_0000 { left:0; top:0; }
-#viewport .cover.type_1111 { left:-100%; top:0; }
-#viewport .cover.type_1000 { left:-200%; top:0; }
-#viewport .cover.type_0100 { left:-300%; top:0; }
-#viewport .cover.type_0010 { left:0; top:-100%; }
-#viewport .cover.type_0001 { left:-100%; top:-100%; }
-#viewport .cover.type_1110 { left:-200%; top:-100%; }
-#viewport .cover.type_0111 { left:-300%; top:-100%; }
-#viewport .cover.type_1101 { left:0; top:-200%; }
-#viewport .cover.type_1011 { left:-100%; top:-200%; }
-#viewport .cover.type_1100 { left:-200%; top:-200%; }
-#viewport .cover.type_0011 { left:-300%; top:-200%; }
-#viewport .cover.type_0110 { left:0; top:-300%; }
-#viewport .cover.type_1001 { left:-100%; top:-300%; }
-#viewport .cover.type_0101 { left:-200%; top:-300%; }
-#viewport .cover.type_1010 { left:-300%; top:-300%; }
 
 #loading {
     position:absolute;

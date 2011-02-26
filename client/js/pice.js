@@ -15,57 +15,65 @@ Puzzle.Pice = function(settings) {
     this.locked = settings.locked;
     this.selected = false;
     
-    this.element = $(document.createElement('div'));
+    this.canvas = document.createElement('canvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.element = this.canvas;
+
+    this.canvas.width = this.size;
+    this.canvas.height = this.size;
+    this.canvas.style.top = this.yCoord + 'px';
+    this.canvas.style.left = this.xCoord + 'px';
+    
     this.render();
 };
 
 Puzzle.Pice.setImages = function(images) {
     Puzzle.Pice.IMAGES = _.extend({
-        spriteSrc: null,
-        defaultCoverSrc: null,
-        selectCoverSrc: null,
-        lockCoverSrc: null
+        sprite: null,
+        defaultCover: null,
+        selectCover: null,
+        lockCover: null
     }, images);
 };
 
-Puzzle.Pice.prototype.render = function() {
-    this.element.css({
-        'top': this.yCoord,
-        'left': this.xCoord,
-        'width': this.size,
-        'height': this.size,
-        'background-image': 'url(' + this.images.spriteSrc + ')',
-        'background-position': '-' + (this.realX * this.size) + 'px ' +
-                               '-' + (this.realY * this.size) + 'px'
-    });
-
-    this.clear();
-    
-    if(this.locked) {
-        this.cover(this.images.lockCoverSrc);
-    } else if(this.selected) {
-        this.cover(this.images.selectCoverSrc);
-    } else if(!this.isCollected()) {
-        this.cover(this.images.defaultCoverSrc);
-    }
-
-    return this.element;
+Puzzle.Pice.coverOffsets = {
+    '0000': [0, 0], '1111': [1, 0],
+    '1000': [2, 0], '0100': [3, 0],
+    '0010': [0, 1], '0001': [1, 1],
+    '1110': [2, 1], '0111': [3, 1],
+    '1101': [0, 2], '1011': [1, 2],
+    '1100': [2, 2], '0011': [3, 2],
+    '0110': [0, 3], '1001': [1, 3],
+    '0101': [2, 3], '1010': [3, 3]
 };
 
-Puzzle.Pice.prototype.cover = function(coverSrc) {
-    var cover = $(document.createElement('div'));
+Puzzle.Pice.prototype.render = function() {
+    this.ctx.clearRect(0, 0, this.size, this.size);
+    this.ctx.drawImage(this.images.sprite,  this.realX * this.size,
+                       this.realY * this.size, this.size, this.size,
+                       0, 0, this.size, this.size);
     
-    var type = 'type_';
+    if(this.locked) {
+        this.cover(this.images.lockCover);
+    } else if(this.selected) {
+        this.cover(this.images.selectCover)
+    } else if(!this.isCollected()) {
+        this.cover(this.images.defaultCover);
+    }
+
+    return this.canvas;
+};
+
+Puzzle.Pice.prototype.cover = function(coverImage) {
+    var type = '';
     type += this.ears.left ? '1' : '0';
     type += this.ears.top ? '1' : '0';
     type += this.ears.right ? '1' : '0';
     type += this.ears.bottom ? '1' : '0';
 
-    cover.css('background', 'url(' + coverSrc + ')');
-    cover.addClass('cover');
-    cover.addClass(type);
-
-    this.element.append(cover);
+    this.ctx.drawImage(coverImage, Puzzle.Pice.coverOffsets[type][0] * this.size,
+                       Puzzle.Pice.coverOffsets[type][1] * this.size, this.size,
+                       this.size, 0, 0, this.size, this.size);
 };
 
 Puzzle.Pice.prototype.select = function() {
@@ -83,9 +91,6 @@ Puzzle.Pice.prototype.unselect = function() {
 Puzzle.Pice.prototype.unlock = function() {
     this.locked = false;
     this.render();
-};
-Puzzle.Pice.prototype.clear = function() {
-    this.element.find('.cover').remove();
 };
 
 Puzzle.Pice.prototype.hasPoint = function(x, y) {

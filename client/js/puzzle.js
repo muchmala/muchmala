@@ -6,10 +6,10 @@ Puzzle.Field = function field(settings) {
     }, settings);
 
     Puzzle.Pice.setImages({
-        spriteSrc: settings.spriteSrc,
-        defaultCoverSrc: settings.defaultCoverSrc,
-        selectCoverSrc: settings.selectCoverSrc,
-        lockCoverSrc: settings.lockCoverSrc
+        sprite: settings.sprite,
+        defaultCover: settings.defaultCover,
+        selectCover: settings.selectCover,
+        lockCover: settings.lockCover
     });
 
     // TMP

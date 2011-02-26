@@ -1,5 +1,5 @@
 Puzzle.Preloader = function() {
-    this.cache = [];
+    this.cache = {};
 };
 
 Puzzle.Preloader.prototype.loadImages = function(sources, callback) {
@@ -9,7 +9,7 @@ Puzzle.Preloader.prototype.loadImages = function(sources, callback) {
         var image = new Image();
         image.src = src;
         image.onload = function() {
-            that.cache.push(image);
+            that.cache[src] = image;
             if(--imagesCount == 0) {
                 callback.call(null);
             }

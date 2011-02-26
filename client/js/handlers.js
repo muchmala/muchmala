@@ -79,16 +79,23 @@ Puzzle.Handlers = function(server, layout, panel) {
         };
 
         preloader.loadImages(images, function() {
-            field = Puzzle.Field(_.extend({
+            field = Puzzle.Field({
                 piceSize: data.pieceSize,
-                viewport: layout.viewport
-            }, images));
+                viewport: layout.viewport,
+
+                sprite: preloader.cache[images.spriteSrc],
+                lockCover: preloader.cache[images.lockCoverSrc],
+                selectCover: preloader.cache[images.selectCoverSrc],
+                defaultCover: preloader.cache[images.defaultCoverSrc]
+            });
 
             panel.setTimeSpent(data.created);
             panel.setCompleteLevel(data.completion);
             panel.setConnectedUsersCount(data.connected);
+
             panel.subscribe(Puzzle.Panel.MESSAGES.userNameChanged, server.setUserName);
             field.subscribe(Puzzle.Field.MESSAGES.clicked, processClickedPice);
+            
             field.buildField(data.pieces);
             
             layout.arrange(data.pieceSize, data.vLength, data.hLength);
