@@ -70,7 +70,7 @@ Handlers.prototype.puzzleDataAction = function() {
 
 Handlers.prototype.setUserNameAction = function(userName) {
     this.user.setName(userName, _.bind(function() {
-        this.userData();
+        this.userDataAction();
     }, this));
 };
 
@@ -102,6 +102,7 @@ Handlers.prototype.swapPiecesAction = function(coords) {
         self.session.stopCountDown();
         self.session.send(MESSAGES.swapPieces, coords);
         self.session.broadcast(MESSAGES.swapPieces, coords);
+        self.session.broadcast(MESSAGES.unlockPieces, coords);
 
         self.puzzle.getPiece(coords[0][0], coords[0][1], function(firstPiece) {
             self.puzzle.getPiece(coords[1][0], coords[1][1], function(secondPiece) {

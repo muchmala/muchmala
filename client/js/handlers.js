@@ -87,7 +87,7 @@ Puzzle.Handlers = function(server, layout, panel) {
             panel.setTimeSpent(data.created);
             panel.setCompleteLevel(data.completion);
             panel.setConnectedUsersCount(data.connected);
-            panel.subscribe(Puzzle.Panel.MESSAGES.userNameChanged, server.updateUserName);
+            panel.subscribe(Puzzle.Panel.MESSAGES.userNameChanged, server.setUserName);
             field.subscribe(Puzzle.Field.MESSAGES.clicked, processClickedPice);
             field.buildField(data.pieces);
             

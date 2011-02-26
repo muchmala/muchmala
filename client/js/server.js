@@ -48,8 +48,8 @@ Puzzle.Server = function server() {
     function getUserData(userId) {
         sendMessage(createMessage(MESSAGES.userData, userId));
     }
-    function updateUserName(userName) {
-        sendMessage(createMessage(MESSAGES.updateUserName, userName));
+    function setUserName(userName) {
+        sendMessage(createMessage(MESSAGES.setUserName, userName));
     }
     function lockPiece(x, y) {
         sendMessage(createMessage(MESSAGES.lockPiece, [x, y]));
@@ -77,7 +77,7 @@ Puzzle.Server = function server() {
         releasePiece: releasePiece,
         swapPieces: swapPieces,
         getUserData: getUserData,
-        updateUserName: updateUserName,
+        setUserName: setUserName,
         subscribe: observer.subscribe
     };
 };

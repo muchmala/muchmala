@@ -8,6 +8,7 @@ ns.selectPiece   = 'selectPiece';
 ns.releasePiece  = 'releasePiece';
 ns.unlockPieces  = 'unlockPieces';
 ns.swapPieces    = 'swapPieces';
+ns.setUserName   = 'setUserName';
 ns.leadersBoard  = 'leadersBoard';
 ns.completionPercentage = 'completionPercentage';
 ns.connectedUsersCount = 'connectedUsersCount';
