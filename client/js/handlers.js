@@ -6,7 +6,7 @@ Puzzle.Handlers = function(server, layout, panel) {
     server.connect();
     layout.showLoading();
 
-    handlers.puzzleData = function(data) {console.log(data);
+    handlers.puzzleData = function(data) {
         if(!field) {
             initialize(data);
         } else {
@@ -16,8 +16,8 @@ Puzzle.Handlers = function(server, layout, panel) {
 
     handlers.userData = function(data) {
         Puzzle.storage.setUserId(data.id);
+        panel.setScore(data.puzzleScore);
         panel.setUsername(data.name);
-        panel.setScore(data.currentScore);
         panel.show();
     };
 
@@ -25,7 +25,7 @@ Puzzle.Handlers = function(server, layout, panel) {
         field.getPice(coords[0], coords[1]).lock();
     };
 
-    handlers.unlockedPieces = function(coords) {
+    handlers.unlockPieces = function(coords) {
         for(var i = 0, len = coords.length; i < len; i++) {
             field.getPice(coords[i][0], coords[i][1]).unlock();
         }
@@ -71,7 +71,6 @@ Puzzle.Handlers = function(server, layout, panel) {
     });
 
     function initialize(data) {
-
         var images = {
             spriteSrc: '/img/' + data.name + '/pieces.png',
             defaultCoverSrc: '/img/' + data.name + '/default_covers.png',
@@ -81,31 +80,32 @@ Puzzle.Handlers = function(server, layout, panel) {
 
         preloader.loadImages(images, function() {
             field = Puzzle.Field(_.extend({
-                piceSize: data.piceSize,
+                piceSize: data.pieceSize,
                 viewport: layout.viewport
             }, images));
 
             panel.setTimeSpent(data.created);
+            panel.setCompleteLevel(data.completion);
+            panel.setConnectedUsersCount(data.connected);
             panel.subscribe(Puzzle.Panel.MESSAGES.userNameChanged, server.updateUserName);
-
             field.subscribe(Puzzle.Field.MESSAGES.clicked, processClickedPice);
             field.buildField(data.pieces);
             
-            layout.arrange(data.piceSize, data.vLength, data.hLength);
+            layout.arrange(data.pieceSize, data.vLength, data.hLength);
             layout.hideLoading();
         });
     }
     
-    function processClickedPice(pice) {
-        if(!pice.locked && !pice.isCollected()) {
-            if(pice.selected) {
-                server.releasePiece(pice.x, pice.y);
+    function processClickedPice(piece) {
+        if(!piece.locked && !piece.isCollected()) {
+            if(piece.selected) {
+                server.releasePiece(piece.x, piece.y);
             } else if(!selected || !selected.selected) {
-                server.selectPiece(pice.x, pice.y);
+                server.selectPiece(piece.x, piece.y);
             } else {
-                if(field.isSameType(selected, pice)) {
+                if(field.isSameType(selected, piece)) {
                     selected.unselect();
-                    server.swapPieces(selected.x, selected.y, pice.x, pice.y);
+                    server.swapPieces(selected.x, selected.y, piece.x, piece.y);
                 }
             }
         }

@@ -7,6 +7,20 @@ var Query = mongoose.Query;
 var Puzzles = models.Puzzles;
 var Pieces = models.Pieces;
 
+var lockedPieces = {};
+var connectedUsers = {};
+
+function setExternals(puzzle) {
+    if(_.isUndefined(connectedUsers[puzzle._id])) {
+        connectedUsers[puzzle._id] = [];
+    }
+    if(_.isUndefined(lockedPieces[puzzle._id])) {
+        lockedPieces[puzzle._id] = {};
+    }
+    puzzle.connected = connectedUsers[puzzle._id];
+    puzzle.locked = lockedPieces[puzzle._id];
+};
+
 Puzzles.add = function(piecesData, hLength, vLength, pieceSize, name, callback) {
     var puzzle = new Puzzles();
     puzzle.name = name;
@@ -44,6 +58,7 @@ Puzzles.add = function(piecesData, hLength, vLength, pieceSize, name, callback) 
 Puzzles.get = function(id, callback) {
     Puzzles.findById(id, function(error, puzzle) {
         if(error) {throw error;}
+        setExternals(puzzle);
         callback(puzzle);
     });
 };
@@ -52,7 +67,9 @@ Puzzles.get = function(id, callback) {
 Puzzles.last = function(callback) {
     Puzzles.find(function(error, puzzles) {
         if(error) {throw error;}
-        callback(puzzles.pop());
+        var puzzle = puzzles.pop();
+        setExternals(puzzle);
+        callback(puzzle);
     });
 };
 
@@ -75,8 +92,9 @@ Puzzles.prototype.compact = function(callback) {
         name: data.name,
         hLength: data.hLength,
         vLength: data.vLength,
-        piceSize: data.pieceSize,
-        created: data.created
+        pieceSize: data.pieceSize,
+        created: data.created.getTime(),
+        connected: this.connected.length
     };
     
     Pieces.find({puzzleId: this._id}, function(error, found) {
@@ -104,15 +122,15 @@ Puzzles.prototype.compact = function(callback) {
                 d: locked
             };
         });
-        
-        callback(compact);
+
+        self.getCompletionPercentage(function(percentage) {
+            compact.completion = percentage;
+            callback(compact);
+        });
     });
 };
 
 Puzzles.prototype.lock = function(x, y, userId) {
-    if(_.isUndefined(this.locked)) {
-        this.locked = {};
-    }
     if(_.isUndefined(this.locked[y])) {
         this.locked[y] = {};
     }
@@ -140,30 +158,30 @@ Puzzles.prototype.unlock = function(x, y, userId) {
 
 Puzzles.prototype.unlockAll = function(userId) {
     if(_.isUndefined(this.locked)) {
-       return;
+       return [];
     }
-
-    var result = {};
+    
+    var unlocked = [];
     _.each(this.locked, function(row, y) {
-        result[y] = {};
         _.each(row, function(piece, x) {
-            if(!_.isEqual(piece, userId)) {
-                result[y][x] = piece;
+            if(_.isEqual(piece, userId)) {
+                unlocked.push([x, y]);
             }
         });
     });
 
-    this.locked = result;
+    var self = this;
+    _.each(unlocked, function(coords) {
+        delete self.locked[coords[1]][coords[0]];
+    })
+
+    return unlocked;
 };
 
 Puzzles.prototype.connectUser = function(userId) {
-    if(_.isUndefined(this.connected)) {
-        this.connected = [];
-    }
     if(_.indexOf(this.connected, userId) != -1) {
         throw new Error('Trying to connect already connected user');
     }
-
     this.connected.push(userId);
 };
 
@@ -172,8 +190,7 @@ Puzzles.prototype.disconnectUser = function(userId) {
        _.indexOf(this.connected, userId) == -1) {
         throw new Error('Trying to disconnect not connected user');
     }
-
-    this.connected = _.without(this.connected, userId);
+    this.connected.splice(this.connected.indexOf(userId), 1);
 };
 
 Puzzles.prototype.swap = function(x1, y1, x2, y2, userId, callback) {

@@ -56,15 +56,15 @@ Users.prototype.setName = function(name, callback) {
     });
 };
 
-Users.prototype.setScore = function(score, callback) {
-    this.score = score;
+Users.prototype.addScore = function(score, callback) {
+    this.score += score;
     this.save(function(error) {
         if(error) {throw error;}
         callback();
     });
 };
 
-Users.prototype.setPuzzleScore = function(score, puzzleId, callback) {
+Users.prototype.addPuzzleScore = function(score, puzzleId, callback) {
     var query = new Query();
     query.where('userId', this._id);
     query.where('puzzleId', puzzleId);
@@ -76,7 +76,7 @@ Users.prototype.setPuzzleScore = function(score, puzzleId, callback) {
             link.puzzleId = puzzleId;
         }
 
-        link.score = score;
+        link.score += score;
         link.save(function(error) {
             if(error) {throw error;}
             callback();
