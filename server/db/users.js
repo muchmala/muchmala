@@ -85,6 +85,7 @@ Users.prototype.addPuzzleScore = function(score, puzzleId, callback) {
 };
 
 Users.prototype.getPuzzleScore = function(puzzleId, callback) {
+    var self = this;
     var query = new Query();
     query.where('userId', this._id);
     query.where('puzzleId', puzzleId);
@@ -95,7 +96,7 @@ Users.prototype.getPuzzleScore = function(puzzleId, callback) {
         if(!_.isNull(link)) {
             score = link.toObject().score;
         }
-        callback(score, link.userId);
+        callback(score, self._id);
     });
 };
 
