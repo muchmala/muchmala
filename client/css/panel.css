@@ -31,34 +31,6 @@
     text-shadow:0 0 15px #fff;
 }
 
-#panel .backgrounds {
-    display:none;
-    text-align:left;
-}
-
-#panel .backgrounds ul {
-    float:left;
-    margin:5px 0 10px 18px;
-    width:120px;
-}
-
-#panel .backgrounds li {
-    float:left;
-    margin:5px 5px 0 0;
-    width:8px;
-    height:8px;
-    border:1px solid #ddd;
-    cursor:pointer;
-}
-
-#panel .backgrounds li:hover,
-#panel .backgrounds li.selected {
-    margin:4px 4px -1px -1px;
-    width:8px;
-    height:8px;
-    border:2px solid #ddd;
-}
-
 #panel .statistics {
     display:none;
     clear:both;
@@ -68,10 +40,12 @@
 
 #panel .statistics span {
     float:right;
+    overflow:hidden;
     display:inline-block;
     padding-left:5px;
-    width:45px;
+    width:35px;
     font-family:Georgia;
+    text-align:right;
 }
 
 #panel .borders {
@@ -90,17 +64,39 @@
     text-align:left;
 }
 
+#panel .leadersboard .empty {
+    text-align:center;
+}
+
+#panel .leadersboard .status {
+    float:left;
+    display:block;
+    margin:4px 4px 0 0;
+    height:6px;
+    width:6px;
+    background:#6f0;
+    -webkit-border-radius:3px;
+    -moz-border-radius:3px;
+    border-radius:3px;
+}
+#panel .leadersboard .status.offline {
+    background:#ddd;
+}
+
+
 #panel .leadersboard .name {
     overflow:hidden;
     display:inline-block;
-    width:90px;
+    margin-right:5px;
+    width:85px;
 }
 
 #panel .leadersboard .num {
     overflow:hidden;
     display:inline-block;
-    width:45px;
+    width:35px;
     font-family:Georgia;
+    text-align:right;
 }
 
 #panel .leadersboard .pts {

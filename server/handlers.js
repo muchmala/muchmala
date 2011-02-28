@@ -44,9 +44,7 @@ Handlers.prototype.initializeAction = function(params) {
                                    self.puzzle.connected.length);
             self.userDataAction();
             self.puzzleDataAction();
-            self.getLeadersBoardData(function(data) {
-                self.session.send(MESSAGES.leadersBoard, data);
-            });
+            self.leadersBoardAction();
         });
     });
 };
@@ -64,6 +62,12 @@ Handlers.prototype.userDataAction = function() {
     }, this));
 };
 
+Handlers.prototype.leadersBoardAction = function() {
+    this.getLeadersBoardData(_.bind(function(data) {
+        this.session.send(MESSAGES.leadersBoard, data);
+    }, this));
+};
+
 Handlers.prototype.puzzleDataAction = function() {
     this.puzzle.compact(_.bind(function(compact) {
         this.session.send(MESSAGES.puzzleData, compact);
@@ -73,6 +77,7 @@ Handlers.prototype.puzzleDataAction = function() {
 Handlers.prototype.setUserNameAction = function(userName) {
     this.user.setName(userName, _.bind(function() {
         this.userDataAction();
+        this.leadersBoardAction();
     }, this));
 };
 
@@ -174,8 +179,9 @@ Handlers.prototype.getLeadersBoardData = function(callback) {
         },
         function(users) {
             flow.serialForEach(users, function(user) {
+                var online = self.puzzle.isConnected(user._id);
+                result[user._id] = {name: user.name, online: online};
                 user.getPuzzleScore(self.puzzle._id, this);
-                result[user._id] = { name: user.name };
             }, function(score, userId) {
                 result[userId].score = score;
             }, function() {

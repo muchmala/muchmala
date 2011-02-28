@@ -1,4 +1,4 @@
-Puzzle.Field = function field(settings) {
+Puzzle.Puzzle = function puzzle(settings) {
     settings = $.extend({
         viewport: null,
         piceSize: null,
@@ -27,7 +27,7 @@ Puzzle.Field = function field(settings) {
         
         _.each(found, function(piece) {
             if(piece.hasPoint(eventX, eventY)) {
-                observer.fire(field.MESSAGES.clicked, piece);
+                observer.fire(puzzle.EVENTS.clicked, piece);
             }
         });
     });
@@ -134,7 +134,7 @@ Puzzle.Field = function field(settings) {
         return false;
     }
 
-    function buildField(piecesData) {
+    function build(piecesData) {
         _.each(piecesData, function(pieceData) {
             addPice(pieceData);
         });
@@ -142,7 +142,7 @@ Puzzle.Field = function field(settings) {
         buildIndex();
     }
 
-    function updateField(map) {
+    function update(map) {
         _.each(map, function(row, y) {
             _.each(row, function(piceData, x) {
                 var pice = getPice(x, y);
@@ -153,13 +153,13 @@ Puzzle.Field = function field(settings) {
             });
         });
         
-        log('field is updated');
+        log('puzzle is updated');
     }
 
     return {
+        build: build,
+        update: update,
         getPice: getPice,
-        buildField: buildField,
-        updateField: updateField,
         isSameType: isSameType,
         flipPices: flipPices,
         flipPicesByCoords: flipPicesByCoords,
@@ -167,6 +167,6 @@ Puzzle.Field = function field(settings) {
     };
 };
 
-Puzzle.Field.MESSAGES = {
+Puzzle.Puzzle.EVENTS = {
     clicked: 'clicked'
 };

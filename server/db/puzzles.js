@@ -179,18 +179,27 @@ Puzzles.prototype.unlockAll = function(userId) {
 };
 
 Puzzles.prototype.connectUser = function(userId) {
-    if(_.indexOf(this.connected, userId) != -1) {
+    if(_.include(this.connected, userId)) {
         throw new Error('Trying to connect already connected user');
     }
     this.connected.push(userId);
 };
 
 Puzzles.prototype.disconnectUser = function(userId) {
-    if(_.isUndefined(this.connected) ||
-       _.indexOf(this.connected, userId) == -1) {
+    if(!_.include(this.connected, userId)) {
         throw new Error('Trying to disconnect not connected user');
     }
     this.connected.splice(this.connected.indexOf(userId), 1);
+};
+
+Puzzles.prototype.isConnected = function(userId) {
+    var connected = _.detect(this.connected, function(connected) {
+        return _.isEqual(connected, userId);
+    });
+    if(connected) {
+        return true;
+    }
+    return false;
 };
 
 Puzzles.prototype.swap = function(x1, y1, x2, y2, userId, callback) {

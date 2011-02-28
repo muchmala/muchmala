@@ -69,13 +69,21 @@ Puzzle.Panel = function panel(element) {
         element.find('.statistics .timeSpent').text(hours + ':' + minutes);
     }
 
-    function updateLeadersBoard(users) {
-        var leadersBoard = element.find('.leadersboard .borders');
-        leadersBoard.empty();
-        for(var i = users.length; i > 0; i--) {
-            leadersBoard.append('<span class="name">' + users[i-1].name + '</span>');
-            leadersBoard.append('<span class="num">' + users[i-1].score +
-                                '<span class="pts">pts.</span></span><br/>');
+    function updateLeadersBoard(usersData) {
+        if(usersData.length == 0) { return; }
+
+        var leadersBoard = element.find('.leadersboard .borders').empty();
+        
+        for(var i = usersData.length; i > 0; i--) {
+            var row = $('<div class="row"></div>')
+            var status = 'offline';
+            if(usersData[i-1].online) {
+                status = 'online';
+            }
+            row.append('<span class="status ' + status + '"></span>');
+            row.append('<span class="name">' + usersData[i-1].name + '</span>');
+            row.append('<span class="num">' + usersData[i-1].score + '</span>');
+            row.appendTo(leadersBoard);
         }
     }
 
