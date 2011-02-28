@@ -2,6 +2,7 @@
 
 ns.userData      = 'userData';
 ns.puzzleData    = 'puzzleData';
+ns.piecesData    = 'piecesData';
 ns.initialize    = 'initialize';
 ns.lockPiece     = 'lockPiece';
 ns.selectPiece   = 'selectPiece';

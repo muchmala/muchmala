@@ -1,4 +1,4 @@
-Puzzle.storage = (function() {
+Puzzle.Storage = (function() {
     function getUserId() {
         if(localStorage.userId) {
             return localStorage.userId;

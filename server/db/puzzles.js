@@ -85,9 +85,8 @@ Puzzles.prototype.getPiece = function(x, y, callback) {
     });
 };
 
-Puzzles.prototype.compact = function(callback) {
-    var self = this;
-    var data = self.toObject();
+Puzzles.prototype.compactInfo = function(callback) {
+    var data = this.toObject();
     var compact = {
         name: data.name,
         hLength: data.hLength,
@@ -96,14 +95,23 @@ Puzzles.prototype.compact = function(callback) {
         created: data.created.getTime(),
         connected: this.connected.length
     };
+
+    this.getCompletionPercentage(function(percentage) {
+        compact.completion = percentage;
+        callback(compact);
+    });
+};
+
+Puzzles.prototype.compactPieces = function(callback) {
+    var self = this;
     
     Pieces.find({puzzleId: this._id}, function(error, found) {
         if(error) {throw error;}
         
-        compact.pieces = _.map(found, function(piece) {
+        var pieces = _.map(found, function(piece) {
             piece = piece.toObject();
+            
             var locked = false;
-
             if(!_.isUndefined(self.locked) &&
                !_.isUndefined(self.locked[piece.y]) &&
                !_.isUndefined(self.locked[piece.y][piece.x])) {
@@ -117,16 +125,12 @@ Puzzles.prototype.compact = function(callback) {
                 r: piece.ears.right,
                 realX: piece.realX,
                 realY: piece.realY,
-                x: piece.x,
-                y: piece.y,
+                x: piece.x, y: piece.y,
                 d: locked
             };
         });
 
-        self.getCompletionPercentage(function(percentage) {
-            compact.completion = percentage;
-            callback(compact);
-        });
+        callback(pieces);
     });
 };
 

@@ -69,8 +69,14 @@ Handlers.prototype.leadersBoardAction = function() {
 };
 
 Handlers.prototype.puzzleDataAction = function() {
-    this.puzzle.compact(_.bind(function(compact) {
-        this.session.send(MESSAGES.puzzleData, compact);
+    this.puzzle.compactInfo(_.bind(function(info) {
+        this.session.send(MESSAGES.puzzleData, info);
+    }, this));
+};
+
+Handlers.prototype.piecesDataAction = function() {
+    this.puzzle.compactPieces(_.bind(function(pieces) {
+        this.session.send(MESSAGES.piecesData, pieces);
     }, this));
 };
 

@@ -42,8 +42,8 @@ Puzzle.Server = function server() {
         }
         sendMessage(createMessage(MESSAGES.initialize, data));
     }
-    function getPuzzle(puzzleId) {
-        sendMessage(createMessage(MESSAGES.puzzleData, puzzleId));
+    function getPiecesData(puzzleId) {
+        sendMessage(createMessage(MESSAGES.piecesData, puzzleId));
     }
     function getUserData(userId) {
         sendMessage(createMessage(MESSAGES.userData, userId));
@@ -70,7 +70,7 @@ Puzzle.Server = function server() {
     return {
         connect: connect,
         initialize: initialize,
-        getPuzzle: getPuzzle,
+        getPiecesData: getPiecesData,
         lockPiece: lockPiece,
         unlockPiece: unlockPiece,
         selectPiece: selectPiece,
