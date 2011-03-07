@@ -44,6 +44,10 @@ Puzzle.Panel = function panel(element) {
         element.find('.statistics .complete').text(percent+'%');
     }
 
+    function setPiecesNumber(number) {
+        element.find('.statistics .quantity').text(number);
+    }
+
     function setTimeSpent(createdAtTime) {
         var creationDate = new Date(createdAtTime);
         updateTimeSpent(creationDate);
@@ -96,6 +100,7 @@ Puzzle.Panel = function panel(element) {
         updateLeadersBoard: updateLeadersBoard,
         setConnectedUsersCount: setConnectedUsersCount,
         setCompleteLevel: setCompleteLevel,
+        setPiecesNumber: setPiecesNumber,
         setUsername: setUsername,
         setTimeSpent: setTimeSpent,
         setScore: setScore,

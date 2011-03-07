@@ -22,6 +22,7 @@ Puzzle.Layout = function(viewport, display, binder, loading) {
                 }
                 viewportX = ui.position.top;
                 viewportY = ui.position.left;
+                viewport.scraggable('update');
             }
         });
 
@@ -41,6 +42,11 @@ Puzzle.Layout = function(viewport, display, binder, loading) {
         viewport.height(height);
         viewport.width(width);
         processArranging();
+
+        viewport.scraggable({
+            sensitivity: 5,
+            containment: 'parent'
+        });
     }
 
     function processArranging() {

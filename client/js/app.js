@@ -41,10 +41,10 @@ $(function() {
         };
 
         layout.arrange(data.pieceSize, data.vLength, data.hLength);
-
         panel.setTimeSpent(data.created);
         panel.setCompleteLevel(data.completion);
         panel.setConnectedUsersCount(data.connected);
+        panel.setPiecesNumber(data.vLength * data.hLength);
         panel.subscribe(panel.events.userNameChanged, server.setUserName);
 
         preloader.loadImages(images, function() {
