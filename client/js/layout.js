@@ -11,6 +11,11 @@ Puzzle.Layout = function(viewport, display, binder, loading) {
     init();
 
     function init() {
+        viewport.scraggable({
+            sensitivity: 5,
+            containment: 'parent'
+        });
+        
         viewport.draggable({
             containment: 'parent',
             stop: function(event, ui) {
@@ -27,6 +32,7 @@ Puzzle.Layout = function(viewport, display, binder, loading) {
         });
 
         $(window).resize(function() {
+            viewport.scraggable('update');
             processArranging();
         });
     }
@@ -37,16 +43,13 @@ Puzzle.Layout = function(viewport, display, binder, loading) {
         var height = rectSize * vLength + step * 2;
         var width = rectSize * hLength + step * 2;
 
+        viewport.scraggable('update');
+        
         viewportHeight = height;
         viewportWidth = width;
         viewport.height(height);
         viewport.width(width);
         processArranging();
-
-        viewport.scraggable({
-            sensitivity: 5,
-            containment: 'parent'
-        });
     }
 
     function processArranging() {

@@ -1,0 +1,35 @@
+<div id="display">
+    <%- partial('viewport') %>
+    <%- partial('panel') %>
+</div>
+
+<div id="loading">
+    <div>Loading puzzle</div>
+</div>
+
+<script type="text/javascript">
+    var config = {
+        HOST: '<%= config.host %>'
+    };
+</script>
+
+<script type="text/javascript" src="http://<%= config.host %>/socket.io/socket.io.js"></script>
+
+<script type="text/javascript" src="/js/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/js/jquery/jquery-ui.js"></script>
+<script type="text/javascript" src="/js/jquery/jquery.scraggable/jquery.scraggable.js"></script>
+
+<script type="text/javascript" src="/underscore.js"></script>
+<script type="text/javascript" src="/messages.js"></script>
+
+<script type="text/javascript" src="/js/functions.js"></script>
+<script type="text/javascript" src="/js/observer.js"></script>
+<script type="text/javascript" src="/js/preloader.js"></script>
+<script type="text/javascript" src="/js/puzzle.js"></script>
+<script type="text/javascript" src="/js/pice.js"></script>
+<script type="text/javascript" src="/js/server.js"></script>
+<script type="text/javascript" src="/js/storage.js"></script>
+<script type="text/javascript" src="/js/layout.js"></script>
+<script type="text/javascript" src="/js/dialog.js"></script>
+<script type="text/javascript" src="/js/panel.js"></script>
+<script type="text/javascript" src="/js/app.js"></script>

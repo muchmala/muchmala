@@ -14,6 +14,7 @@ Puzzle.Pice = function(settings) {
 
     this.locked = settings.locked;
     this.selected = false;
+    this.highlighted = false;
     
     this.canvas = document.createElement('canvas');
     this.ctx = this.canvas.getContext('2d');
@@ -57,7 +58,7 @@ Puzzle.Pice.prototype.render = function() {
         this.cover(this.images.lockCover);
     } else if(this.selected) {
         this.cover(this.images.selectCover)
-    } else if(!this.isCollected()) {
+    } else if(!this.highlighted && !this.isCollected()) {
         this.cover(this.images.defaultCover);
     }
 
@@ -90,6 +91,14 @@ Puzzle.Pice.prototype.unselect = function() {
 };
 Puzzle.Pice.prototype.unlock = function() {
     this.locked = false;
+    this.render();
+};
+Puzzle.Pice.prototype.highlight = function() {
+    this.highlighted = true;
+    this.render();
+};
+Puzzle.Pice.prototype.unhighlight = function() {
+    this.highlighted = false;
     this.render();
 };
 

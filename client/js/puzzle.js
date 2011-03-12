@@ -18,19 +18,36 @@ Puzzle.Puzzle = function puzzle(settings) {
     var index = {};
     var pices = {};
     var observer = Utils.Observer();
+    var overed = null;
 
     settings.viewport.click(function(event) {
-        var offset = settings.viewport.offset();
-        var eventX = event.clientX - offset.left;
-        var eventY = event.clientY - offset.top;
-        var found = checkIndexByCoordinates(eventX, eventY);
-        
+        var found = findPieces(event.clientX, event.clientY);
         _.each(found, function(piece) {
-            if(piece.hasPoint(eventX, eventY)) {
-                observer.fire(puzzle.EVENTS.clicked, piece);
-            }
+            observer.fire(puzzle.EVENTS.clicked, piece);
         });
     });
+
+    settings.viewport.mousemove(function(event) {
+        if(overed) {
+            overed.unhighlight();
+        }
+        var found = findPieces(event.clientX, event.clientY);
+        _.each(found, function(piece) {
+            piece.highlight();
+            overed = piece;
+        });
+    });
+
+    function findPieces(clientX, clientY) {
+        var offset = settings.viewport.offset();
+        var eventX = clientX - offset.left;
+        var eventY = clientY - offset.top;
+        var found = checkIndexByCoordinates(eventX, eventY);
+
+        return _.select(found, function(piece) {
+            return piece.hasPoint(eventX, eventY);
+        });
+    }
 
     function checkIndexByCoordinates(x, y) {
         var xIndex = x - (x % settings.indexCellSize);

@@ -1,8 +1,6 @@
 Puzzle.Server = function server() {
     var observer = Utils.Observer();
-    var socket = new io.Socket('io.puzzle.home', {
-        transports: ['websocket', 'flashsocket', 'xhr-multipart']
-    });
+    var socket = new io.Socket(config.HOST);
     
     socket.on('message', function(data) {
         var parsed = JSON.parse(data);
