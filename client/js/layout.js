@@ -42,14 +42,14 @@ Puzzle.Layout = function(viewport, display, binder, loading) {
         var rectSize = step * 4 + 1;
         var height = rectSize * vLength + step * 2;
         var width = rectSize * hLength + step * 2;
-
-        viewport.scraggable('update');
         
         viewportHeight = height;
         viewportWidth = width;
         viewport.height(height);
         viewport.width(width);
         processArranging();
+
+        viewport.scraggable('update');
     }
 
     function processArranging() {
