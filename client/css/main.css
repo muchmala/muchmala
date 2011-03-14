@@ -8,21 +8,17 @@ input {
 }
 
 #display {
-    position:absolute;
+    position:absolute !important;
     overflow:hidden;
     height:100%;
     width:100%;
 }
 
-#binder {
-    position:relative;
+.viewportContent {
+    z-index:1000;
 }
 
-#viewport {
-    position:relative;
-}
-
-#viewport canvas {
+.viewportContent canvas {
     position:absolute;
 }
 

@@ -1,6 +1,6 @@
 $(function() {
     var server = Puzzle.Server();
-    var layout = Puzzle.Layout($('#viewport'), $('#display'), $('#binder'), $('#loading'));
+    var layout = Puzzle.Layout($('#display'), $('#loading'));
     var panel = Puzzle.Panel($('#panel'));
     var preloader = new Puzzle.Preloader();
     var puzzle, selected;

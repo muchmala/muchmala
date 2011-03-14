@@ -1,3 +1,6 @@
 [submodule "client/js/jquery/jquery.scraggable"]
 	path = client/js/jquery/jquery.scraggable
 	url = git@github.com:borbit/jquery.scraggable.git
+[submodule "client/js/jquery/jquery.viewport"]
+	path = client/js/jquery/jquery.viewport
+	url = git@github.com:borbit/jquery.viewport.git
