@@ -46,6 +46,7 @@ Handlers.prototype.initializeAction = function(params) {
             self.userDataAction();
             self.puzzleDataAction();
             self.leadersBoardAction();
+            self.generalLeadersBoardAction();
         });
     });
 };
@@ -66,6 +67,12 @@ Handlers.prototype.userDataAction = function() {
 Handlers.prototype.leadersBoardAction = function() {
     this.getLeadersBoardData(_.bind(function(data) {
         this.session.send(MESSAGES.leadersBoard, data);
+    }, this));
+};
+
+Handlers.prototype.generalLeadersBoardAction = function() {
+    this.getGeneralLeadersBoardData(_.bind(function(data) {
+        this.session.send(MESSAGES.generalLeadersBoard, data);
     }, this));
 };
 
@@ -200,6 +207,26 @@ Handlers.prototype.getLeadersBoardData = function(callback) {
                     return row.score;
                 }));
             });
+        });
+};
+
+//TODO: Refactor this when bug in mongoose is fixed
+Handlers.prototype.getGeneralLeadersBoardData = function(callback) {
+    flow.exec(
+        function() {
+            db.Users.all(this);
+        },
+        function(users) {
+            var result = _.map(users, function(user) {
+                return {
+                    name: user.name,
+                    score: user.score,
+                    created: user.created.getTime()
+                };
+            });
+            callback(_.sortBy(result, function(row) {
+                return row.score;
+            }));
         });
 };
 

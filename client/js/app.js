@@ -1,13 +1,15 @@
-$(function() {
-    var server = Puzzle.Server();
-    var layout = Puzzle.Layout($('#display'), $('#loading'));
-    var panel = Puzzle.Panel($('#panel'));
+$(function() { 
+    var server = Puzzle.Server;
+    var viewport = Puzzle.Viewport;
+    var panel = Puzzle.Panel;
+    var menu = Puzzle.MenuDialog;
+
     var preloader = new Puzzle.Preloader();
     var puzzle, selected;
     var m = MESSAGES;
 
     server.connect();
-    layout.showLoading();
+    viewport.showLoading();
 
     server.subscribe('connected', function() {
         server.initialize(1, Puzzle.Storage.getUserId());
@@ -31,6 +33,10 @@ $(function() {
     server.subscribe(m.leadersBoard, function(data) {
         panel.updateLeadersBoard(data);
     });
+    
+    server.subscribe(m.generalLeadersBoard, function(data) {
+        menu.updateLeadersBoard(data);
+    });
 
     server.subscribe(m.puzzleData, function(data) {
         var images = {
@@ -40,7 +46,7 @@ $(function() {
             lockCoverSrc: '/img/' + data.name + '/lock_covers.png'
         };
 
-        layout.arrange(data.pieceSize, data.vLength, data.hLength);
+        viewport.arrange(data.pieceSize, data.vLength, data.hLength);
         panel.setTimeSpent(data.created);
         panel.setCompleteLevel(data.completion);
         panel.setConnectedUsersCount(data.connected);
@@ -50,7 +56,7 @@ $(function() {
         preloader.loadImages(images, function() {
             puzzle = Puzzle.Puzzle({
                 piceSize: data.pieceSize,
-                viewport: layout.viewport,
+                viewport: viewport.content,
                 sprite: preloader.cache[images.spriteSrc],
                 lockCover: preloader.cache[images.lockCoverSrc],
                 selectCover: preloader.cache[images.selectCoverSrc],
@@ -62,7 +68,7 @@ $(function() {
     });
 
     server.subscribe(m.piecesData, function(pieces) {
-        layout.hideLoading();
+        viewport.hideLoading();
         puzzle.build(pieces);
         puzzle.subscribe('clicked', processClickedPice);
 
@@ -105,3 +111,10 @@ $(function() {
         }
     }
 });
+
+function log(message) {
+    if(window.console != null &&
+        window.console.log != null) {
+        console.log(message);
+    }
+}

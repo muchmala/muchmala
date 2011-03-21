@@ -28,7 +28,8 @@ var PiecesSchema = new Schema({
 
 var UsersSchema = new Schema({
     name    : String,
-    score   : {type: Number, 'default': 0}
+    score   : {type: Number, 'default': 0},
+    created : {type: Date, 'default': Date.now}
 });
 
 // TODO: Make this schema as a embedded doc in the "Users" doc

@@ -7,7 +7,7 @@ input {
     font-family:'Helvetica Neue', Helvetica, sans-serif;
 }
 
-#display {
+#viewport {
     position:absolute !important;
     overflow:hidden;
     height:100%;
@@ -41,4 +41,96 @@ input {
 
 #loading div {
     background:url('/img/loadinfo.net.gif') no-repeat right 5px;
+}
+
+.button, .bigButton {
+    display:inline-block;
+    padding:0 10px;
+    height:14px;
+    line-height:12px;
+    font-size:10px;
+    color:#000;
+    cursor:pointer;
+    text-align:center;
+    border:1px solid #000;
+
+    -webkit-box-shadow:0 0 1px #fff;
+    -moz-box-shadow:0 0 1px #fff;
+    box-shadow:0 0 1px #fff;
+    
+    -webkit-border-radius:7px;
+    -moz-border-radius:7px;
+    border-radius:7px;
+
+    border-radius:7px;
+    background:#fff;
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0, rgb(180,180,180)),
+        color-stop(1, rgb(255,255,255))
+    );
+    background: -moz-linear-gradient(
+        center bottom,
+        rgb(180,180,180) 0%,
+        rgb(255,255,255) 100%
+    );
+}
+
+.button:hover,
+.bigButton:hover {
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0, rgb(210,210,210)),
+        color-stop(1, rgb(255,255,255))
+    );
+    background: -moz-linear-gradient(
+        center bottom,
+        rgb(210,210,210) 0%,
+        rgb(255,255,255) 100%
+    );
+}
+
+.bigButton {
+    padding:0 15px;
+    height:30px;
+    line-height:28px;
+    font-size:18px;
+    
+    -webkit-border-radius:15px;
+    -moz-border-radius:15px;
+    border-radius:15px;
+
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0, rgb(255,255,50)),
+        color-stop(1, rgb(255,255,255))
+    );
+    
+    background: -moz-linear-gradient(
+        center bottom,
+        rgb(255,255,50) 0%,
+        rgb(255,255,255) 100%
+    );
+}
+
+.bigButton:hover {
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0, rgb(255,255,100)),
+        color-stop(1, rgb(255,255,255))
+    );
+
+    background: -moz-linear-gradient(
+        center bottom,
+        rgb(255,255,120) 0%,
+        rgb(255,255,255) 100%
+    );
 }

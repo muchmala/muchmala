@@ -4,3 +4,6 @@
 [submodule "client/js/jquery/jquery.viewport"]
 	path = client/js/jquery/jquery.viewport
 	url = git@github.com:borbit/jquery.viewport.git
+[submodule "client/js/jquery/jquery.scrolla"]
+	path = client/js/jquery/jquery.scrolla
+	url = git@github.com:borbit/jquery.scrolla.git

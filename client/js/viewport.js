@@ -1,17 +1,12 @@
-Puzzle.Layout = function(display, loading) {
-    
-    display.viewport();
+Puzzle.Viewport = (function() {
+    var element = $('#viewport');
+    var loading =  $('#loading');
 
-    var content = display.viewport('content');
+    element.viewport();
 
-    content.draggable({
-        containment: 'parent'
-    });
-    
-    content.scraggable({
-        sensitivity: 5,
-        containment: 'parent'
-    });
+    var content = element.viewport('content');
+    content.draggable({containment: 'parent'});
+    content.scraggable({containment: 'parent'});
     
     function showLoading() {
         loading.show();
@@ -25,7 +20,8 @@ Puzzle.Layout = function(display, loading) {
     }
 
     $(window).resize(function() {
-         display.viewport('update');
+         element.viewport('update');
+         content.scraggable('update');
     });
 
     function arrange(pieceSize, vLength, hLength) {
@@ -34,15 +30,15 @@ Puzzle.Layout = function(display, loading) {
         var height = rectSize * vLength + step * 2;
         var width = rectSize * hLength + step * 2;
 
-        display.viewport('size', height, width);
-        display.viewport('update');
+        element.viewport('size', height, width);
+        element.viewport('update');
         content.scraggable('update');
     }
 
     return {
-        viewport: content,
+        content: content,
         showLoading: showLoading,
         hideLoading: hideLoading,
         arrange: arrange
     }
-};
+})();

@@ -1,4 +1,4 @@
-Puzzle.Server = function server() {
+Puzzle.Server = (function() {
     var observer = Utils.Observer();
     var socket = new io.Socket(config.HOST);
     
@@ -10,15 +10,13 @@ Puzzle.Server = function server() {
         }
     });
 
-    socket.on('disconnect', connect);
+    socket.on('disconnect', function() {
+        log('Disconnected');
+    });
     
     socket.on('connect', function() {
         observer.fire('connected');
     });
-
-    function connect() {
-        socket.connect();
-    }
 
     function sendMessage(message) {
         if(socket.connected) {
@@ -33,49 +31,45 @@ Puzzle.Server = function server() {
         return JSON.stringify({action: action, data: data});
     }
 
-    function initialize(mapId, userId) {
-        var data = {mapId: mapId};
-        if(userId) {
-            data.userId = userId
+    var publicInterface = {
+        subscribe: observer.subscribe,
+        
+        connect: function() {
+            socket.connect();
+        },
+        initialize: function(mapId, userId) {
+            var data = {mapId: mapId};
+            if(userId) {
+                data.userId = userId
+            }
+            sendMessage(createMessage(MESSAGES.initialize, data));
+        },
+        getPiecesData: function(puzzleId) {
+            sendMessage(createMessage(MESSAGES.piecesData, puzzleId));
+        },
+        getUserData: function(userId) {
+            sendMessage(createMessage(MESSAGES.userData, userId));
+        },
+        setUserName: function(userName) {
+            sendMessage(createMessage(MESSAGES.setUserName, userName));
+        },
+        lockPiece: function(x, y) {
+            sendMessage(createMessage(MESSAGES.lockPiece, [x, y]));
+        },
+        unlockPiece: function(x, y) {
+            sendMessage(createMessage(MESSAGES.unlockPieces, [[x, y]]));
+        },
+        selectPiece: function(x, y) {
+            sendMessage(createMessage(MESSAGES.selectPiece, [x, y]));
+        },
+        releasePiece: function(x, y) {
+            sendMessage(createMessage(MESSAGES.releasePiece, [x, y]));
+        },
+        swapPieces: function(x1, y1, x2, y2) {
+            sendMessage(createMessage(MESSAGES.swapPieces, [[x1, y1], [x2, y2]]));
         }
-        sendMessage(createMessage(MESSAGES.initialize, data));
-    }
-    function getPiecesData(puzzleId) {
-        sendMessage(createMessage(MESSAGES.piecesData, puzzleId));
-    }
-    function getUserData(userId) {
-        sendMessage(createMessage(MESSAGES.userData, userId));
-    }
-    function setUserName(userName) {
-        sendMessage(createMessage(MESSAGES.setUserName, userName));
-    }
-    function lockPiece(x, y) {
-        sendMessage(createMessage(MESSAGES.lockPiece, [x, y]));
-    }
-    function unlockPiece(x, y) {
-        sendMessage(createMessage(MESSAGES.unlockPieces, [[x, y]]));
-    }
-    function selectPiece(x, y) {
-        sendMessage(createMessage(MESSAGES.selectPiece, [x, y]));
-    }
-    function releasePiece(x, y) {
-        sendMessage(createMessage(MESSAGES.releasePiece, [x, y]));
-    }
-    function swapPieces(x1, y1, x2, y2) {
-        sendMessage(createMessage(MESSAGES.swapPieces, [[x1, y1], [x2, y2]]));
-    }
-
-    return {
-        connect: connect,
-        initialize: initialize,
-        getPiecesData: getPiecesData,
-        lockPiece: lockPiece,
-        unlockPiece: unlockPiece,
-        selectPiece: selectPiece,
-        releasePiece: releasePiece,
-        swapPieces: swapPieces,
-        getUserData: getUserData,
-        setUserName: setUserName,
-        subscribe: observer.subscribe
     };
-};
+
+    return publicInterface;
+})();
+
