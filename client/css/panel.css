@@ -27,20 +27,6 @@
     font-weight:normal;
 }
 
-/*#panel .logo h1 {
-    margin:0 0 5px 0;
-    color:#fff;
-    font-size:22px;
-    font-weight:bold;
-    text-align:center;
-    text-shadow:0 0 15px #fff;
-    cursor:pointer;
-}
-
-#panel .logo h1:hover {
-    color:#ff5;
-}*/
-
 #panel .statistics {
     display:none;
     clear:both;
@@ -69,7 +55,7 @@
 
 #panel .leadersboard {
     display:none;
-    margin:5px 0;
+    margin:5px 0 10px 0;
     line-height:12px;
     text-align:left;
 }

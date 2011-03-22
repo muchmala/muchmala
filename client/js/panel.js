@@ -21,16 +21,16 @@ Puzzle.Panel = (function() {
         Puzzle.MenuDialog.show();
     });
 
-    var userNameDialog = Puzzle.UserNameDialog();
+    var userNameDialog = new Puzzle.UserNameDialog();
     var userNameElement = element.find('.user .name');
 
     userNameElement.click(function(event) {
-        if(!userNameDialog.shown()) {
+        if(!userNameDialog.shown) {
             userNameDialog.show();
         }
     });
 
-    userNameDialog.subscribe(Puzzle.UserNameDialog.events.entered, function(value) {
+    userNameDialog.on(Puzzle.UserNameDialog.EVENTS.entered, function(value) {
         observer.fire(events.userNameChanged, value);
     });
 

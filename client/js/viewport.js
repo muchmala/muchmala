@@ -21,7 +21,6 @@ Puzzle.Viewport = (function() {
 
     $(window).resize(function() {
          element.viewport('update');
-         content.scraggable('update');
     });
 
     function arrange(pieceSize, vLength, hLength) {
@@ -32,7 +31,6 @@ Puzzle.Viewport = (function() {
 
         element.viewport('size', height, width);
         element.viewport('update');
-        content.scraggable('update');
     }
 
     return {

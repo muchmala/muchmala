@@ -1,6 +1,6 @@
-.dialog {
-    display:none;
+.dialog {    
     position:absolute;
+    left:-1000px;
     z-index:1002;
     padding:20px;
     background:rgba(0,0,0,0.7);

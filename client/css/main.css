@@ -52,11 +52,10 @@ input {
     color:#000;
     cursor:pointer;
     text-align:center;
-    border:1px solid #000;
 
-    -webkit-box-shadow:0 0 1px #fff;
-    -moz-box-shadow:0 0 1px #fff;
-    box-shadow:0 0 1px #fff;
+    -webkit-box-shadow:0 0 2px #000;
+    -moz-box-shadow:0 0 2px #000;
+    box-shadow:0 0 2px #000;
     
     -webkit-border-radius:7px;
     -moz-border-radius:7px;

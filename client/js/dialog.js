@@ -1,182 +1,189 @@
-Puzzle.Dialog = function(content) {
-    var events = Puzzle.Dialog.events;
-    var observer = Utils.Observer();
-    
-    var element = $('<div class="dialog"></div>');
-    var close = $('<span class="button close">close</span>');
-    element.append(close)
-           .append(content)
-           .appendTo(document.body);
+(function() {
 
-    var elementHeight = $(element).height();
-    var elementWidth = $(element).width();
-    var shown = false;
-    close.click(hide);
+function Dialog() {
+    this.shown = false;
+    this.observer = Utils.Observer();
+    this.close = $('<span class="button close">x</span>');
 
-    function show() {
-        var windowHeight = $(window).height();
-        var windowWidth = $(window).width();
-        
-        element.css('top', elementHeight * -1)
-               .css('left', Math.floor(windowWidth/2) - Math.floor(elementWidth/2))
-               .show();
+    this.element = $('<div class="dialog"></div>');
+    this.element.appendTo(document.body);
+    this.element.append(this.close);
 
-        element.animate({
-            top: Math.floor(windowHeight/2) - Math.floor(element.height()/2)
-        }, 100, function() {
-            shown = true;
-            observer.fire('shown');
-        });
-    }
+    this.close.click(_.bind(function() {
+        this.hide();
+    }, this));
+}
 
-    function isShown() {
-        return shown;
-    }
-
-    function shake() {
-        element.animate({marginLeft: -10}, 100)
-               .animate({marginLeft:  10}, 100)
-               .animate({marginLeft: -10}, 100)
-               .animate({marginLeft:  10}, 100)
-               .animate({marginLeft: -10}, 100)
-               .animate({marginLeft:  10}, 100)
-               .animate({marginLeft: 0}, 100);
-    }
-
-    function hide() {
-        element.animate({
-            top: elementHeight * -1
-        }, 100, function() {
-            element.hide();
-            shown = false;
-            observer.fire('hidden');
-        });
-    }
-
-    return {
-        show: show,
-        hide: hide,
-        shake: shake,
-        shown: isShown,
-        subscribe: observer.subscribe
-    };
-};
-
-Puzzle.Dialog.events = {
+Dialog.EVENTS = {
     shown: 'shown',
     hidden: 'hidden'
 };
 
-Puzzle.UserNameDialog = function() {
-    var events = Puzzle.UserNameDialog.events;
-    var observer = Utils.Observer();
+Dialog.prototype.show = function() {
+    var top = Math.floor($(window).height() / 2 - this.element.height() / 2)
+    var left = Math.floor($(window).width() / 2 - this.element.width() / 2)
 
-    var element = $('<div></div>');
-    var input = $('<input type="text" class="inputText" />');
-    element.append('<div class="title">Your name:</div>')
-           .append(input);
+    this.element.css('top', -this.element.height());
+    this.element.css('left', left);
+    this.element.show();
 
-    var dialog = Puzzle.Dialog(element);
-    dialog.subscribe(Puzzle.Dialog.events.shown, function() {
-        input.focus();
-    });
-
-    input.keypress(function(event) {
-        if(event.which == 13) {
-            var newName = input.val();
-            if(newName.length) {
-                observer.fire('entered', newName);
-                dialog.hide();
-            } else {
-                dialog.shake();
-            }
-        }
-    });
-
-    dialog.subscribe = observer.subscribe;
-    
-    return dialog;
+    this.element.animate({top: top}, 100, _.bind(function() {
+        this.shown = true;
+        this.observer.fire('shown');
+    }, this));
 };
 
-Puzzle.UserNameDialog.events = {
+Dialog.prototype.shake = function() {
+    for(var i = 0, offset = 10; i < 6; i++, offset = -offset) {
+        this.element.animate({marginLeft: offset}, 100);
+    }
+    this.element.animate({marginLeft: 0}, 100);
+};
+
+Dialog.prototype.hide = function() {
+    var top = -this.element.height();
+    this.element.animate({top: top}, 100, _.bind(function() {
+        this.shown = false;
+        this.element.hide();
+        this.observer.fire('hidden');
+    }, this));
+};
+
+Dialog.prototype.on = function(eventName, callback) {
+    this.observer.subscribe(eventName, callback);
+}
+
+function UserNameDialog() {
+    UserNameDialog.superproto.constructor.call(this);
+
+    this.input = $('<input type="text" class="inputText" />');
+    this.element.append('<div class="title">Your name:</div>')
+                .append(this.input);
+    
+    this.input.keypress(_.bind(function(event) {
+        if(event.which != 13) {return;}
+        
+        var newName = this.input.val();
+        if(newName.length) {
+            this.observer.fire('entered', newName);
+            this.hide();
+        } else {
+            this.shake();
+        }
+    }, this));
+}
+
+inherit(UserNameDialog, Dialog);
+
+UserNameDialog.EVENTS = {
     entered: 'entered'
 };
 
-Puzzle.MenuDialog = (function() {
-    var element = $('#menu');
-    var leadersBoard = $('.leadersBoard', element);
-    var dialog = Puzzle.Dialog(element);
+UserNameDialog.prototype.show = function() {
+    UserNameDialog.superproto.show.call(this);
+    this.input.focus();
+}
 
-    var MONTH = 60*60*24*30;
-    var DAY = 60*60*24;
-    var HOUR = 60*60;
-    var MINUTE = 60;
+function MenuDialog() {
+    MenuDialog.superproto.constructor.call(this);
 
-    function getMonthes(time) {
-        return Math.floor(time / MONTH);
-    }
-    function getDays(time) {
-        return Math.floor(time / DAY);
-    }
-    function getHours(time) {
-        return Math.floor(time / HOUR);
-    }
-    function getMinutes(time) {
-        return Math.floor(time / MINUTE);
+    this.element.append($('#menu'));
+    this.leadersTab = $('#leadersTab');
+    this.welcomeTab = $('#welcomeTab');
+    this.leadersList = this.leadersTab.find('ul');
+
+    this.leadersTab.viewport();
+    var content = this.leadersTab.viewport('content');
+    content.scraggable({axis: 'y', containment: 'parent'});
+    this.leadersTab.scrolla({content: content});
+
+    $('#menu').show()
+}
+
+inherit(MenuDialog, Dialog);
+
+MenuDialog.prototype.updateLeadersBoard = function(users) {
+    for(var num = 1, i = users.length; i > 0; num++, i--) {
+        var user = users[i-1];
+        var row = '<li>' +
+            '<span class="num">' + num + '.</span>' +
+            '<span class="name">' + user.name + '</span>' +
+            '<span class="time">' + TimeHelper.diffString(user.created) + '</span>' +
+            '<span class="score">' + user.score + '</span>' +
+        '</li>';
+
+        this.leadersList.append(row);
     }
 
-    function getTimeString(creationTime) {
+    this.leadersTab.viewport('update');
+    this.leadersTab.scrolla('update');
+};
+
+Puzzle.Dialog = Dialog;
+Puzzle.UserNameDialog = UserNameDialog;
+Puzzle.MenuDialog = new MenuDialog();
+
+function inherit(child, parent) {
+    function F() {}
+    F.prototype = parent.prototype;
+    child.prototype = new F();
+    child.prototype.constructor = child;
+    child.superproto = parent.prototype;
+    return child;
+}
+
+var TimeHelper = {
+    MONTH: 60*60*24*30,
+    DAY: 60*60*24,
+    HOUR: 60*60,
+    MINUTE: 60,
+    
+    getMonthes: function(time) {
+        return Math.floor(time / this.MONTH);
+    },
+    getDays: function(time) {
+        return Math.floor(time / this.DAY);
+    },
+    getHours: function(time) {
+        return Math.floor(time / this.HOUR);
+    },
+    getMinutes: function(time) {
+        return Math.floor(time / this.MINUTE);
+    },
+    diffString: function(creationTime) {
         var creationDate = new Date(creationTime);
         var diff = Math.floor((new Date() - creationDate.getTime()) / 1000);
         var monthes, days, hours, minutes;
         var result = '';
 
-        if (diff >= MONTH) {
-            monthes = getMonthes(diff);
-            days = getDays(diff % MONTH);
-            hours = getHours(diff % (MONTH*DAY));
+        if (diff >= this.MONTH) {
+            monthes = this.getMonthes(diff);
+            days = this.getDays(diff % this.MONTH);
 
-            result += monthes + (monthes > 1 ? ' monthes, ' : ' month, ');
+            result += monthes + (monthes > 1 ? ' monthes and ' : ' month and ');
+            result += days + (days > 1 ? ' days' : ' day');
+        } else if (diff >= this.DAY) {
+            days = this.getDays(diff);
+            hours = this.getHours(diff % this.DAY);
+
             result += days + (days > 1 ? ' days and ' : ' day and ');
             result += hours + (hours > 1 ? ' hours' : ' hour');
-        } else if (diff >= DAY) {
-            days = getDays(diff);
-            hours = getHours(diff % DAY);
-            minutes = getMinutes(diff % (DAY*HOUR));
-
-            result += days + (days > 1 ? ' days, ' : ' day, ');
-            result += hours + (hours > 1 ? ' hours and ' : ' hour and ');
-            result += minutes + (minutes > 1 ? ' minutes' : ' minute');
-        } else if (diff >= HOUR) {
-            hours = getHours(diff);
-            minutes = getMinutes(diff % HOUR);
+        } else if (diff >= this.HOUR) {
+            hours = this.getHours(diff);
+            minutes = this.getMinutes(diff % this.HOUR);
 
             result += hours + (hours > 1 ? ' hours and ' : ' hour and ');
             result += minutes + (minutes > 1 ? ' minutes' : ' minute');
-        } else if (diff >= MINUTE) {
-            minutes = getMinutes(diff % HOUR);
+        } else if (diff >= this.MINUTE) {
+            minutes = this.getMinutes(diff % this.HOUR);
 
             result += minutes + (minutes > 1 ? ' minutes' : ' minute');
         } else {
             result += 'just now';
         }
-        
+
         return result;
     }
+};
 
-    dialog.updateLeadersBoard = function(users) {
-        var number = 1;
-        for(var i = users.length; i > 0; i--) {
-            var row = '<li>' +
-                '<span class="num">' + number++ + '.</span>' +
-                '<span class="name">' + users[i-1].name + '</span>' +
-                '<span class="time">' + getTimeString(users[i-1].created) + '</span>' +
-                '<span class="score">' + users[i-1].score + '</span>' +
-            '</li>';
-            getTimeString(users[i-1].created);
-            leadersBoard.append(row);
-        };
-    };
-    
-    return dialog;
 })();
