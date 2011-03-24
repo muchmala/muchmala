@@ -1,12 +1,12 @@
-$(function() { 
-    var server = Puzzle.Server;
-    var viewport = Puzzle.Viewport;
-    var panel = Puzzle.Panel;
-    var menu = Puzzle.MenuDialog;
+$(function() {
+    var menu = Puzzle.MenuDialog,
+        panel = Puzzle.Panel,
+        server = Puzzle.Server,
+        viewport = Puzzle.Viewport;
 
-    var preloader = new Puzzle.Preloader();
-    var puzzle, selected;
-    var m = MESSAGES;
+    var preloader = new Puzzle.Preloader(),
+        puzzle, selected,
+        m = MESSAGES;
 
     server.connect();
     viewport.showLoading();
@@ -34,8 +34,8 @@ $(function() {
         panel.updateLeadersBoard(data);
     });
     
-    server.subscribe(m.generalLeadersBoard, function(data) {
-        menu.updateLeadersBoard(data);
+    server.subscribe(m.topTwenty, function(data) {
+        menu.updateTopTwenty(data);
     });
 
     server.subscribe(m.puzzleData, function(data) {
@@ -51,7 +51,7 @@ $(function() {
         panel.setCompleteLevel(data.completion);
         panel.setConnectedUsersCount(data.connected);
         panel.setPiecesNumber(data.vLength * data.hLength);
-        panel.subscribe(panel.events.userNameChanged, server.setUserName);
+        panel.on(panel.events.userNameChanged, server.setUserName);
 
         preloader.loadImages(images, function() {
             puzzle = Puzzle.Puzzle({

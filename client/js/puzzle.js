@@ -5,7 +5,7 @@ Puzzle.Puzzle = function puzzle(settings) {
         indexCellSize: 60
     }, settings);
 
-    Puzzle.Pice.setImages({
+    Puzzle.Piece.setImages({
         sprite: settings.sprite,
         defaultCover: settings.defaultCover,
         selectCover: settings.selectCover,
@@ -105,7 +105,7 @@ Puzzle.Puzzle = function puzzle(settings) {
         return false;
     }
 
-    function flipPices(first, second) {
+    function flipPieces(first, second) {
         var tmpX = first.realX;
         var tmpY = first.realY;
         first.realX = second.realX;
@@ -116,14 +116,14 @@ Puzzle.Puzzle = function puzzle(settings) {
         first.render();
     }
 
-    function flipPicesByCoords(coords) {
-        var first = getPice(coords[0][0], coords[0][1]);
-        var second = getPice(coords[1][0], coords[1][1]);
-        flipPices(first, second);
+    function flipPiecesByCoords(coords) {
+        var first = getPiece(coords[0][0], coords[0][1]);
+        var second = getPiece(coords[1][0], coords[1][1]);
+        flipPieces(first, second);
     }
 
-    function addPice(data) {
-        var pice = new Puzzle.Pice({
+    function addPiece(data) {
+        var pice = new Puzzle.Piece({
             ears: {
                 left: data.l, bottom: data.b,
                 right: data.r, top: data.t
@@ -144,7 +144,7 @@ Puzzle.Puzzle = function puzzle(settings) {
         pices[data.y][data.x] = pice;
     }
 
-    function getPice(x, y) {
+    function getPiece(x, y) {
         if(!_.isUndefined(pices[y]) && !_.isUndefined(pices[y][x])) {
             return pices[y][x];
         }
@@ -153,7 +153,7 @@ Puzzle.Puzzle = function puzzle(settings) {
 
     function build(piecesData) {
         _.each(piecesData, function(pieceData) {
-            addPice(pieceData);
+            addPiece(pieceData);
         });
         
         buildIndex();
@@ -162,7 +162,7 @@ Puzzle.Puzzle = function puzzle(settings) {
     function update(map) {
         _.each(map, function(row, y) {
             _.each(row, function(piceData, x) {
-                var pice = getPice(x, y);
+                var pice = getPiece(x, y);
                 pice.locked = piceData.d;
                 pice.realX = piceData.x;
                 pice.realY = piceData.y;
@@ -176,10 +176,10 @@ Puzzle.Puzzle = function puzzle(settings) {
     return {
         build: build,
         update: update,
-        getPice: getPice,
+        getPiece: getPiece,
         isSameType: isSameType,
-        flipPices: flipPices,
-        flipPicesByCoords: flipPicesByCoords,
+        flipPieces: flipPieces,
+        flipPiecesByCoords: flipPiecesByCoords,
         subscribe: observer.subscribe
     };
 };

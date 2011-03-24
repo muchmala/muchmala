@@ -22,27 +22,27 @@ Puzzle.Panel = (function() {
     });
 
     var userNameDialog = new Puzzle.UserNameDialog();
-    var userNameElement = element.find('.user .name');
+    var userNameButton = element.find('.user .name');
 
-    userNameElement.click(function(event) {
+    userNameButton.click(function(event) {
         if(!userNameDialog.shown) {
             userNameDialog.show();
         }
     });
 
-    userNameDialog.on(Puzzle.UserNameDialog.EVENTS.entered, function(value) {
+    userNameDialog.on(userNameDialog.events.entered, function(value) {
         observer.fire(events.userNameChanged, value);
     });
 
     return {
         events: events,
-        subscribe: observer.subscribe,
+        on: observer.on,
         
         show: function() {
             element.show();
         },
         setUsername: function(name) {
-            userNameElement.text(name);
+            userNameButton.text(name);
         },
         setScore: function(score) {
             element.find('.user .num').text(score);
@@ -73,11 +73,9 @@ Puzzle.Panel = (function() {
             if((hours+'').length == 1) {
                 hours = '0' + hours;
             }
-
             if((minutes+'').length == 1) {
                 minutes = '0' + minutes;
             }
-
             element.find('.statistics .timeSpent').text(hours + ':' + minutes);
         },
         updateLeadersBoard: function(usersData) {

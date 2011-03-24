@@ -23,8 +23,11 @@
     color:#ccc;
 }
 #panel .logo h1 {
-    margin:5px 0 0 0;
-    font-weight:normal;
+    margin:5px 0;
+    font-size:22px;
+    color:#fff;
+    text-shadow:0 0 20px #fff;
+    cursor:pointer;
 }
 
 #panel .statistics {

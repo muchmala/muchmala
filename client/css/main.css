@@ -94,20 +94,20 @@ input {
 }
 
 .bigButton {
-    padding:0 15px;
+    padding:0 10px;
     height:30px;
-    line-height:28px;
+    line-height:30px;
     font-size:18px;
     
     -webkit-border-radius:15px;
     -moz-border-radius:15px;
-    border-radius:15px;
+    -o-border-radius:15px;
 
     background-image: -webkit-gradient(
         linear,
         left bottom,
         left top,
-        color-stop(0, rgb(255,255,50)),
+        color-stop(0, rgb(255,255,0)),
         color-stop(1, rgb(255,255,255))
     );
     

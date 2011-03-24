@@ -20,8 +20,8 @@ Dialog.EVENTS = {
 };
 
 Dialog.prototype.show = function() {
-    var top = Math.floor($(window).height() / 2 - this.element.height() / 2)
-    var left = Math.floor($(window).width() / 2 - this.element.width() / 2)
+    var top = Math.floor($(window).height() / 2 - this.element.height() / 2);
+    var left = Math.floor($(window).width() / 2 - this.element.width() / 2);
 
     this.element.css('top', -this.element.height());
     this.element.css('left', left);
@@ -56,6 +56,7 @@ Dialog.prototype.on = function(eventName, callback) {
 function UserNameDialog() {
     UserNameDialog.superproto.constructor.call(this);
 
+    this.events = UserNameDialog.EVENTS;
     this.input = $('<input type="text" class="inputText" />');
     this.element.append('<div class="title">Your name:</div>')
                 .append(this.input);
@@ -86,23 +87,53 @@ UserNameDialog.prototype.show = function() {
 
 function MenuDialog() {
     MenuDialog.superproto.constructor.call(this);
+    
+    this.element.append($('#menu').html());
 
-    this.element.append($('#menu'));
-    this.leadersTab = $('#leadersTab');
-    this.welcomeTab = $('#welcomeTab');
-    this.leadersList = this.leadersTab.find('ul');
+    this.leadersPage = this.element.find('.leaders');
+    this.leadersPage.viewport({position: 'top'});
+    this.leadersPage.viewport('content').scraggable({axis: 'y', containment: 'parent'});
+    this.leadersPage.scrolla({content: this.leadersPage.viewport('content')});
 
-    this.leadersTab.viewport();
-    var content = this.leadersTab.viewport('content');
-    content.scraggable({axis: 'y', containment: 'parent'});
-    this.leadersTab.scrolla({content: content});
+    this.puzzlesPage = this.element.find('.puzzles');
+    this.puzzlesPage.viewport();
+    this.puzzlesPage.viewport('content').scraggable({axis: 'y', containment: 'parent'});
+    this.puzzlesPage.scrolla({content: this.puzzlesPage.viewport('content')});
 
-    $('#menu').show()
+    this.creditsPage = this.element.find('.credits');
+    this.creditsPage.viewport();
+    this.creditsPage.viewport('content').scraggable({axis: 'y', containment: 'parent'});
+    this.creditsPage.scrolla({content: this.creditsPage.viewport('content')});
+    
+    var tabs = this.element.find('.tabs li');
+
+    tabs.click(_.bind(function(e) {
+        tabs.removeClass('sel');
+        var tab = $(e.target).addClass('sel').data('page');
+        this.element.find('.page').hide();
+        this.element.find('.page.'+tab).show();
+    }, this));
+
+    tabs.eq(1).click(_.bind(function() {
+        this.leadersPage.viewport('update');
+        this.leadersPage.scrolla('update');
+    }, this));
+
+    tabs.eq(2).click(_.bind(function() {
+        this.puzzlesPage.viewport('update');
+        this.puzzlesPage.scrolla('update');
+    }, this));
+
+    tabs.eq(3).click(_.bind(function() {
+        this.creditsPage.viewport('update');
+        this.creditsPage.scrolla('update');
+    }, this));
 }
 
 inherit(MenuDialog, Dialog);
 
-MenuDialog.prototype.updateLeadersBoard = function(users) {
+MenuDialog.prototype.updateTopTwenty = function(users) {
+    var list = this.leadersPage.find('ul');
     for(var num = 1, i = users.length; i > 0; num++, i--) {
         var user = users[i-1];
         var row = '<li>' +
@@ -112,11 +143,8 @@ MenuDialog.prototype.updateLeadersBoard = function(users) {
             '<span class="score">' + user.score + '</span>' +
         '</li>';
 
-        this.leadersList.append(row);
+        list.append(row);
     }
-
-    this.leadersTab.viewport('update');
-    this.leadersTab.scrolla('update');
 };
 
 Puzzle.Dialog = Dialog;
@@ -158,28 +186,18 @@ var TimeHelper = {
 
         if (diff >= this.MONTH) {
             monthes = this.getMonthes(diff);
-            days = this.getDays(diff % this.MONTH);
-
-            result += monthes + (monthes > 1 ? ' monthes and ' : ' month and ');
-            result += days + (days > 1 ? ' days' : ' day');
+            result = monthes + (monthes > 1 ? ' monthes' : ' month');
         } else if (diff >= this.DAY) {
             days = this.getDays(diff);
-            hours = this.getHours(diff % this.DAY);
-
-            result += days + (days > 1 ? ' days and ' : ' day and ');
-            result += hours + (hours > 1 ? ' hours' : ' hour');
+            result = days + (days > 1 ? ' days' : ' day');
         } else if (diff >= this.HOUR) {
             hours = this.getHours(diff);
-            minutes = this.getMinutes(diff % this.HOUR);
-
-            result += hours + (hours > 1 ? ' hours and ' : ' hour and ');
-            result += minutes + (minutes > 1 ? ' minutes' : ' minute');
+            result = hours + (hours > 1 ? ' hours' : ' hour');
         } else if (diff >= this.MINUTE) {
             minutes = this.getMinutes(diff % this.HOUR);
-
-            result += minutes + (minutes > 1 ? ' minutes' : ' minute');
+            result = minutes + (minutes > 1 ? ' minutes' : ' minute');
         } else {
-            result += 'just now';
+            result = 'just now';
         }
 
         return result;

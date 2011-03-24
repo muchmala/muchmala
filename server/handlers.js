@@ -46,7 +46,7 @@ Handlers.prototype.initializeAction = function(params) {
             self.userDataAction();
             self.puzzleDataAction();
             self.leadersBoardAction();
-            self.generalLeadersBoardAction();
+            self.topTwentyAction();
         });
     });
 };
@@ -70,9 +70,9 @@ Handlers.prototype.leadersBoardAction = function() {
     }, this));
 };
 
-Handlers.prototype.generalLeadersBoardAction = function() {
-    this.getGeneralLeadersBoardData(_.bind(function(data) {
-        this.session.send(MESSAGES.generalLeadersBoard, data);
+Handlers.prototype.topTwentyAction = function() {
+    this.getTopTwentyData(_.bind(function(data) {
+        this.session.send(MESSAGES.topTwenty, data);
     }, this));
 };
 
@@ -211,7 +211,7 @@ Handlers.prototype.getLeadersBoardData = function(callback) {
 };
 
 //TODO: Refactor this when bug in mongoose is fixed
-Handlers.prototype.getGeneralLeadersBoardData = function(callback) {
+Handlers.prototype.getTopTwentyData = function(callback) {
     flow.exec(
         function() {
             db.Users.all(this);
@@ -226,7 +226,7 @@ Handlers.prototype.getGeneralLeadersBoardData = function(callback) {
             });
             callback(_.sortBy(result, function(row) {
                 return row.score;
-            }));
+            }).slice(0, 20));
         });
 };
 

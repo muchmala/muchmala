@@ -11,7 +11,7 @@ ns.unlockPieces  = 'unlockPieces';
 ns.swapPieces    = 'swapPieces';
 ns.setUserName   = 'setUserName';
 ns.leadersBoard  = 'leadersBoard';
-ns.generalLeadersBoard  = 'generalLeadersBoard';
+ns.topTwenty  = 'topTwenty';
 ns.completionPercentage = 'completionPercentage';
 ns.connectedUsersCount = 'connectedUsersCount';
 

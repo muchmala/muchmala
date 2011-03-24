@@ -20,7 +20,7 @@ Puzzle.Viewport = (function() {
     }
 
     $(window).resize(function() {
-         element.viewport('update');
+         element.viewport('adjust');
     });
 
     function arrange(pieceSize, vLength, hLength) {

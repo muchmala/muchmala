@@ -21,6 +21,7 @@ Utils.Observer = function() {
 
     return {
         fire: fire,
-        subscribe: subscribe
+        subscribe: subscribe,
+        on: subscribe
     };
 };

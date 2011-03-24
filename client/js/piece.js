@@ -1,8 +1,8 @@
-Puzzle.Pice = function(settings) {
+Puzzle.Piece = function(settings) {
     this.x = settings.x;
     this.y = settings.y;
     this.ears = settings.ears;
-    this.images = Puzzle.Pice.IMAGES;
+    this.images = Puzzle.Piece.IMAGES;
             
     this.realX = settings.realX;
     this.realY = settings.realY;
@@ -28,8 +28,8 @@ Puzzle.Pice = function(settings) {
     this.render();
 };
 
-Puzzle.Pice.setImages = function(images) {
-    Puzzle.Pice.IMAGES = _.extend({
+Puzzle.Piece.setImages = function(images) {
+    Puzzle.Piece.IMAGES = _.extend({
         sprite: null,
         defaultCover: null,
         selectCover: null,
@@ -37,7 +37,7 @@ Puzzle.Pice.setImages = function(images) {
     }, images);
 };
 
-Puzzle.Pice.coverOffsets = {
+Puzzle.Piece.coverOffsets = {
     '0000': [0, 0], '1111': [1, 0],
     '1000': [2, 0], '0100': [3, 0],
     '0010': [0, 1], '0001': [1, 1],
@@ -48,7 +48,7 @@ Puzzle.Pice.coverOffsets = {
     '0101': [2, 3], '1010': [3, 3]
 };
 
-Puzzle.Pice.prototype.render = function() {
+Puzzle.Piece.prototype.render = function() {
     this.ctx.clearRect(0, 0, this.size, this.size);
     this.ctx.drawImage(this.images.sprite,  this.realX * this.size,
                        this.realY * this.size, this.size, this.size,
@@ -65,44 +65,44 @@ Puzzle.Pice.prototype.render = function() {
     return this.canvas;
 };
 
-Puzzle.Pice.prototype.cover = function(coverImage) {
+Puzzle.Piece.prototype.cover = function(coverImage) {
     var type = '';
     type += this.ears.left ? '1' : '0';
     type += this.ears.top ? '1' : '0';
     type += this.ears.right ? '1' : '0';
     type += this.ears.bottom ? '1' : '0';
 
-    this.ctx.drawImage(coverImage, Puzzle.Pice.coverOffsets[type][0] * this.size,
-                       Puzzle.Pice.coverOffsets[type][1] * this.size, this.size,
+    this.ctx.drawImage(coverImage, Puzzle.Piece.coverOffsets[type][0] * this.size,
+                       Puzzle.Piece.coverOffsets[type][1] * this.size, this.size,
                        this.size, 0, 0, this.size, this.size);
 };
 
-Puzzle.Pice.prototype.select = function() {
+Puzzle.Piece.prototype.select = function() {
     this.selected = true;
     this.render();
 };
-Puzzle.Pice.prototype.lock = function() {
+Puzzle.Piece.prototype.lock = function() {
     this.locked = true;
     this.render();
 };
-Puzzle.Pice.prototype.unselect = function() {
+Puzzle.Piece.prototype.unselect = function() {
     this.selected = false;
     this.render();
 };
-Puzzle.Pice.prototype.unlock = function() {
+Puzzle.Piece.prototype.unlock = function() {
     this.locked = false;
     this.render();
 };
-Puzzle.Pice.prototype.highlight = function() {
+Puzzle.Piece.prototype.highlight = function() {
     this.highlighted = true;
     this.render();
 };
-Puzzle.Pice.prototype.unhighlight = function() {
+Puzzle.Piece.prototype.unhighlight = function() {
     this.highlighted = false;
     this.render();
 };
 
-Puzzle.Pice.prototype.hasPoint = function(x, y) {
+Puzzle.Piece.prototype.hasPoint = function(x, y) {
     var s = this.size / 6;
     var xc = this.xCoord;
     var yc = this.yCoord;
@@ -121,6 +121,6 @@ Puzzle.Pice.prototype.hasPoint = function(x, y) {
     return false;
 };
 
-Puzzle.Pice.prototype.isCollected = function() {
+Puzzle.Piece.prototype.isCollected = function() {
     return this.realX == this.x && this.realY == this.y;
 };
