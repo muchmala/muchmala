@@ -1,23 +1,8 @@
-Puzzle.Viewport = (function() {
-    var element = $('#viewport');
-    var loading =  $('#loading');
-
-    element.viewport();
-
+Puzz.Viewport = (function() {
+    var element = $('#viewport').viewport();
     var content = element.viewport('content');
     content.draggable({containment: 'parent'});
     content.scraggable({containment: 'parent'});
-    
-    function showLoading() {
-        loading.show();
-        loading.animate({top: 10}, 200);
-    }
-
-    function hideLoading() {
-        loading.animate({top: -28}, 200, function() {
-            loading.hide();
-        });
-    }
 
     $(window).resize(function() {
          element.viewport('adjust');
@@ -35,8 +20,6 @@ Puzzle.Viewport = (function() {
 
     return {
         content: content,
-        showLoading: showLoading,
-        hideLoading: hideLoading,
         arrange: arrange
-    }
+    };
 })();

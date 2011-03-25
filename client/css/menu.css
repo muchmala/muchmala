@@ -1,0 +1,158 @@
+.menu {
+    width:440px;
+    height:250px;
+}
+
+.menu .tabs {
+    position:absolute;
+    top:10px;
+    left:20px;
+    height:14px;
+}
+
+.menu .tabs li {
+    float:left;
+    position:relative;
+    margin-right:10px;
+}
+
+.menu .tabs li.sel {
+    background: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0, rgb(255,255,255)),
+        color-stop(1, rgb(180,180,180))
+    );
+    background: -moz-linear-gradient(
+        center bottom,
+        rgb(255,255,255) 0%,
+        rgb(180,180,180) 100%
+    );
+}
+
+.menu .tabs li.sel i {
+    position:absolute;
+    left:50%;
+    top:100%;
+    display:block;
+    margin-left:-5px;
+    border:5px solid transparent;
+    border-top-color:#fff;
+}
+
+.menu .page {
+    display:none;
+    margin-top:20px;
+    height:100%;
+    line-height:20px;
+    font-size:14px;
+    text-align:justify;
+}
+
+.menu .leaders {
+    position:relative;
+    overflow:hidden;
+    width:440px;
+}
+
+.menu .loading {
+    background-image:url('/img/loadinfo.net.gif');
+    background-repeat:no-repeat;
+    background-position:center;
+}
+
+.menu .leaders .viewportContent {
+    z-index:99;
+}
+
+.menu .leaders ul {
+    display:block;
+    width:440px;
+}
+
+.menu .leaders li {
+    display:block;
+    height:25px;
+    width:100%;
+    line-height:24px;
+}
+
+.menu .leaders span {
+    display:inline-block;
+}
+
+.menu .leaders .num {
+    margin-right:5px;
+    width:20px;
+    font-size:11px;
+    text-align:right;
+}
+
+.menu .leaders .name {
+    width:240px;
+}
+
+.menu .leaders .time {
+    width:60px;
+    padding-right:10px;
+    font-size:10px;
+    text-align:center;
+}
+
+.menu .leaders .num,
+.menu .leaders .score {
+    font-family:Georgia;
+}
+
+.menu .leaders .score {
+    width:70px;
+    text-align:right;
+}
+
+.menu .leaders .scrolla {
+    position:absolute;
+    z-index:100;
+    right:2px;
+    width:10px;
+    opacity:0.6;
+    background:#fff;
+    
+    -webkit-border-radius:5px;
+    -moz-border-radius:5px;
+    border-radius:5px;
+
+    -webkit-box-shadow:0 0 2px #000;
+    -moz-box-shadow:0 0 2px #000;
+    box-shadow:0 0 2px #000;
+
+    background-image: -webkit-gradient(
+        linear,
+        right bottom,
+        left bottom,
+        color-stop(0, rgb(210,210,210)),
+        color-stop(1, rgb(255,255,255))
+    );
+}
+
+.menu .welcome h1 {
+    margin:15px 8px;
+    font-size:20px;
+}
+
+.menu .welcome p {
+    margin:0 8px 30px 8px;
+    font-size:12px;
+}
+
+.menu .welcome .start {
+    padding-top:5px;
+    text-align:center;
+}
+
+.menu .puzzles p,
+.menu .credits p {
+    width:100%;
+    padding-top:50px;
+    text-align:center;
+}

@@ -1,8 +1,8 @@
-Puzzle.Preloader = function() {
+Puzz.Preloader = function() {
     this.cache = {};
 };
 
-Puzzle.Preloader.prototype.loadImages = function(sources, callback) {
+Puzz.Preloader.prototype.loadImages = function(sources, callback) {
     var imagesCount = _.size(sources);
     var that = this;
     _.each(sources, function(src) {

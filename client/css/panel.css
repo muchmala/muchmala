@@ -1,5 +1,4 @@
 #panel {
-    display:none;
     position:absolute;
     z-index:1001;
     top:10px;
@@ -9,6 +8,16 @@
     color:#fff; 
     -webkit-box-shadow:0 0 5px #fff;
     -moz-box-shadow:0 0 5px #fff;
+}
+
+#panel.loading {
+    background-image:url(/img/ajax-loader.gif);
+    background-repeat:no-repeat;
+    background-position:center;
+}
+
+#panel.loading.second {
+    background-position:5px 5px;
 }
 
 #panel .content {
@@ -52,8 +61,8 @@
     padding:5px;
     border:1px solid #fff;
     background:rgba(0,0,0,0.5);
-    -moz-border-radius:5px;
-    border-radius:5px;
+    -moz-border-radius:3px;
+    border-radius:3px;
 }
 
 #panel .leadersboard {
@@ -105,6 +114,7 @@
 }
 
 #panel .user {
+    visibility:hidden;
     margin-right:10px;
 }
 
@@ -125,6 +135,7 @@
 }
 
 #panel .expcol {
+    display:none;
     position:absolute;
     top:5px;
     right:5px;

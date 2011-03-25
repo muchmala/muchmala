@@ -1,70 +1,80 @@
-Puzzle.Panel = (function() {
+Puzz.Panel = (function() {
     var element = $('#panel');
     var observer = Utils.Observer();
-    var events = {userNameChanged: 'userNameChanged'};
 
-    $('.expcol', element).click(function() {
-        if($('.expcol', element).hasClass('opened')) {
-            $('.logo', element).hide();
-            $('.statistics', element).hide();
-            $('.leadersboard', element).hide();
-            $('.expcol', element).removeClass('opened');
+    var userNameDialog = new Puzz.UserNameDialog();
+    userNameDialog.on('entered', function(value) {
+        observer.fire('userNameChanged', value);
+    });
+
+    element.find('.user .name').click(function(event) {
+        if(userNameDialog.shown) { return; }
+        userNameDialog.show();
+    });
+    element.find('.logo h1').click(function() {
+        if (Puzz.MenuDialog.shown) { return; }
+        Puzz.MenuDialog.show();
+    });
+    element.find('.expcol').click(function() {
+        if($(this).hasClass('opened')) {
+            self.collapse()
         } else {
-            $('.logo', element).show();
-            $('.statistics', element).show();
-            $('.leadersboard', element).show();
-            $('.expcol', element).addClass('opened');
+            self.expand();
         }
     });
 
-    $('.logo h1', element).click(function() {
-        Puzzle.MenuDialog.show();
-    });
-
-    var userNameDialog = new Puzzle.UserNameDialog();
-    var userNameButton = element.find('.user .name');
-
-    userNameButton.click(function(event) {
-        if(!userNameDialog.shown) {
-            userNameDialog.show();
-        }
-    });
-
-    userNameDialog.on(userNameDialog.events.entered, function(value) {
-        observer.fire(events.userNameChanged, value);
-    });
-
-    return {
-        events: events,
+    var self = {
         on: observer.on,
+
+        expand: function() {
+            element.find('.logo').show();
+            element.find('.statistics').show();
+            element.find('.leadersboard').show();
+            element.find('.expcol').addClass('opened');
+        },
+        collapse: function() {
+            element.find('.logo').hide();
+            element.find('.statistics').hide();
+            element.find('.leadersboard').hide();
+            element.find('.expcol').removeClass('opened');
+        },
+
+        loading: function() {
+            this.collapse();
+            $('#panel').addClass('loading');
+        },
+        userDataLoaded: function() {
+            $('#panel').addClass('second');
+        },
+        puzzleLoaded: function() {
+            $('#panel').removeClass('loading');
+            $('#panel').removeClass('second');
+        },
         
-        show: function() {
-            element.show();
+        setUserData: function(data) {
+            element.find('.expcol').show();
+            element.find('.user .num').text(data.score);
+            element.find('.user .name').text(data.name);
+            element.find('.user').css('visibility', 'visible');
         },
-        setUsername: function(name) {
-            userNameButton.text(name);
-        },
-        setScore: function(score) {
-            element.find('.user .num').text(score);
+        setPuzzleData: function(data) {
+            this.setCompleteLevel(data.completion);
+            this.setConnectedUsersCount(data.connected);
+            element.find('.statistics .quantity').text(data.vLength * data.hLength);
+
+            var creationDate = new Date(data.created);
+            this.updateTimeSpent(creationDate.getTime());
+            setInterval(_.bind(function() {
+                this.updateTimeSpent(creationDate);
+            }, this), 60000);
         },
         setConnectedUsersCount: function(count) {
             element.find('.statistics .connected').text(count);
         },
         setCompleteLevel: function(percent) {
-            element.find('.statistics .complete').text(percent+'%');
+            element.find('.statistics .complete').text(percent + '%');
         },
-        setPiecesNumber: function(number) {
-            element.find('.statistics .quantity').text(number);
-        },
-        setTimeSpent: function(creationTime) {
-            var self = this;
-            var creationDate = new Date(creationTime);
-            self.updateTimeSpent(creationDate.getTime());
-            
-            setInterval(function() {
-                self.updateTimeSpent(creationDate);
-            }, 60000);
-        },
+        
         updateTimeSpent: function(creationTime) {
             var diff = parseInt((new Date() - creationTime) / 1000);
             var hours = parseInt(diff / 3600);
@@ -96,4 +106,6 @@ Puzzle.Panel = (function() {
             }
         }
     };
+
+    return self;
 })();

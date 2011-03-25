@@ -1,11 +1,11 @@
-Puzzle.Puzzle = function puzzle(settings) {
+Puzz.Puzzle = function puzzle(settings) {
     settings = $.extend({
         viewport: null,
         piceSize: null,
         indexCellSize: 60
     }, settings);
 
-    Puzzle.Piece.setImages({
+    Puzz.Piece.setImages({
         sprite: settings.sprite,
         defaultCover: settings.defaultCover,
         selectCover: settings.selectCover,
@@ -123,7 +123,7 @@ Puzzle.Puzzle = function puzzle(settings) {
     }
 
     function addPiece(data) {
-        var pice = new Puzzle.Piece({
+        var pice = new Puzz.Piece({
             ears: {
                 left: data.l, bottom: data.b,
                 right: data.r, top: data.t
@@ -184,6 +184,6 @@ Puzzle.Puzzle = function puzzle(settings) {
     };
 };
 
-Puzzle.Puzzle.EVENTS = {
+Puzz.Puzzle.EVENTS = {
     clicked: 'clicked'
 };

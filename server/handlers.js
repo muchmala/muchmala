@@ -46,7 +46,6 @@ Handlers.prototype.initializeAction = function(params) {
             self.userDataAction();
             self.puzzleDataAction();
             self.leadersBoardAction();
-            self.topTwentyAction();
         });
     });
 };
@@ -58,8 +57,7 @@ Handlers.prototype.userDataAction = function() {
         this.session.send(MESSAGES.userData, {
             id: userData._id,
             name: userData.name,
-            score: userData.score,
-            puzzleScore: puzzleScore
+            score: puzzleScore
         });
     }, this));
 };

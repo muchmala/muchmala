@@ -1,6 +1,7 @@
-Puzzle.Server = (function() {
+Puzz.Server = (function() {
     var observer = Utils.Observer();
     var socket = new io.Socket();
+    var m = MESSAGES;
     
     socket.on('message', function(data) {
         var parsed = JSON.parse(data);
@@ -42,31 +43,34 @@ Puzzle.Server = (function() {
             if(userId) {
                 data.userId = userId
             }
-            sendMessage(createMessage(MESSAGES.initialize, data));
+            sendMessage(createMessage(m.initialize, data));
         },
         getPiecesData: function(puzzleId) {
-            sendMessage(createMessage(MESSAGES.piecesData, puzzleId));
+            sendMessage(createMessage(m.piecesData, puzzleId));
         },
         getUserData: function(userId) {
-            sendMessage(createMessage(MESSAGES.userData, userId));
+            sendMessage(createMessage(m.userData, userId));
         },
         setUserName: function(userName) {
-            sendMessage(createMessage(MESSAGES.setUserName, userName));
+            sendMessage(createMessage(m.setUserName, userName));
         },
         lockPiece: function(x, y) {
-            sendMessage(createMessage(MESSAGES.lockPiece, [x, y]));
+            sendMessage(createMessage(m.lockPiece, [x, y]));
         },
         unlockPiece: function(x, y) {
-            sendMessage(createMessage(MESSAGES.unlockPieces, [[x, y]]));
+            sendMessage(createMessage(m.unlockPieces, [[x, y]]));
         },
         selectPiece: function(x, y) {
-            sendMessage(createMessage(MESSAGES.selectPiece, [x, y]));
+            sendMessage(createMessage(m.selectPiece, [x, y]));
         },
         releasePiece: function(x, y) {
-            sendMessage(createMessage(MESSAGES.releasePiece, [x, y]));
+            sendMessage(createMessage(m.releasePiece, [x, y]));
         },
         swapPieces: function(x1, y1, x2, y2) {
-            sendMessage(createMessage(MESSAGES.swapPieces, [[x1, y1], [x2, y2]]));
+            sendMessage(createMessage(m.swapPieces, [[x1, y1], [x2, y2]]));
+        },
+        getTopTwenty: function() {
+            sendMessage(createMessage(m.topTwenty));
         }
     };
 

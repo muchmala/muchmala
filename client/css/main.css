@@ -3,6 +3,10 @@ body {
     font-family:'Helvetica Neue', Helvetica, sans-serif;
 }
 
+body.fallback {
+    background:url('/img/bg.jpg') repeat;
+}
+
 input {
     font-family:'Helvetica Neue', Helvetica, sans-serif;
 }
@@ -43,7 +47,7 @@ input {
     background:url('/img/loadinfo.net.gif') no-repeat right 5px;
 }
 
-.button, .bigButton {
+.button {
     display:inline-block;
     padding:0 10px;
     height:14px;
@@ -77,8 +81,7 @@ input {
     );
 }
 
-.button:hover,
-.bigButton:hover {
+.button:hover {
     background-image: -webkit-gradient(
         linear,
         left bottom,
@@ -93,15 +96,15 @@ input {
     );
 }
 
-.bigButton {
-    padding:0 10px;
+.button.big {
+    padding:0 15px;
     height:30px;
     line-height:30px;
     font-size:18px;
     
     -webkit-border-radius:15px;
     -moz-border-radius:15px;
-    -o-border-radius:15px;
+    border-radius:15px;
 
     background-image: -webkit-gradient(
         linear,
@@ -118,7 +121,7 @@ input {
     );
 }
 
-.bigButton:hover {
+.button.big:hover {
     background-image: -webkit-gradient(
         linear,
         left bottom,
