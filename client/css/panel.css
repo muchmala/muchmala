@@ -11,12 +11,12 @@
 }
 
 #panel.loading {
-    background-image:url(/img/ajax-loader.gif);
+    background-image:url(/img/loader.gif);
     background-repeat:no-repeat;
     background-position:center;
 }
 
-#panel.loading.second {
+#panel.filled.loading {
     background-position:5px 5px;
 }
 
@@ -115,6 +115,11 @@
 
 #panel .user {
     visibility:hidden;
+    margin-right:10px;
+}
+
+#panel.filled .user {
+    visibility:visible;
     margin-right:10px;
 }
 

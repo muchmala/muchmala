@@ -41,6 +41,7 @@ Handlers.prototype.initializeAction = function(params) {
             self.puzzle = lastPuzzle;
             self.puzzle.connectUser(user._id);
 
+            self.session.send(MESSAGES.initialized);
             self.session.broadcast(MESSAGES.connectedUsersCount,
                                    self.puzzle.connected.length);
             self.userDataAction();

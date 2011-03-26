@@ -23,6 +23,10 @@ Puzz.Panel = (function() {
         }
     });
 
+    Puzz.Server.subscribe(MESSAGES.piecesData, function() {
+        $('#panel').removeClass('loading');
+    });
+
     var self = {
         on: observer.on,
 
@@ -40,22 +44,14 @@ Puzz.Panel = (function() {
         },
 
         loading: function() {
-            this.collapse();
             $('#panel').addClass('loading');
-        },
-        userDataLoaded: function() {
-            $('#panel').addClass('second');
-        },
-        puzzleLoaded: function() {
-            $('#panel').removeClass('loading');
-            $('#panel').removeClass('second');
         },
         
         setUserData: function(data) {
             element.find('.expcol').show();
             element.find('.user .num').text(data.score);
             element.find('.user .name').text(data.name);
-            element.find('.user').css('visibility', 'visible');
+            element.addClass('filled');
         },
         setPuzzleData: function(data) {
             this.setCompleteLevel(data.completion);

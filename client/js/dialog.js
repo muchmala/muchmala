@@ -103,19 +103,26 @@ function MenuDialog() {
         });
     });
 
-    this.tabs.leaders.click(function() {
-        self.getTopTwenty();
-    });
-
     this.pages.leaders.viewport({position: 'top'});
     this.pages.leaders.viewport('content').scraggable({axis: 'y', containment: 'parent'});
     this.pages.leaders.scrolla({content: this.pages.leaders.viewport('content')});
+
+    Puzz.Server.subscribe(MESSAGES.initialized, function() {
+        self.requestPuzzles();
+        self.requestTopTwenty();
+        self.tabs.leaders.click(function() { self.requestTopTwenty(); });
+        self.tabs.puzzles.click(function() { self.requestPuzzles(); });
+    });
 
     Puzz.Server.subscribe(MESSAGES.topTwenty, function(data) {
         self.updateTopTwenty(data);
         self.pages.leaders.viewport('update');
         self.pages.leaders.scrolla('update');
         self.pages.leaders.removeClass('loading');
+    });
+
+    Puzz.Server.subscribe(MESSAGES.piecesData, function() {
+        self.element.find('.welcome .button').html('Play Puzzle');
     });
 }
 
@@ -146,9 +153,13 @@ MenuDialog.prototype.updateTopTwenty = function(users) {
     }
 };
 
-MenuDialog.prototype.getTopTwenty = function() {
+MenuDialog.prototype.requestTopTwenty = function() {
     Puzz.Server.getTopTwenty();
     this.pages.leaders.addClass('loading');
+};
+
+MenuDialog.prototype.requestPuzzles = function() {
+    // TODO: implement
 };
 
 MenuDialog.prototype.show = function() {
@@ -156,7 +167,6 @@ MenuDialog.prototype.show = function() {
 
     var lastViewed = Puzz.Storage.menu.lastViewedPage();
     if (lastViewed) { this.openPage(lastViewed); }
-    if (lastViewed == 'leaders') { this.getTopTwenty(); }
 }
 
 MenuDialog.prototype.hide = function() {

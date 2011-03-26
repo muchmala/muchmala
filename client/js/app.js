@@ -30,7 +30,6 @@ $(function() {
     server.subscribe(m.userData, function(data) {
         storage.setUserId(data.id);
         panel.setUserData(data);
-        panel.userDataLoaded();
     });
 
     server.subscribe(m.puzzleData, function(data) {
@@ -60,9 +59,9 @@ $(function() {
     });
 
     server.subscribe(m.piecesData, function(pieces) {
-        panel.puzzleLoaded();
         puzzle.build(pieces);
         puzzle.subscribe('clicked', processClickedPiece);
+
         $(document.body).removeClass('fallback');
 
         server.subscribe(m.lockPiece, function(coords) {

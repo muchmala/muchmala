@@ -11,7 +11,8 @@ ns.unlockPieces  = 'unlockPieces';
 ns.swapPieces    = 'swapPieces';
 ns.setUserName   = 'setUserName';
 ns.leadersBoard  = 'leadersBoard';
-ns.topTwenty  = 'topTwenty';
+ns.initialized   = 'initialized';
+ns.topTwenty     = 'topTwenty';
 ns.completionPercentage = 'completionPercentage';
 ns.connectedUsersCount = 'connectedUsersCount';
 
@@ -19,4 +20,4 @@ ns.create = function(event, data) {
     return JSON.stringify({event: event, data: data});
 };
 
-}((typeof exports === 'undefined') ? window.MESSAGES = {} : exports));
+}((typeof exports === 'undefined') ? window.MESSAGES = {} : module.exports));
