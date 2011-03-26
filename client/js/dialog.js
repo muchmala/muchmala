@@ -123,6 +123,9 @@ function MenuDialog() {
 
     Puzz.Server.subscribe(MESSAGES.piecesData, function() {
         self.element.find('.welcome .button').html('Play Puzzle');
+        self.element.find('.welcome .button').click(function() {
+            self.hide();
+        });
     });
 }
 
