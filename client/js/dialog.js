@@ -170,6 +170,11 @@ MenuDialog.prototype.show = function() {
 
     var lastViewed = Puzz.Storage.menu.lastViewedPage();
     if (lastViewed) { this.openPage(lastViewed); }
+    // TODO: Refactor this
+    if (lastViewed == 'leaders') {
+        this.pages.leaders.viewport('update');
+        this.pages.leaders.scrolla('update');
+    }
 }
 
 MenuDialog.prototype.hide = function() {
