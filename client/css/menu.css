@@ -29,6 +29,11 @@
         rgb(255,255,255) 0%,
         rgb(180,180,180) 100%
     );
+    background-image: -o-linear-gradient(
+        center bottom,
+        rgb(255,255,255) 0%,
+        rgb(180,180,180) 100%
+    );
 }
 
 .menu .tabs li.sel i {
@@ -170,6 +175,16 @@
         left bottom,
         color-stop(0, rgb(210,210,210)),
         color-stop(1, rgb(255,255,255))
+    );
+    background-image: -moz-linear-gradient(
+        right center,
+        rgb(210,210,210) 0%,
+        rgb(255,255,255) 100%
+    );
+    background-image: -o-linear-gradient(
+        right center,
+        rgb(210,210,210) 0%,
+        rgb(255,255,255) 100%
     );
 }
 

@@ -56,6 +56,7 @@ input {
     color:#000;
     cursor:pointer;
     text-align:center;
+    background:#fff;
 
     -webkit-box-shadow:0 0 2px #000;
     -moz-box-shadow:0 0 2px #000;
@@ -65,8 +66,6 @@ input {
     -moz-border-radius:7px;
     border-radius:7px;
 
-    border-radius:7px;
-    background:#fff;
     background-image: -webkit-gradient(
         linear,
         left bottom,
@@ -74,7 +73,12 @@ input {
         color-stop(0, rgb(180,180,180)),
         color-stop(1, rgb(255,255,255))
     );
-    background: -moz-linear-gradient(
+    background-image: -moz-linear-gradient(
+        center bottom,
+        rgb(180,180,180) 0%,
+        rgb(255,255,255) 100%
+    );
+    background-image: -o-linear-gradient(
         center bottom,
         rgb(180,180,180) 0%,
         rgb(255,255,255) 100%
@@ -92,6 +96,11 @@ input {
     background: -moz-linear-gradient(
         center bottom,
         rgb(210,210,210) 0%,
+        rgb(255,255,255) 100%
+    );
+    background-image: -o-linear-gradient(
+        center bottom,
+        rgb(180,180,180) 0%,
         rgb(255,255,255) 100%
     );
 }
@@ -113,8 +122,12 @@ input {
         color-stop(0, rgb(255,255,0)),
         color-stop(1, rgb(255,255,255))
     );
-    
-    background: -moz-linear-gradient(
+    background-image: -moz-linear-gradient(
+        center bottom,
+        rgb(255,255,50) 0%,
+        rgb(255,255,255) 100%
+    );
+    background-image: -o-linear-gradient(
         center bottom,
         rgb(255,255,50) 0%,
         rgb(255,255,255) 100%
@@ -129,8 +142,12 @@ input {
         color-stop(0, rgb(255,255,100)),
         color-stop(1, rgb(255,255,255))
     );
-
-    background: -moz-linear-gradient(
+    background-image: -moz-linear-gradient(
+        center bottom,
+        rgb(255,255,120) 0%,
+        rgb(255,255,255) 100%
+    );
+    background-image: -o-linear-gradient(
         center bottom,
         rgb(255,255,120) 0%,
         rgb(255,255,255) 100%
