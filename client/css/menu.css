@@ -74,19 +74,19 @@
 }
 
 .menu .howtoplay h1 {
-    margin:15px 8px;
+    padding:5px 8px;
     font-size:20px;
 }
 
 .menu .howtoplay p {
-    margin:0 8px 30px 8px;
+    margin:5px 8px 10px 8px;
     font-size:12px;
 }
 
-.menu .howtoplay .start {
-    padding-top:5px;
-    text-align:center;
-}
+.menu .howtoplay .red { padding:1px 5px; background:#f44; }
+.menu .howtoplay .dim { padding:1px 5px; background:#fff; color:#000; }
+.menu .howtoplay .blue { padding:1px 5px; background:#44f; }
+.menu .howtoplay .loading { padding:8px; margin-right:3px; }
 
 .menu .leaders {
     position:relative;
