@@ -16,7 +16,7 @@ $(function() {
     }
     
     server.subscribe('connected', function() {
-        server.initialize(1, storage.getUserId());
+        server.initialize(1, storage.user.id());
     });
     server.subscribe(m.connectedUsersCount, function(count) {
         panel.setConnectedUsersCount(count);
@@ -28,7 +28,7 @@ $(function() {
         panel.updateLeadersBoard(data);
     });
     server.subscribe(m.userData, function(data) {
-        storage.setUserId(data.id);
+        storage.user.id(data.id);
         panel.setUserData(data);
     });
 

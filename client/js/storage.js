@@ -2,13 +2,14 @@ Puzz.Storage = (function() {
     var storage = window.localStorage;
 
     return {
-        getUserId: function() {
-            return storage.userId;
+        user: {
+            id: function(userId) {
+                if (_.isUndefined(userId)) {
+                    return storage.userId;
+                }
+                storage.userId = userId;
+            }
         },
-        setUserId: function(userId) {
-            storage.userId = userId;
-        },
-
         menu: {
             isShown: function(pageName) {
                 return storage.menuShown == '1';

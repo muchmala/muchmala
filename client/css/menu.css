@@ -91,7 +91,13 @@
 .menu .howtoplay .red { padding:1px 5px; background:#f44; }
 .menu .howtoplay .dim { padding:1px 5px; background:#fff; color:#000; }
 .menu .howtoplay .blue { padding:1px 5px; background:#44f; }
-.menu .howtoplay .loading { padding:8px; margin-right:3px; }
+
+.menu .howtoplay .loading {
+    display:inline-block;
+    margin-bottom:-3px;
+    height:16px;
+    width:16px;
+}
 
 .menu .leaders {
     position:relative;

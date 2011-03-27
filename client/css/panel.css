@@ -1,4 +1,5 @@
-#panel {
+nav {
+    display:block;
     position:absolute;
     z-index:1001;
     top:10px;
@@ -12,28 +13,29 @@
     box-shadow:0 0 5px #fff;
 }
 
-#panel.loading {
+nav.loading {
     background-image:url(/img/loader.gif);
     background-repeat:no-repeat;
     background-position:center;
 }
 
-#panel.filled.loading {
+nav.filled.loading {
     background-position:5px 5px;
 }
 
-#panel .content {
+nav section {
+    display:block;
     padding:10px 0 10px 10px;
     font-size:10px;
     text-align:center;
 }
 
-#panel .logo {
+nav header {
     display:none;
     margin-right:10px;
     color:#ccc;
 }
-#panel .logo h1 {
+nav header h1 {
     margin:5px 0;
     font-size:22px;
     color:#fff;
@@ -41,14 +43,14 @@
     cursor:pointer;
 }
 
-#panel .statistics {
+nav .statistics {
     display:none;
     clear:both;
     line-height:14px;
     text-align:left;
 }
 
-#panel .statistics span {
+nav .statistics span {
     float:right;
     overflow:hidden;
     display:inline-block;
@@ -58,7 +60,7 @@
     text-align:right;
 }
 
-#panel .borders {
+nav .borders {
     margin:5px 10px 0 0;
     padding:5px;
     border:1px solid #fff;
@@ -67,18 +69,18 @@
     border-radius:3px;
 }
 
-#panel .leadersboard {
+nav .leadersboard {
     display:none;
     margin:5px 0 10px 0;
     line-height:12px;
     text-align:left;
 }
 
-#panel .leadersboard .empty {
+nav .leadersboard .empty {
     text-align:center;
 }
 
-#panel .leadersboard .status {
+nav .leadersboard .status {
     float:left;
     display:block;
     margin:4px 4px 0 0;
@@ -89,19 +91,19 @@
     -moz-border-radius:3px;
     border-radius:3px;
 }
-#panel .leadersboard .status.offline {
+nav .leadersboard .status.offline {
     background:#ddd;
 }
 
 
-#panel .leadersboard .name {
+nav .leadersboard .name {
     overflow:hidden;
     display:inline-block;
     margin-right:5px;
     width:88px;
 }
 
-#panel .leadersboard .num {
+nav .leadersboard .num {
     overflow:hidden;
     display:inline-block;
     width:35px;
@@ -109,23 +111,23 @@
     text-align:right;
 }
 
-#panel .leadersboard .pts {
+nav .leadersboard .pts {
     margin-left:3px;
     font-family:Arial;
     color:#ddd;
 }
 
-#panel .user {
+nav .user {
     visibility:hidden;
     margin-right:10px;
 }
 
-#panel.filled .user {
+nav.filled .user {
     visibility:visible;
     margin-right:10px;
 }
 
-#panel .user .num {
+nav .user .num {
     margin:0 2px;
     color:#fff;
     font-size:20px;
@@ -133,15 +135,15 @@
     text-shadow:0 0 10px #fff;
 }
 
-#panel .user .name {
+nav .user .name {
     margin-bottom:2px;
 }
 
-#panel .user .pts {
+nav .user .pts {
     color:#ddd;
 }
 
-#panel .expcol {
+nav .expcol {
     display:none;
     position:absolute;
     top:5px;
@@ -150,5 +152,5 @@
     width:14px;
 }
 
-#panel .expcol:before { content: '+'; }
-#panel .expcol.opened:before { content: '-'; }
+nav .expcol:before { content: '+'; }
+nav .expcol.opened:before { content: '-'; }

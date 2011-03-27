@@ -1,5 +1,5 @@
 Puzz.Panel = (function() {
-    var element = $('#panel');
+    var element = $('nav');
     var observer = Utils.Observer();
 
     var userNameDialog = new Puzz.UserNameDialog();
@@ -11,7 +11,7 @@ Puzz.Panel = (function() {
         if(userNameDialog.shown) { return; }
         userNameDialog.show();
     });
-    element.find('.logo h1').click(function() {
+    element.find('header h1').click(function() {
         if (Puzz.MenuDialog.shown) { return; }
         Puzz.MenuDialog.show();
     });
@@ -24,27 +24,27 @@ Puzz.Panel = (function() {
     });
 
     Puzz.Server.subscribe(MESSAGES.piecesData, function() {
-        $('#panel').removeClass('loading');
+        element.removeClass('loading');
     });
 
     var self = {
         on: observer.on,
 
         expand: function() {
-            element.find('.logo').show();
+            element.find('header').show();
             element.find('.statistics').show();
             element.find('.leadersboard').show();
             element.find('.expcol').addClass('opened');
         },
         collapse: function() {
-            element.find('.logo').hide();
+            element.find('header').hide();
             element.find('.statistics').hide();
             element.find('.leadersboard').hide();
             element.find('.expcol').removeClass('opened');
         },
 
         loading: function() {
-            $('#panel').addClass('loading');
+            element.addClass('loading');
         },
         
         setUserData: function(data) {
