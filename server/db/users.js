@@ -7,7 +7,7 @@ var Users = models.Users;
 var UsersToPuzzles = models.UsersToPuzzles;
 
 Users.all = function(callback) {
-    Users.find({}, [], {sort: {'score': 1}}, function(error, users) {
+    Users.find({}, [], {sort: {'score': -1}}, function(error, users) {
         if(error) {throw error;}
         callback(users);
     });

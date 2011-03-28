@@ -143,10 +143,10 @@ MenuDialog.prototype.openPage = function(pageName) {
 
 MenuDialog.prototype.updateTopTwenty = function(users) {
     var list = this.pages.leaders.find('ul').empty();
-    for(var num = 1, i = users.length; i > 0; num++, i--) {
-        var user = users[i-1];
+    for(var i = 0; i < users.length; i++) {
+        var user = users[i];
         var row = '<li>' +
-            '<span class="num">' + num + '.</span>' +
+            '<span class="num">' + (i + 1) + '.</span>' +
             '<span class="name">' + user.name + '</span>' +
             '<span class="time">' + TimeHelper.diffString(user.created) + '</span>' +
             '<span class="score">' + user.score + '</span>' +
