@@ -223,9 +223,7 @@ Handlers.prototype.getTopTwentyData = function(callback) {
                     created: user.created.getTime()
                 };
             });
-            callback(_.sortBy(result, function(row) {
-                return row.score;
-            }).slice(0, 20));
+            callback(result.slice(0, 20));
         });
 };
 
