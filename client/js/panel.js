@@ -87,10 +87,10 @@ Puzz.Panel = (function() {
         updateLeadersBoard: function(usersData) {
             if(usersData.length == 0) { return; }
 
-            var leadersBoard = element.find('.leadersboard .borders').empty();
+            var leadersBoard = element.find('.leadersboard ul').empty();
 
             for(var i = usersData.length; i > 0; i--) {
-                var row = $('<div class="row"></div>')
+                var row = $('<li></li>')
                 var status = 'offline';
                 if(usersData[i-1].online) {
                     status = 'online';
