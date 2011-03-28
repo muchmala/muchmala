@@ -52,8 +52,10 @@ nav .statistics {
 
 nav .statistics li,
 nav .leadersboard li {
-    height:15px;
-    line-height:14px;
+    display:block;
+    margin-bottom:2px;
+    height:12px;
+    line-height:12px;
 }
 
 nav .statistics span {
@@ -87,7 +89,7 @@ nav .leadersboard li.empty {
 nav .leadersboard .status {
     float:left;
     display:block;
-    margin:5px 5px 0 1px;
+    margin:4px 5px 0 1px;
     height:6px;
     width:6px;
     background:#6f0;
