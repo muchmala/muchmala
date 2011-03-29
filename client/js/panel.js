@@ -2,7 +2,7 @@ Puzz.Panel = (function() {
     var element = $('nav');
     var observer = Utils.Observer();
 
-    element.draggable({containment: 'parent'});
+    element.draggable({containment: 'window'});
 
     var userNameDialog = new Puzz.UserNameDialog();
     userNameDialog.on('entered', function(value) {
