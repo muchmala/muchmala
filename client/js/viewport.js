@@ -1,8 +1,14 @@
 Puzz.Viewport = (function() {
     var element = $('#viewport').viewport();
     var content = element.viewport('content');
-    content.draggable({containment: 'parent'});
-    content.scraggable({containment: 'parent'});
+
+    content.draggable({
+        containment: 'parent'
+    });
+    content.scraggable({
+        containment: 'parent',
+        sensitivity: 10
+    });
 
     $(window).resize(function() {
          element.viewport('adjust');

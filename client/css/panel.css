@@ -53,7 +53,7 @@ nav .statistics {
 nav .statistics li,
 nav .leadersboard li {
     display:block;
-    margin-bottom:2px;
+    padding:0 0 2px 0;
     height:12px;
     line-height:12px;
 }
