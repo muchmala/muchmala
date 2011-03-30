@@ -7,7 +7,9 @@
 </script>
 
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
-
+<% if (config.production) { %>
+<script type="text/javascript" src="/js/minified.js"></script>
+<% } else { %>
 <script type="text/javascript" src="/js/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="/js/jquery/jquery-ui.js"></script>
 <script type="text/javascript" src="/js/jquery/jquery.scraggable/jquery.scraggable.js"></script>
@@ -15,8 +17,8 @@
 <script type="text/javascript" src="/js/jquery/jquery.scrolla/jquery.scrolla.js"></script>
 
 <script type="text/javascript" src="/underscore.js"></script>
-<script type="text/javascript" src="/messages.js"></script>
 
+<script type="text/javascript" src="/messages.js"></script>
 <script type="text/javascript" src="/js/observer.js"></script>
 <script type="text/javascript" src="/js/preloader.js"></script>
 <script type="text/javascript" src="/js/puzzle.js"></script>
@@ -27,3 +29,4 @@
 <script type="text/javascript" src="/js/dialog.js"></script>
 <script type="text/javascript" src="/js/panel.js"></script>
 <script type="text/javascript" src="/js/app.js"></script>
+<% } %>

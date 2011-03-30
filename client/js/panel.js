@@ -2,7 +2,7 @@ Puzz.Panel = (function() {
     var element = $('nav');
     var observer = Utils.Observer();
 
-    element.draggable({containment: 'window'});
+    element.draggable({containment: 'document'});
 
     var userNameDialog = new Puzz.UserNameDialog();
     userNameDialog.on('entered', function(value) {
@@ -74,9 +74,9 @@ Puzz.Panel = (function() {
         },
         
         updateTimeSpent: function(creationTime) {
-            var diff = parseInt((new Date() - creationTime) / 1000);
-            var hours = parseInt(diff / 3600);
-            var minutes = parseInt((diff % 3600) / 60);
+            var diff = Math.floor((new Date() - creationTime) / 1000);
+            var hours = Math.floor(diff / 3600);
+            var minutes = Math.floor((diff % 3600) / 60);
 
             if((hours+'').length == 1) {
                 hours = '0' + hours;

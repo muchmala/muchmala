@@ -2,14 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    
+    <title>Massively Multiplayer Online Puzzle.</title> 
+    <% if (config.production) { %>
+    <link rel="stylesheet" href="/css/minified.css" />
+    <% } else { %>
     <link rel="stylesheet" href="/css/reset.css" />
     <link rel="stylesheet" href="/css/main.css" />
     <link rel="stylesheet" href="/css/panel.css" />
     <link rel="stylesheet" href="/css/dialog.css" />
     <link rel="stylesheet" href="/css/menu.css" />
-
-    <title>Massively Multiplayer Online Puzzle.</title>
+    <% } %>
 </head>
 <body class="fallback">
 <%- body %>

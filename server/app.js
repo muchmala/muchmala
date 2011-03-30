@@ -14,11 +14,11 @@ server.set('view engine', 'html');
 server.use(express.static(__dirname + '/../client'));
 server.use(express.static(__dirname + '/../shared'));
 
-server.get('/', function(req, res){
-    res.render('puzzle', {config: config.server});
+server.get('/', function(req, res) {
+    res.render('puzzle', {config: {production: config.production}});
 });
 
-server.listen(config.server.port, config.server.ip);
+server.listen(config.server.port, config.server.host);
 
 db.connect(function() {
     var socket = io.listen(server);

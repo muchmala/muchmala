@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<project basedir="." default="all">
+    <property name="JS_DIR" value="${basedir}/client/js" />
+    <property name="CSS_DIR" value="${basedir}/client/css" />
+    <property name="SHARED_JS_DIR" value="${basedir}/shared" />
+    <property name="MINIFIED_JS" value="${JS_DIR}/minified.js" />
+    <property name="MINIFIED_CSS" value="${CSS_DIR}/minified.css" />
+    <property name="CLOSURE" value="${basedir}/build/compiler.jar" />
+    <property name="YUI" value="${basedir}/build/yuicompressor.jar" />
+    
+    <property name="TMP_CSS" value="${basedir}/tmp.css" />
+    <property name="TMP_JS" value="${basedir}/tmp.js" />
+
+    <taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="${CLOSURE}"/>
+
+    <target name="minify_js">
+        <jscomp compilationLevel="simple" warning="verbose" debug="false" output="${TMP_JS}">
+            <externs dir="${JS_DIR}">
+                <file name="externs.js"/>
+            </externs>
+            <sources dir="${SHARED_JS_DIR}">
+                <file name="messages.js"/>
+            </sources>
+            <sources dir="${JS_DIR}">
+                <file name="jquery/jquery.scraggable/jquery.scraggable.js"/>
+                <file name="jquery/jquery.viewport/jquery.viewport.js"/>
+                <file name="jquery/jquery.scrolla/jquery.scrolla.js"/>
+                <file name="observer.js"/>
+                <file name="preloader.js"/>
+                <file name="puzzle.js"/>
+                <file name="piece.js"/>
+                <file name="server.js"/>
+                <file name="storage.js"/>
+                <file name="viewport.js"/>
+                <file name="dialog.js"/>
+                <file name="panel.js"/>
+                <file name="app.js"/>
+            </sources>
+        </jscomp>
+    </target>
+
+    <target name="concat_js"  depends="minify_js">
+        <concat destfile="${MINIFIED_JS}">
+            <filelist dir="${JS_DIR}" files="jquery/jquery.min.js, jquery/jquery-ui.js" />
+            <filelist dir="${SHARED_JS_DIR}" files="underscore.js" />
+            <fileset file="${TMP_JS}" />
+        </concat>
+        <echo message="${MINIFIED_JS} built." />
+    </target>
+
+    <target name="concat_css">
+        <echo message="Concatinating ${MINIFIED_CSS}" />
+        <concat destfile="${TMP_CSS}">
+            <fileset dir="${CSS_DIR}" includes="*.css" />
+        </concat>
+        <echo message="${MINIFIED_CSS} concatinated." />
+    </target>
+
+    <target name="minify_css" depends="concat_css">
+        <echo message="Building ${MINIFIED_CSS}" />
+        <apply executable="java" parallel="false" verbose="true">
+            <fileset file="${TMP_CSS}" />
+            <arg line="-jar" />
+            <arg path="${YUI}" />
+            <arg value="--charset" />
+            <arg value="ANSI" />
+            <arg value="-o" />
+            <targetfile />
+            <mapper type="glob" from="${TMP_CSS}" to="${MINIFIED_CSS}" />
+        </apply>
+        <echo message="${MINIFIED_CSS} built." />
+    </target>
+
+    <target name="clean">
+        <delete file="${TMP_CSS}" />
+        <delete file="${TMP_JS}" />
+    </target>
+
+    <target name="all" depends="minify_js, concat_js, concat_css, minify_css, clean">
+        <echo message="Build complete." />
+    </target>
+</project>
