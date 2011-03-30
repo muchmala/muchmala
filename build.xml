@@ -51,7 +51,13 @@
     <target name="concat_css">
         <echo message="Concatinating ${MINIFIED_CSS}" />
         <concat destfile="${TMP_CSS}">
-            <fileset dir="${CSS_DIR}" includes="*.css" />
+            <filelist dir="${CSS_DIR}">
+                <file name="reset.css"/>
+                <file name="main.css"/>
+                <file name="panel.css"/>
+                <file name="dialog.css"/>
+                <file name="menu.css"/>
+            </filelist>
         </concat>
         <echo message="${MINIFIED_CSS} concatinated." />
     </target>
@@ -66,7 +72,7 @@
             <arg value="ANSI" />
             <arg value="-o" />
             <targetfile />
-            <mapper type="glob" from="${TMP_CSS}" to="${MINIFIED_CSS}" />
+            <mapper type="glob" from="*.css" to="${MINIFIED_CSS}" />
         </apply>
         <echo message="${MINIFIED_CSS} built." />
     </target>
