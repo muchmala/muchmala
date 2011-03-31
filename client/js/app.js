@@ -5,7 +5,7 @@ $(function() {
         storage = Puzz.Storage;
 
     var preloader = new Puzz.Preloader();
-    var puzzle, selected;
+    var puzzle, selected, built = false;
     var m = MESSAGES;
 
     server.connect();
@@ -18,21 +18,8 @@ $(function() {
     server.subscribe('connected', function() {
         server.initialize(1, storage.user.id());
     });
-    server.subscribe(m.connectedUsersCount, function(count) {
-        panel.setConnectedUsersCount(count);
-    });
-    server.subscribe(m.completionPercentage, function(percent) {
-        panel.setCompleteLevel(percent);
-    });
-    server.subscribe(m.leadersBoard, function(data) {
-        panel.updateLeadersBoard(data);
-    });
-    server.subscribe(m.userData, function(data) {
-        storage.user.id(data.id);
-        panel.setUserData(data);
-    });
 
-    server.subscribe(m.puzzleData, function(data) {
+    server.once(m.puzzleData, function(data) {
         var images = {
             spriteSrc: '/img/' + data.name + '/pieces.png',
             defaultCoverSrc: '/img/' + data.name + '/default_covers.png',
@@ -40,13 +27,12 @@ $(function() {
             lockCoverSrc: '/img/' + data.name + '/lock_covers.png'
         };
 
-        panel.setPuzzleData(data);
         panel.on('userNameChanged', server.setUserName);
         viewport.arrange(data.pieceSize, data.vLength, data.hLength);
 
         preloader.loadImages(images, function() {
             puzzle = Puzz.Puzzle({
-                piceSize: data.pieceSize,
+                pieceSize: data.pieceSize,
                 viewport: viewport.content,
                 sprite: preloader.cache[images.spriteSrc],
                 lockCover: preloader.cache[images.lockCoverSrc],
@@ -58,33 +44,35 @@ $(function() {
         });
     });
 
-    server.subscribe(m.piecesData, function(pieces) {
+    server.once(m.piecesData, function(pieces) {
         puzzle.build(pieces);
         puzzle.subscribe('clicked', processClickedPiece);
-
+        
         $(document.body).removeClass('fallback');
 
-        server.subscribe(m.lockPiece, function(coords) {
+        server.on(m.lockPiece, function(coords) {
             puzzle.getPiece(coords[0], coords[1]).lock();
         });
-
-        server.subscribe(m.unlockPieces, function(coords) {
-            _.each(coords, function(pice) {
-                puzzle.getPiece(pice[0], pice[1]).unlock();
+        server.on(m.unlockPieces, function(coords) {
+            _.each(coords, function(piece) {
+                puzzle.getPiece(piece[0], piece[1]).unlock();
             });
         });
-
-        server.subscribe(m.selectPiece, function(coords) {
+        server.on(m.selectPiece, function(coords) {
             selected = puzzle.getPiece(coords[0], coords[1]);
             selected.select();
         });
-
-        server.subscribe(m.releasePiece, function(coords) {
+        server.on(m.releasePiece, function(coords) {
             puzzle.getPiece(coords[0], coords[1]).unselect();
         });
-
-        server.subscribe(m.swapPieces, function(coord) {
+        server.on(m.swapPieces, function(coord) {
             puzzle.flipPiecesByCoords(coord);
+        });
+        server.on(m.puzzleData, function() {
+            server.getPiecesData();
+        });
+        server.on(m.piecesData, function(pieces) {
+            puzzle.update(pieces);
         });
     });
 

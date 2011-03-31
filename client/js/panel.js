@@ -1,6 +1,8 @@
 Puzz.Panel = (function() {
     var element = $('nav');
     var observer = Utils.Observer();
+    var server = Puzz.Server;
+    var m = MESSAGES;
 
     element.draggable({containment: 'document'});
 
@@ -25,7 +27,23 @@ Puzz.Panel = (function() {
         }
     });
 
-    Puzz.Server.subscribe(MESSAGES.piecesData, function() {
+    server.subscribe(m.userData, function(data) {
+        Puzz.Storage.user.id(data.id);
+        self.setUserData(data);
+    });
+    server.subscribe(m.connectedUsersCount, function(count) {
+        self.setConnectedUsersCount(count);
+    });
+    server.subscribe(m.completionPercentage, function(percent) {
+        self.setCompleteLevel(percent);
+    });
+    server.subscribe(m.leadersBoard, function(data) {
+        self.updateLeadersBoard(data);
+    });
+    server.subscribe(m.puzzleData, function(data) {
+        self.setPuzzleData(data);
+    });
+    server.subscribe(m.piecesData, function() {
         element.removeClass('loading');
     });
 

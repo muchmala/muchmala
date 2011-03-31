@@ -1,27 +1,48 @@
 Utils = {};
 Utils.Observer = function() {
+    var ONCE = 'once';
+    var MULTIPLE = 'multiple';
+
     var subscribers = {};
+    subscribers[ONCE] = {};
+    subscribers[MULTIPLE] = {};
 
     function fire() {
-        var eventName = Array.prototype.shift.call(arguments);
-        if(subscribers[eventName] != null) {
-            var count = subscribers[eventName].length;
-            for(var j = 0; j < count; j++) {
-                subscribers[eventName][j].apply(null, arguments);
-            }
+        var args = _.toArray(arguments);
+        var event = args.shift();
+        
+        if(!_.isUndefined(subscribers[MULTIPLE][event])) {
+            _.each(subscribers[MULTIPLE][event], function(subscriber) {
+                subscriber.apply(null, args);
+            });
+        }
+        if(!_.isUndefined(subscribers[ONCE][event])) {
+            _.each(subscribers[ONCE][event], function(subscriber) {
+                subscriber.apply(null, args);
+            });
+            delete subscribers[ONCE][event];
         }
     }
 
-    function subscribe(eventName, trigger) {
-        if(subscribers[eventName] == null) {
-            subscribers[eventName] = [];
+    function subscribe(event, trigger, type) {
+        if(_.isUndefined(subscribers[type][event])) {
+            subscribers[type][event] = [];
         }
-        subscribers[eventName].push(trigger);
+        subscribers[type][event].push(trigger);
+    }
+
+    function subscribeOnce(event, trigger) {
+        subscribe(event, trigger, ONCE);
+    }
+
+    function subscribeMultiple(event, trigger) {
+        subscribe(event, trigger, MULTIPLE);
     }
 
     return {
         fire: fire,
-        subscribe: subscribe,
-        on: subscribe
+        on: subscribeMultiple,
+        subscribe: subscribeMultiple,
+        once: subscribeOnce
     };
 };

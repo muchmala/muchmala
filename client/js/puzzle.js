@@ -1,7 +1,7 @@
 Puzz.Puzzle = function puzzle(settings) {
     settings = $.extend({
         viewport: null,
-        piceSize: null,
+        pieceSize: null,
         indexCellSize: 60
     }, settings);
 
@@ -13,10 +13,10 @@ Puzz.Puzzle = function puzzle(settings) {
     });
 
     // TMP
-    settings.indexCellSize = Math.floor(settings.piceSize/3*2);
+    settings.indexCellSize = Math.floor(settings.pieceSize/3*2);
 
     var index = {};
-    var pices = {};
+    var pieces = {};
     var observer = Utils.Observer();
     var overed = null;
 
@@ -62,33 +62,33 @@ Puzz.Puzzle = function puzzle(settings) {
     }
 
     function buildIndex() {
-        var piceSize = settings.piceSize;
+        var pieceSize = settings.pieceSize;
         var cellSize = settings.indexCellSize;
 
-        _.each(pices, function(row) {
-            _.each(row, function(pice) {
+        _.each(pieces, function(row) {
+            _.each(row, function(piece) {
 
             var cellsCount = 1;
             
-            if (piceSize > cellSize) {
-                cellsCount += Math.floor(piceSize / cellSize);
+            if (pieceSize > cellSize) {
+                cellsCount += Math.floor(pieceSize / cellSize);
             }
 
             for (var h = 0; h < cellsCount; h++) {
-                var xIndex = pice.xCoord - (pice.xCoord % cellSize) + (h * cellSize);
+                var xIndex = piece.xCoord - (piece.xCoord % cellSize) + (h * cellSize);
 
                 if (index[xIndex] == null) {
                     index[xIndex] = {};
                 }
 
                 for (var v = 0; v < cellsCount; v++) {
-                    var yIndex = pice.yCoord - (pice.yCoord % cellSize) + (v * cellSize);
+                    var yIndex = piece.yCoord - (piece.yCoord % cellSize) + (v * cellSize);
 
                     if (index[xIndex][yIndex] == null) {
                         index[xIndex][yIndex] = [];
                     }
                     
-                    index[xIndex][yIndex].push(pice);
+                    index[xIndex][yIndex].push(piece);
                 }
             }
             });
@@ -123,7 +123,7 @@ Puzz.Puzzle = function puzzle(settings) {
     }
 
     function addPiece(data) {
-        var pice = new Puzz.Piece({
+        var piece = new Puzz.Piece({
             ears: {
                 left: data.l, bottom: data.b,
                 right: data.r, top: data.t
@@ -133,20 +133,20 @@ Puzz.Puzzle = function puzzle(settings) {
             locked: data.d,
             realX: data.realX,
             realY: data.realY,
-            size: settings.piceSize
+            size: settings.pieceSize
         });
 
-        settings.viewport.append(pice.element);
+        settings.viewport.append(piece.element);
 
-        if(pices[data.y] == null) {
-            pices[data.y] = {};
+        if(pieces[data.y] == null) {
+            pieces[data.y] = {};
         }
-        pices[data.y][data.x] = pice;
+        pieces[data.y][data.x] = piece;
     }
 
     function getPiece(x, y) {
-        if(!_.isUndefined(pices[y]) && !_.isUndefined(pices[y][x])) {
-            return pices[y][x];
+        if(!_.isUndefined(pieces[y]) && !_.isUndefined(pieces[y][x])) {
+            return pieces[y][x];
         }
         return false;
     }
@@ -155,22 +155,18 @@ Puzz.Puzzle = function puzzle(settings) {
         _.each(piecesData, function(pieceData) {
             addPiece(pieceData);
         });
-        
         buildIndex();
     }
 
-    function update(map) {
-        _.each(map, function(row, y) {
-            _.each(row, function(piceData, x) {
-                var pice = getPiece(x, y);
-                pice.locked = piceData.d;
-                pice.realX = piceData.x;
-                pice.realY = piceData.y;
-                pice.render();
-            });
+    function update(piecesData) {
+        _.each(piecesData, function(pieceData) {
+            var piece = getPiece(pieceData.x, pieceData.y);
+            piece.selected = false;
+            piece.locked = pieceData.d;
+            piece.realX = pieceData.realX;
+            piece.realY = pieceData.realY;
+            piece.render();
         });
-        
-        log('puzzle is updated');
     }
 
     return {

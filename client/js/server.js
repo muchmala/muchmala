@@ -13,9 +13,11 @@ Puzz.Server = (function() {
 
     socket.on('disconnect', function() {
         log('Disconnected');
+        socket.connect();
     });
     
     socket.on('connect', function() {
+        log('Connected');
         observer.fire('connected');
     });
 
@@ -23,8 +25,6 @@ Puzz.Server = (function() {
         if(socket.connected) {
             log('sent ' + message);
             socket.send(message);
-        } else {
-            log('Socket is not connected');
         }
     }
 
@@ -33,11 +33,13 @@ Puzz.Server = (function() {
     }
 
     var publicInterface = {
-        subscribe: observer.subscribe,
-        
         connect: function() {
             socket.connect();
         },
+        disconnect: function() {
+            socket.disconnect();
+        },
+        
         initialize: function(mapId, userId) {
             var data = {mapId: mapId};
             if(userId) {
@@ -74,6 +76,6 @@ Puzz.Server = (function() {
         }
     };
 
-    return publicInterface;
+    return _.extend(publicInterface, observer);
 })();
 
