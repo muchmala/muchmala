@@ -5,7 +5,7 @@ $(function() {
         storage = Puzz.Storage;
 
     var preloader = new Puzz.Preloader();
-    var puzzle, selected, built = false;
+    var puzzle, selected;
     var m = MESSAGES;
 
     server.connect();

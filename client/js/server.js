@@ -1,6 +1,9 @@
 Puzz.Server = (function() {
     var observer = Utils.Observer();
     var socket = new io.Socket();
+    
+    var reconnectTime = 1000;
+    var connecting = false;
     var m = MESSAGES;
     
     socket.on('message', function(data) {
@@ -13,7 +16,7 @@ Puzz.Server = (function() {
 
     socket.on('disconnect', function() {
         log('Disconnected');
-        socket.connect();
+        self.connect();
     });
     
     socket.on('connect', function() {
@@ -32,14 +35,23 @@ Puzz.Server = (function() {
         return JSON.stringify({action: action, data: data});
     }
 
-    var publicInterface = {
+    var self = {
         connect: function() {
             socket.connect();
+            var connecting = setInterval(function() {
+                if (socket.connected) {
+                    clearTimeout(connecting);
+                    return;
+                }
+                socket.connect();
+            }, reconnectTime);
         },
         disconnect: function() {
             socket.disconnect();
+            if (connecting) {
+                clearTimeout(connecting);
+            }
         },
-        
         initialize: function(mapId, userId) {
             var data = {mapId: mapId};
             if(userId) {
@@ -76,6 +88,6 @@ Puzz.Server = (function() {
         }
     };
 
-    return _.extend(publicInterface, observer);
+    return _.extend(self, observer);
 })();
 
