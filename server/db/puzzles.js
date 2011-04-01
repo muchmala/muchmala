@@ -91,6 +91,7 @@ Puzzles.prototype.compactInfo = function(callback) {
         name: data.name,
         hLength: data.hLength,
         vLength: data.vLength,
+        swaps: data.swapsCount,
         pieceSize: data.pieceSize,
         created: data.created.getTime(),
         connected: this.connected.length
@@ -255,7 +256,6 @@ Puzzles.prototype.swap = function(x1, y1, x2, y2, userId, callback) {
 };
 
 Puzzles.prototype.getCompletionPercentage = function(callback) {
-
     Pieces.find({puzzleId: this._id}, function(error, found) {
         if(error) {throw error;}
 
@@ -268,6 +268,16 @@ Puzzles.prototype.getCompletionPercentage = function(callback) {
 
         callback(Math.floor(100 / found.length * collected));
     });
+};
+
+Puzzles.prototype.addSwap = function(callback) {
+    Puzzles.findById(this._id, _.bind(function(error, puzzle) {
+        this.swapsCount = puzzle.swapsCount + 1;
+        this.save(function(error) {
+            if(error) {throw error;}
+            if(callback) {callback();}
+        });
+    }, this));
 };
 
 Pieces.prototype.isCollected = function() {

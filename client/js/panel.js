@@ -15,7 +15,7 @@ Puzz.Panel = (function() {
         if(userNameDialog.shown) { return; }
         userNameDialog.show();
     });
-    element.find('header h1').click(function() {
+    element.find('header h1 span').click(function() {
         if (Puzz.MenuDialog.shown) { return; }
         Puzz.MenuDialog.show();
     });
@@ -36,6 +36,9 @@ Puzz.Panel = (function() {
     });
     server.subscribe(m.completionPercentage, function(percent) {
         self.setCompleteLevel(percent);
+    });
+    server.subscribe(m.swapsCount, function(count) {
+        self.setSwapsCount(count);
     });
     server.subscribe(m.leadersBoard, function(data) {
         self.updateLeadersBoard(data);
@@ -74,6 +77,7 @@ Puzz.Panel = (function() {
             element.addClass('filled');
         },
         setPuzzleData: function(data) {
+            this.setSwapsCount(data.swaps);
             this.setCompleteLevel(data.completion);
             this.setConnectedUsersCount(data.connected);
             element.find('.statistics .quantity').text(data.vLength * data.hLength);
@@ -83,6 +87,9 @@ Puzz.Panel = (function() {
             setInterval(_.bind(function() {
                 this.updateTimeSpent(creationDate);
             }, this), 60000);
+        },
+        setSwapsCount: function(count) {
+            element.find('.statistics .swaps').text(count);
         },
         setConnectedUsersCount: function(count) {
             element.find('.statistics .connected').text(count);

@@ -9,6 +9,7 @@ var PuzzlesSchema = new Schema({
     piecesCount : Number,
     hLength     : Number,
     vLength     : Number,
+    swapsCount  : {type: Number, 'default': 0},
     created     : {type: Date, 'default': Date.now}
 });
 
@@ -34,9 +35,11 @@ var UsersSchema = new Schema({
 
 // TODO: Make this schema as a embedded doc in the "Users" doc
 var UsersToPuzzlesSchema = new Schema({
-    userId   : ObjectId,
-    puzzleId : ObjectId,
-    score    : {type: Number, 'default': 0}
+    userId     : ObjectId,
+    puzzleId   : ObjectId,
+    swapsCount : {type: Number, 'default': 0},
+    foundCount : {type: Number, 'default': 0},
+    score      : {type: Number, 'default': 0}
 });
 
 mongoose.model('Users', UsersSchema);

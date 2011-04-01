@@ -53,12 +53,14 @@ Handlers.prototype.initializeAction = function(params) {
 
 //TODO: getPuzzleScore method should return value (without callback)
 Handlers.prototype.userDataAction = function() {
-    this.user.getPuzzleScore(this.puzzle._id, _.bind(function(puzzleScore) {
+    this.user.getPuzzleData(this.puzzle._id, _.bind(function(puzzleData) {
         var userData = this.user.toObject();
         this.session.send(MESSAGES.userData, {
             id: userData._id,
             name: userData.name,
-            score: puzzleScore
+            score: puzzleData.score,
+            swaps: puzzleData.swaps,
+            found: puzzleData.found
         });
     }, this));
 };
@@ -128,16 +130,25 @@ Handlers.prototype.swapPiecesAction = function(coords) {
         self.session.broadcast(MESSAGES.swapPieces, coords);
         self.session.broadcast(MESSAGES.unlockPieces, coords);
 
-        self.puzzle.getPiece(coords[0][0], coords[0][1], function(firstPiece) {
-            self.puzzle.getPiece(coords[1][0], coords[1][1], function(secondPiece) {
-                var correctSwapsNum = 0;
-                if(firstPiece.isCollected()) {correctSwapsNum++;}
-                if(secondPiece.isCollected()) {correctSwapsNum++;}
-                if(correctSwapsNum > 0) {
-                    self.addScore(correctSwapsNum);
-                }
-            });
+        self.puzzle.addSwap(function() {
+            self.session.send(MESSAGES.swapsCount, self.puzzle.swapsCount);
+            self.session.broadcast(MESSAGES.swapsCount, self.puzzle.swapsCount);
         });
+        
+        flow.exec(
+            function() {
+                self.user.addSwap(self.puzzle._id, this);
+            },
+            function() {
+                var foundNumber = 0;
+                flow.serialForEach(coords, function(coord) {
+                    self.puzzle.getPiece(coord[0], coord[1], this);
+                }, function(piece) {
+                    if(piece.isCollected()) { foundNumber++; }
+                }, function() {
+                    if(foundNumber > 0) { self.addScore(foundNumber); }
+                });
+            });
     });
 };
 
@@ -159,7 +170,7 @@ Handlers.prototype.retrieveUser = function(userId, callback) {
     });
 };
 
-Handlers.prototype.addScore = function(correctSwapsNum) {
+Handlers.prototype.addScore = function(foundNumber) {
     var self = this;
     var points = 0;
 
@@ -168,13 +179,13 @@ Handlers.prototype.addScore = function(correctSwapsNum) {
             self.puzzle.getCompletionPercentage(this);
         },
         function(percentage) {
-            points = parseInt((100 - percentage) / 2) * correctSwapsNum;
+            points = parseInt((100 - percentage) / 2) * foundNumber;
             self.session.send(MESSAGES.completionPercentage, percentage);
-            self.user.linkWith(self.puzzle._id, this);
-        },
-        function() {
+            self.session.broadcast(MESSAGES.completionPercentage, percentage);
+            
             self.user.addScore(points, this.MULTI());
             self.user.addPuzzleScore(points, self.puzzle._id, this.MULTI());
+            self.user.addFoundPieces(foundNumber, self.puzzle._id, this.MULTI());
         },
         function() {
             self.userDataAction();
@@ -198,9 +209,11 @@ Handlers.prototype.getLeadersBoardData = function(callback) {
             flow.serialForEach(users, function(user) {
                 var online = self.puzzle.isConnected(user._id);
                 result[user._id] = {name: user.name, online: online};
-                user.getPuzzleScore(self.puzzle._id, this);
-            }, function(score, userId) {
-                result[userId].score = score;
+                user.getPuzzleData(self.puzzle._id, this);
+            }, function(puzzleData, userId) {
+                result[userId].score = puzzleData.score;
+                result[userId].swaps = puzzleData.swaps;
+                result[userId].found = puzzleData.found;
             }, function() {
                 callback(_.sortBy(result, function(row) {
                     return row.score;

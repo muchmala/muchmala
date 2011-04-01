@@ -13,6 +13,7 @@ ns.setUserName   = 'setUserName';
 ns.leadersBoard  = 'leadersBoard';
 ns.initialized   = 'initialized';
 ns.topTwenty     = 'topTwenty';
+ns.swapsCount    = 'swapsCount';
 ns.completionPercentage = 'completionPercentage';
 ns.connectedUsersCount = 'connectedUsersCount';
 

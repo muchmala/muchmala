@@ -66,16 +66,18 @@ Users.prototype.addScore = function(score, callback) {
 
 Users.prototype.addPuzzleScore = function(score, puzzleId, callback) {
     var query = new Query();
-    query.where('userId', this._id);
+    var userId = this._id;
+    query.where('userId', userId);
     query.where('puzzleId', puzzleId);
     UsersToPuzzles.findOne(query, function(error, link) {
         if(error) {throw error;}
+
         if(_.isNull(link)) {
-            link = new UsersToPuzzles();
-            link.userId = this._id;
+            var link = new UsersToPuzzles();
+            link.userId = userId;
             link.puzzleId = puzzleId;
         }
-
+        
         link.score += score;
         link.save(function(error) {
             if(error) {throw error;}
@@ -84,7 +86,7 @@ Users.prototype.addPuzzleScore = function(score, puzzleId, callback) {
     });
 };
 
-Users.prototype.getPuzzleScore = function(puzzleId, callback) {
+Users.prototype.getPuzzleData = function(puzzleId, callback) {
     var self = this;
     var query = new Query();
     query.where('userId', this._id);
@@ -92,24 +94,15 @@ Users.prototype.getPuzzleScore = function(puzzleId, callback) {
     UsersToPuzzles.findOne(query, function(error, link) {
         if(error) {throw error;}
 
-        var score = 0;
+        var result = {score: 0, swaps: 0, found: 0};
+        
         if(!_.isNull(link)) {
-            score = link.toObject().score;
+            result.score = link.toObject().score;
+            result.swaps = link.toObject().swapsCount;
+            result.found = link.toObject().foundCount;
         }
-        callback(score, self._id);
-    });
-};
-
-Users.prototype.linkWith = function(puzzleId, callback) {
-    var link = new UsersToPuzzles();
-    link.userId = this._id;
-    link.puzzleId = puzzleId;
-    link.save(function(error) {
-        if(error) {throw error;}
-        if(!_.isUndefined(callback) &&
-            _.isFunction(callback)) {
-            callback();
-        }
+        
+        callback(result, self._id);
     });
 };
 
@@ -120,6 +113,51 @@ Users.prototype.isLinkedWith = function(puzzleId, callback) {
     UsersToPuzzles.findOne(query, function(error, doc) {
         if(error) {throw error;}
         callback(_.isNull(doc) ? false : true);
+    });
+};
+
+Users.prototype.addSwap = function(puzzleId, callback) {
+    var query = new Query();
+    var userId = this._id;
+    query.where('userId', userId);
+    query.where('puzzleId', puzzleId);
+
+    UsersToPuzzles.findOne(query, function(error, link) {
+        if(error) {throw error;}
+
+        if(_.isNull(link)) {
+            var link = new UsersToPuzzles();
+            link.userId = userId;
+            link.puzzleId = puzzleId;
+        }
+
+        link.swapsCount += 1;
+        link.save(function(error) {
+            if(error) {throw error;}
+            if(callback) {callback();}
+        });
+    });
+};
+
+Users.prototype.addFoundPieces = function(number, puzzleId, callback) {
+    var query = new Query();
+    var userId = this._id;
+    query.where('userId', userId);
+    query.where('puzzleId', puzzleId);
+    UsersToPuzzles.findOne(query, function(error, link) {
+        if(error) {throw error;}
+
+        if(_.isNull(link)) {
+            var link = new UsersToPuzzles();
+            link.userId = userId;
+            link.puzzleId = puzzleId;
+        }
+        
+        link.foundCount += number;
+        link.save(function(error) {
+            if(error) {throw error;}
+            if(callback) {callback();}
+        });
     });
 };
 

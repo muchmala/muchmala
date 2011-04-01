@@ -41,9 +41,9 @@ Puzz.Server = (function() {
             var connecting = setInterval(function() {
                 if (socket.connected) {
                     clearTimeout(connecting);
-                    return;
+                } else if (!socket.connecting) {
+                    socket.connect();
                 }
-                socket.connect();
             }, reconnectTime);
         },
         disconnect: function() {
