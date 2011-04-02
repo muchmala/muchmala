@@ -289,4 +289,19 @@ Pieces.prototype.isCollected = function() {
     return false;
 };
 
+Pieces.prototype.isLocked = function() {
+    if(_.isUndefined(lockedPieces[this.puzzleId][this.y]) ||
+       _.isUndefined(lockedPieces[this.puzzleId][this.y][this.x])) {
+        return false;
+    }
+    return true;
+};
+
+Pieces.prototype.lock = function(userId) {
+    if(_.isUndefined(lockedPieces[this.puzzleId][this.y])) {
+        lockedPieces[this.puzzleId][this.y] = {};
+    }
+    lockedPieces[this.puzzleId][this.y][this.x] = userId;
+};
+
 module.exports = Puzzles;

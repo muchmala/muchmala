@@ -6,7 +6,7 @@ var db = require('./db');
 function Handlers(session) {
     this.session = session;
     this.initialized = false;
-    this.locked = false;
+    this.selected = false;
     this.puzzle = null;
     this.user = null;
 
@@ -97,17 +97,23 @@ Handlers.prototype.setUserNameAction = function(userName) {
 };
 
 Handlers.prototype.selectPieceAction = function(coords) {
-    if(!this.locked && this.puzzle.lock(coords[0], coords[1], this.user._id)) {
-        this.locked = true;
-        this.session.send(MESSAGES.selectPiece, coords);
-        this.session.broadcast(MESSAGES.lockPiece, coords);
-        this.session.startCountDown(_.bind(function() {
-            var coords = this.puzzle.unlockAll(this.user._id);
-            this.session.send(MESSAGES.releasePiece, coords[0]);
-            this.session.broadcast(MESSAGES.unlockPieces, coords);
-            this.locked = false;
-        }, this));
-    }
+    if (this.selected) { return; }
+
+    this.puzzle.getPiece(coords[0], coords[1], _.bind(function(piece) {
+        if(!piece.isCollected() && !piece.isLocked()) {
+            piece.lock(this.user._id);
+
+            this.selected = true;
+            this.session.send(MESSAGES.selectPiece, coords);
+            this.session.broadcast(MESSAGES.lockPiece, coords);
+            this.session.startCountDown(_.bind(function() {
+                var coords = this.puzzle.unlockAll(this.user._id);
+                this.session.send(MESSAGES.releasePiece, coords[0]);
+                this.session.broadcast(MESSAGES.unlockPieces, coords);
+                this.selected = false;
+            }, this));
+        }
+    }, this));
 };
 
 Handlers.prototype.releasePieceAction = function(coords) {
@@ -115,7 +121,7 @@ Handlers.prototype.releasePieceAction = function(coords) {
         this.session.send(MESSAGES.releasePiece, coords);
         this.session.broadcast(MESSAGES.unlockPieces, [coords]);
         this.session.stopCountDown();
-        this.locked = false;
+        this.selected = false;
     }
 };
 
@@ -124,7 +130,7 @@ Handlers.prototype.swapPiecesAction = function(coords) {
     self.puzzle.swap(coords[0][0], coords[0][1], coords[1][0], coords[1][1], self.user._id, function(swaped) {
         if(!swaped) {return;} 
 
-        self.locked = false;
+        self.selected = false;
         self.session.stopCountDown();
         self.session.send(MESSAGES.swapPieces, coords);
         self.session.broadcast(MESSAGES.swapPieces, coords);

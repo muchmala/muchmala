@@ -1,6 +1,8 @@
 Puzz.Server = (function() {
     var observer = Utils.Observer();
-    var socket = new io.Socket();
+    var socket = new io.Socket(null, {
+        rememberTransport: false
+    });
     
     var reconnectTime = 1000;
     var connecting = false;
