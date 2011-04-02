@@ -11,9 +11,8 @@ $(function() {
     server.connect();
     panel.loading();
 
-    if (!storage.menu.isShown()) {
-        Puzz.MenuDialog.show();
-    }
+    Puzz.MenuDialog.show();
+    Puzz.MenuDialog.openPage('welcome');
     
     server.subscribe('connected', function() {
         server.initialize(1, storage.user.id());
