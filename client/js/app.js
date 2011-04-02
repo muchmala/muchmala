@@ -61,13 +61,16 @@ $(function() {
         });
         server.on(m.selectPiece, function(coords) {
             selected = puzzle.getPiece(coords[0], coords[1]);
+            selectedIndicator.show();
             selected.select();
         });
         server.on(m.releasePiece, function(coords) {
             puzzle.getPiece(coords[0], coords[1]).unselect();
+            selectedIndicator.hide();
         });
         server.on(m.swapPieces, function(coord) {
             puzzle.flipPiecesByCoords(coord);
+            selectedIndicator.hide();
         });
         server.on(m.puzzleData, function() {
             server.getPiecesData();
@@ -76,6 +79,19 @@ $(function() {
             puzzle.update(pieces);
         });
     });
+
+    var selectedIndicator = (function() {
+        var element = $('#selected');
+        element.click(releaseSelectedPiece);
+        
+        return {
+            show: function(type) {
+                element.attr('class', '_' + selected.type()).show();
+            },
+            hide: function() {
+                element.hide();
+            }};
+    })();
 
     function releaseSelectedPiece() {
         if(selected && selected.selected) {

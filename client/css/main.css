@@ -132,3 +132,31 @@ input {
         rgb(255,255,255) 100%
     );
 }
+
+#selected {
+    display:none;
+    position:absolute;
+    z-index:1002;
+    left:5px;
+    bottom:5px;
+    height:66px;
+    width:66px;
+    background:url(/img/pieces.png) no-repeat top left;
+}
+
+#selected._0000 { background-position:-0px -0px;}
+#selected._1000 { background-position:-132px -0px;}
+#selected._0010 { background-position:-0px -66px;}
+#selected._1110 { background-position:-132px -66px;}
+#selected._1101 { background-position:-0px -132px;}
+#selected._1100 { background-position:-132px -132px;}
+#selected._0110 { background-position:-0px -198px;}
+#selected._0101 { background-position:-132px -198px;}
+#selected._1111 { background-position:-66px -0px;}
+#selected._0100 { background-position:-198px -0px;}
+#selected._0001 { background-position:-66px -66px;}
+#selected._0111 { background-position:-198px -66px;}
+#selected._1011 { background-position:-66px -132px;}
+#selected._0011 { background-position:-198px -132px;}
+#selected._1001 { background-position:-66px -198px;}
+#selected._1010 { background-position:-198px -198px;}

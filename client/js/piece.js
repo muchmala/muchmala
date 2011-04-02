@@ -66,15 +66,19 @@ Puzz.Piece.prototype.render = function() {
 };
 
 Puzz.Piece.prototype.cover = function(coverImage) {
+    var type = this.type();
+    this.ctx.drawImage(coverImage, Puzz.Piece.coverOffsets[type][0] * this.size,
+                       Puzz.Piece.coverOffsets[type][1] * this.size, this.size,
+                       this.size, 0, 0, this.size, this.size);
+};
+
+Puzz.Piece.prototype.type = function() {
     var type = '';
     type += this.ears.left ? '1' : '0';
     type += this.ears.top ? '1' : '0';
     type += this.ears.right ? '1' : '0';
     type += this.ears.bottom ? '1' : '0';
-
-    this.ctx.drawImage(coverImage, Puzz.Piece.coverOffsets[type][0] * this.size,
-                       Puzz.Piece.coverOffsets[type][1] * this.size, this.size,
-                       this.size, 0, 0, this.size, this.size);
+    return type;
 };
 
 Puzz.Piece.prototype.select = function() {
