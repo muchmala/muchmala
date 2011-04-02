@@ -89,8 +89,16 @@ nav ul {
 
 nav .leadersboard {
     display:none;
-    margin:5px 0 10px 0;
+    margin:7px 0 10px 0;
     text-align:left;
+}
+
+nav .leadersboard .button {
+    float:right;
+    padding:0 6px;
+    margin-right:10px;
+    line-height:10px;
+    height:12px;
 }
 
 nav .leadersboard li.empty {

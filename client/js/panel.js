@@ -21,7 +21,7 @@ Puzz.Panel = (function() {
     });
     element.find('.expcol').click(function() {
         if($(this).hasClass('opened')) {
-            self.collapse()
+            self.collapse();
         } else {
             self.expand();
         }
@@ -40,14 +40,28 @@ Puzz.Panel = (function() {
     server.subscribe(m.swapsCount, function(count) {
         self.setSwapsCount(count);
     });
-    server.subscribe(m.leadersBoard, function(data) {
-        self.updateLeadersBoard(data);
-    });
     server.subscribe(m.puzzleData, function(data) {
         self.setPuzzleData(data);
     });
     server.subscribe(m.piecesData, function() {
         element.removeClass('loading');
+    });
+    server.subscribe(m.leadersBoard, function(data) {
+        leadersData = data;
+        self.updateLeadersBoard();
+    });
+
+    var leadersData = null;
+    var leadersShows = 'score';
+
+    element.find('.leadersboard .button').click(function() {
+        if (leadersShows == 'score') {
+            leadersShows = 'found';
+        } else if (leadersShows == 'found') {
+            leadersShows = 'score';
+        }
+        $(this).html(leadersShows);
+        self.updateLeadersBoard();
     });
 
     var self = {
@@ -111,20 +125,23 @@ Puzz.Panel = (function() {
             }
             element.find('.statistics .timeSpent').text(hours + ':' + minutes);
         },
-        updateLeadersBoard: function(usersData) {
-            if(usersData.length == 0) { return; }
+        
+        updateLeadersBoard: function() {
+            if(_.size(leadersData) == 0) { return; }
 
             var leadersBoard = element.find('.leadersboard ul').empty();
 
-            for(var i = usersData.length; i > 0; i--) {
-                var row = $('<li></li>')
-                var status = 'offline';
-                if(usersData[i-1].online) {
-                    status = 'online';
-                }
-                row.append('<span class="status ' + status + '"></span>');
-                row.append('<span class="name">' + usersData[i-1].name + '</span>');
-                row.append('<span class="num">' + usersData[i-1].score + '</span>');
+            leadersData = _.sortBy(leadersData, function(row) {
+                return row[leadersShows];
+            });
+
+            for(var i = leadersData.length; i > 0; i--) {
+                var row = $('<li></li>');
+                var data = leadersData[i-1];
+                
+                row.append('<span class="status ' + (data.online ? 'online' : 'offline') + '"></span>');
+                row.append('<span class="name">' + data.name + '</span>');
+                row.append('<span class="num">' + data[leadersShows] + '</span>');
                 row.appendTo(leadersBoard);
             }
         }

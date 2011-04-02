@@ -221,9 +221,7 @@ Handlers.prototype.getLeadersBoardData = function(callback) {
                 result[userId].swaps = puzzleData.swaps;
                 result[userId].found = puzzleData.found;
             }, function() {
-                callback(_.sortBy(result, function(row) {
-                    return row.score;
-                }));
+                callback(result);
             });
         });
 };
