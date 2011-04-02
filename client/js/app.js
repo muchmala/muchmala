@@ -46,7 +46,8 @@ $(function() {
 
     server.once(m.piecesData, function(pieces) {
         puzzle.build(pieces);
-        puzzle.subscribe('clicked', processClickedPiece);
+        puzzle.subscribe(puzzle.events.leftClicked, processClickedPiece);
+        puzzle.subscribe(puzzle.events.rightClicked, releaseSelectedPiece);
         
         $(document.body).removeClass('fallback');
 
@@ -75,6 +76,12 @@ $(function() {
             puzzle.update(pieces);
         });
     });
+
+    function releaseSelectedPiece() {
+        if(selected && selected.selected) {
+            server.releasePiece(selected.x, selected.y);
+        }
+    }
 
     function processClickedPiece(piece) {
         if(!piece.locked && !piece.isCollected()) {

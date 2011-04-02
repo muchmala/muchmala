@@ -18,13 +18,20 @@ Puzz.Puzzle = function puzzle(settings) {
     var index = {};
     var pieces = {};
     var observer = Utils.Observer();
+    var events = puzzle.EVENTS;
     var overed = null;
 
     settings.viewport.click(function(event) {
         var found = findPieces(event.clientX, event.clientY);
         _.each(found, function(piece) {
-            observer.fire(puzzle.EVENTS.clicked, piece);
+            observer.fire(events.leftClicked, piece);
         });
+    });
+
+    settings.viewport.bind('contextmenu', function(event) {
+        observer.fire(events.rightClicked);
+        event.preventDefault();
+        event.stopPropagation();
     });
 
     settings.viewport.mousemove(function(event) {
@@ -170,6 +177,9 @@ Puzz.Puzzle = function puzzle(settings) {
     }
 
     return {
+        // Properties
+        events: events,
+        // Methods
         build: build,
         update: update,
         getPiece: getPiece,
@@ -181,5 +191,6 @@ Puzz.Puzzle = function puzzle(settings) {
 };
 
 Puzz.Puzzle.EVENTS = {
-    clicked: 'clicked'
+    leftClicked: 'leftClicked',
+    rightClicked: 'rightClicked'
 };
