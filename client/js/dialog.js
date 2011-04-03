@@ -103,6 +103,10 @@ function MenuDialog() {
         });
     });
 
+    this.element.find('p .button').click(function() {
+        self.openPage('howtoplay');
+    });
+
     this.pages.leaders.viewport({position: 'top'});
     this.pages.leaders.viewport('content').scraggable({axis: 'y', containment: 'parent'});
     this.pages.leaders.scrolla({content: this.pages.leaders.viewport('content')});
@@ -122,8 +126,9 @@ function MenuDialog() {
     });
 
     Puzz.Server.subscribe(MESSAGES.piecesData, function() {
-        self.element.find('.welcome .button').html('Play Puzzle');
-        self.element.find('.welcome .button').click(function() {
+        self.element.find('.welcome .button.big').html('Start Playing');
+        self.element.find('.welcome .button.big').removeClass('loading');
+        self.element.find('.welcome .button.big').click(function() {
             self.hide();
         });
     });
