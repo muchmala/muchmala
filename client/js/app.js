@@ -15,7 +15,11 @@ $(function() {
     Puzz.MenuDialog.openPage('welcome');
     
     server.subscribe('connected', function() {
-        server.initialize(1, storage.user.id());
+        var puzzleId = null
+        if (window.location.hash.length) {
+            puzzleId = window.location.hash.replace('#', '');
+        }
+        server.initialize(storage.user.id(), puzzleId);
     });
 
     server.once(m.puzzleData, function(data) {

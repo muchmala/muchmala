@@ -55,11 +55,11 @@ Puzz.Server = (function() {
                 clearTimeout(connecting);
             }
         },
-        initialize: function(mapId, userId) {
-            var data = {mapId: mapId};
-            if(userId) {
-                data.userId = userId
-            }
+        initialize: function(userId, puzzleId) {
+            var data = {};
+            if (!_.isUndefined(userId)) { data.userId = userId; }
+            if (!_.isUndefined(puzzleId)) { data.puzzleId = puzzleId; }
+
             sendMessage(createMessage(m.initialize, data));
         },
         getPiecesData: function(puzzleId) {

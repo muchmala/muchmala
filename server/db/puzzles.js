@@ -21,12 +21,14 @@ function setExternals(puzzle) {
     puzzle.locked = lockedPieces[puzzle._id];
 };
 
-Puzzles.add = function(piecesData, hLength, vLength, pieceSize, name, callback) {
+Puzzles.add = function(piecesData, settings, callback) {
+
     var puzzle = new Puzzles();
-    puzzle.name = name;
-    puzzle.hLength = hLength;
-    puzzle.vLength = vLength;
-    puzzle.pieceSize = pieceSize;
+    puzzle.name = settings.name;
+    puzzle.hLength = settings.hLength;
+    puzzle.vLength = settings.vLength;
+    puzzle.pieceSize = settings.pieceSize;
+    puzzle.invisible = settings.invisible;
     puzzle.piecesCount = piecesData.length;
 
     flow.exec(
@@ -57,19 +59,26 @@ Puzzles.add = function(piecesData, hLength, vLength, pieceSize, name, callback) 
 
 Puzzles.get = function(id, callback) {
     Puzzles.findById(id, function(error, puzzle) {
-        if(error) {throw error;}
-        setExternals(puzzle);
+        if(error) { throw error; }
+        if(puzzle) { setExternals(puzzle); }
         callback(puzzle);
     });
 };
 
-//TODO: Add sorting by "created" when it is fixed in mongoose
 Puzzles.last = function(callback) {
-    Puzzles.find(function(error, puzzles) {
+    var query = new Query()
+        .where('invisible', false)
+        .where('complete', false);
+    
+    var options = {
+        sort: {'created': 1},
+        limit: 1
+    };
+        
+    Puzzles.find(query, [], options, function(error, puzzles) {
         if(error) {throw error;}
-        var puzzle = puzzles.pop();
-        setExternals(puzzle);
-        callback(puzzle);
+        setExternals(puzzles[0]);
+        callback(puzzles[0]);
     });
 };
 
@@ -133,17 +142,6 @@ Puzzles.prototype.compactPieces = function(callback) {
 
         callback(pieces);
     });
-};
-
-Puzzles.prototype.lock = function(x, y, userId) {
-    if(_.isUndefined(this.locked[y])) {
-        this.locked[y] = {};
-    }
-    if(_.isUndefined(this.locked[y][x])) {
-        this.locked[y][x] = userId;
-        return true;
-    }
-    return false;
 };
 
 Puzzles.prototype.unlock = function(x, y, userId) {
@@ -221,6 +219,8 @@ Puzzles.prototype.swap = function(x1, y1, x2, y2, userId, callback) {
         .where('x', x2)
         .where('y', y2)
         .where('puzzleId', this._id);
+
+    var self = this;
     
     Pieces.findOne(firstQ, function(error, firstPiece) {
         if(error) {throw error;}
@@ -247,7 +247,19 @@ Puzzles.prototype.swap = function(x1, y1, x2, y2, userId, callback) {
                 if(error) {throw error;}
                 secondPiece.save(function(error) {
                     if(error) {throw error;}
-                    callback(true);
+
+                    var result = { found: 0, completion: 0 };
+                    if (firstPiece.isCollected()) { result.found++; }
+                    if (secondPiece.isCollected()) { result.found++; }
+
+                    self.getCompletionPercentage(function(completion) {
+                        if (completion == 100) {
+                            self.complete = true;
+                            self.save();
+                        }
+                        result.completion = completion;
+                        callback(result);
+                    });
                 });
             });
             

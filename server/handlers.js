@@ -11,7 +11,7 @@ function Handlers(session) {
     this.user = null;
 
     this.session.onMessage(_.bind(function(message) {
-        if(!_.isString(message.action)) { return; }
+        if(!_.isString(message.action)) {return;}
         
         var methodName = message.action + 'Action';
         var handlerExists = _.isFunction(this[methodName]);
@@ -23,7 +23,7 @@ function Handlers(session) {
     }, this));
 
     this.session.onDisconnect(_.bind(function() {
-        if(!this.initialized) { return; }
+        if(!this.initialized) {return;}
 
         this.puzzle.disconnectUser(this.user._id);
         this.session.broadcast(MESSAGES.connectedUsersCount, this.puzzle.connected.length);
@@ -34,19 +34,8 @@ function Handlers(session) {
 Handlers.prototype.initializeAction = function(params) {
     var self = this;
     self.retrieveUser(params.userId, function(user) {
-        self.user = user;
-
-        db.Puzzles.last(function(lastPuzzle) {
-            self.initialized = true;
-            self.puzzle = lastPuzzle;
-            self.puzzle.connectUser(user._id);
-
-            self.session.send(MESSAGES.initialized);
-            self.session.broadcast(MESSAGES.connectedUsersCount,
-                                   self.puzzle.connected.length);
-            self.userDataAction();
-            self.puzzleDataAction();
-            self.leadersBoardAction();
+        self.retrievePuzzle(params.puzzleId, function(puzzle) {
+            self.initialize(user, puzzle);
         });
     });
 };
@@ -97,7 +86,7 @@ Handlers.prototype.setUserNameAction = function(userName) {
 };
 
 Handlers.prototype.selectPieceAction = function(coords) {
-    if (this.selected) { return; }
+    if (this.selected) {return;}
 
     this.puzzle.getPiece(coords[0], coords[1], _.bind(function(piece) {
         if(!piece.isCollected() && !piece.isLocked()) {
@@ -141,33 +130,38 @@ Handlers.prototype.swapPiecesAction = function(coords) {
             self.session.broadcast(MESSAGES.swapsCount, self.puzzle.swapsCount);
         });
         
-        flow.exec(
-            function() {
-                self.user.addSwap(self.puzzle._id, this);
-            },
-            function() {
-                var foundNumber = 0;
-                flow.serialForEach(coords, function(coord) {
-                    self.puzzle.getPiece(coord[0], coord[1], this);
-                }, function(piece) {
-                    if(piece.isCollected()) { foundNumber++; }
-                }, function() {
-                    if(foundNumber > 0) { self.addScore(foundNumber); }
-                });
-            });
+        self.user.addSwap(self.puzzle._id, function() {
+            if(swaped.found > 0) {
+                self.addScore(swaped.found, swaped.completion);
+            }
+        });
     });
 };
 
+Handlers.prototype.initialize = function(user, puzzle) {
+    this.initialized = true;
+    this.user = user;
+    this.puzzle = puzzle;
+    this.puzzle.connectUser(user._id);
+
+    this.session.send(MESSAGES.initialized);
+    this.session.broadcast(MESSAGES.connectedUsersCount,
+                           this.puzzle.connected.length);
+    this.userDataAction();
+    this.puzzleDataAction();
+    this.leadersBoardAction();
+};
+
 Handlers.prototype.retrieveUser = function(userId, callback) {
-    if(userId == null) {
+    if (userId == null) {
         db.Users.add('anonymous', function(anonymous) {
             callback(anonymous);
         });
         return;
     }
-    db.Users.get(userId, function(found) {
-        if(found) {
-            callback(found);
+    db.Users.get(userId, function(user) {
+        if (user) {
+            callback(user);
             return;
         }
         db.Users.add('anonymous', function(anonymous) {
@@ -176,22 +170,37 @@ Handlers.prototype.retrieveUser = function(userId, callback) {
     });
 };
 
-Handlers.prototype.addScore = function(foundNumber) {
+Handlers.prototype.retrievePuzzle = function(puzzleId, callback) {
+    if (puzzleId == null) {
+        db.Puzzles.last(function(puzzle) {
+            callback(puzzle);
+        });
+        return;
+    }
+    db.Puzzles.get(puzzleId, function(puzzle) {
+        if (puzzle) {
+            callback(puzzle);
+            return;
+        }
+        db.Puzzles.last(function(puzzle) {
+            callback(puzzle);
+        });
+    });
+};
+
+Handlers.prototype.addScore = function(found, completion) {
     var self = this;
     var points = 0;
 
     flow.exec(
         function() {
-            self.puzzle.getCompletionPercentage(this);
-        },
-        function(percentage) {
-            points = parseInt((100 - percentage) / 2) * foundNumber;
-            self.session.send(MESSAGES.completionPercentage, percentage);
-            self.session.broadcast(MESSAGES.completionPercentage, percentage);
+            points = Math.floor((100 - completion) / 2) * found;
+            self.session.send(MESSAGES.completionPercentage, completion);
+            self.session.broadcast(MESSAGES.completionPercentage, completion);
             
             self.user.addScore(points, this.MULTI());
             self.user.addPuzzleScore(points, self.puzzle._id, this.MULTI());
-            self.user.addFoundPieces(foundNumber, self.puzzle._id, this.MULTI());
+            self.user.addFoundPieces(found, self.puzzle._id, this.MULTI());
         },
         function() {
             self.userDataAction();

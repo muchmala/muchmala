@@ -24,6 +24,11 @@ var options = [
         'description': 'Piece size',
         'value': true,
         'required': true
+    }, {
+        'short': 'v',
+        'long': 'invisible',
+        'description': 'Is puzzle invisible',
+        'value': false
     }
 ];
 
@@ -36,17 +41,22 @@ image.onerror = function(err) {
 };
 
 image.onload = function() {
-    var mapName = opts.get('name');
-    var pieceSize = parseInt(opts.get('piecesize'));
-    var puzzle = random.puzzle(image.width, image.height, pieceSize);
+    var settings = {
+        name: opts.get('name'),
+        invisible: opts.get('invisible') || false,
+        pieceSize: parseInt(opts.get('piecesize'))
+    };
+
+    var puzzle = random.puzzle(image.width, image.height, settings.pieceSize);
+
+    settings.hLength = puzzle.hLength;
+    settings.vLength = puzzle.vLength;
 
     function onCut() {
         console.log('Picture is cut...');
 
         db.connect(function() {
-            db.Puzzles.add(puzzle.pieces, puzzle.hLength,
-                           puzzle.vLength, pieceSize, mapName, 
-                           function(map) {
+            db.Puzzles.add(puzzle.pieces, settings, function(map) {
                 console.log('Map is added. Id: ' + map._id.toHexString());
                 process.exit();
             });
@@ -58,8 +68,8 @@ image.onload = function() {
         hLength: puzzle.hLength,
         vLength: puzzle.vLength,
         piecesMap: puzzle.pieces,
-        pieceSize: pieceSize,
-        resultDir: __dirname + '/../client/img/' + mapName,
+        pieceSize: settings.pieceSize,
+        resultDir: __dirname + '/../client/img/' + settings.name,
         onFinish: onCut
     });
 };

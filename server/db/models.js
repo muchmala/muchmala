@@ -10,7 +10,9 @@ var PuzzlesSchema = new Schema({
     hLength     : Number,
     vLength     : Number,
     swapsCount  : {type: Number, 'default': 0},
-    created     : {type: Date, 'default': Date.now}
+    created     : {type: Date, 'default': Date.now},
+    complete    : {type: Boolean, 'default': false},
+    invisible   : {type: Boolean, 'default': false}
 });
 
 var PiecesSchema = new Schema({
