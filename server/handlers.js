@@ -1,10 +1,12 @@
 var MESSAGES = require('../shared/messages');
+var channels = require('./channels');
 var _ = require('../shared/underscore')._;
 var flow = require('../shared/flow');
 var db = require('./db');
 
 function Handlers(session) {
     this.session = session;
+    this.channel = null;
     this.initialized = false;
     this.selected = false;
     this.puzzle = null;
@@ -20,14 +22,6 @@ function Handlers(session) {
         if(handlerAvailable && handlerExists) {
             this[methodName].call(this, message.data);
         }
-    }, this));
-
-    this.session.onDisconnect(_.bind(function() {
-        if(!this.initialized) {return;}
-
-        this.puzzle.disconnectUser(this.user._id);
-        this.session.broadcast(MESSAGES.connectedUsersCount, this.puzzle.connected.length);
-        this.session.broadcast(MESSAGES.unlockPieces, this.puzzle.unlockAll(this.user._id));
     }, this));
 }
 
@@ -94,11 +88,11 @@ Handlers.prototype.selectPieceAction = function(coords) {
 
             this.selected = true;
             this.session.send(MESSAGES.selectPiece, coords);
-            this.session.broadcast(MESSAGES.lockPiece, coords);
+            this.channel.broadcast(MESSAGES.lockPiece, coords, [this.session]);
             this.session.startCountDown(_.bind(function() {
                 var coords = this.puzzle.unlockAll(this.user._id);
                 this.session.send(MESSAGES.releasePiece, coords[0]);
-                this.session.broadcast(MESSAGES.unlockPieces, coords);
+                this.channel.broadcast(MESSAGES.unlockPieces, coords, [this.session]);
                 this.selected = false;
             }, this));
         }
@@ -108,7 +102,7 @@ Handlers.prototype.selectPieceAction = function(coords) {
 Handlers.prototype.releasePieceAction = function(coords) {
     if(this.puzzle.unlock(coords[0], coords[1], this.user._id)) {
         this.session.send(MESSAGES.releasePiece, coords);
-        this.session.broadcast(MESSAGES.unlockPieces, [coords]);
+        this.channel.broadcast(MESSAGES.unlockPieces, [coords], [this.session]);
         this.session.stopCountDown();
         this.selected = false;
     }
@@ -121,35 +115,46 @@ Handlers.prototype.swapPiecesAction = function(coords) {
 
         self.selected = false;
         self.session.stopCountDown();
-        self.session.send(MESSAGES.swapPieces, coords);
-        self.session.broadcast(MESSAGES.swapPieces, coords);
-        self.session.broadcast(MESSAGES.unlockPieces, coords);
+        
+        self.channel.broadcast(MESSAGES.swapPieces, coords);
+        self.channel.broadcast(MESSAGES.unlockPieces, coords, [self.session]);
 
+        self.user.addSwap(self.puzzle._id);
+        
         self.puzzle.addSwap(function() {
-            self.session.send(MESSAGES.swapsCount, self.puzzle.swapsCount);
-            self.session.broadcast(MESSAGES.swapsCount, self.puzzle.swapsCount);
+            self.channel.broadcast(MESSAGES.swapsCount, self.puzzle.swapsCount);
         });
         
-        self.user.addSwap(self.puzzle._id, function() {
-            if(swaped.found > 0) {
-                self.addScore(swaped.found, swaped.completion);
-            }
-        });
+        if(swaped.found > 0) {
+            self.addScore(swaped.found, swaped.completion);
+        }
     });
 };
 
 Handlers.prototype.initialize = function(user, puzzle) {
     this.initialized = true;
+
     this.user = user;
     this.puzzle = puzzle;
-    this.puzzle.connectUser(user._id);
+
+    this.channel = channels.get(puzzle._id);
+    this.channel.add(this.session);
+    this.session.userId = user._id;
 
     this.session.send(MESSAGES.initialized);
-    this.session.broadcast(MESSAGES.connectedUsersCount,
-                           this.puzzle.connected.length);
+    this.channel.broadcast(MESSAGES.connectedUsersCount, this.channel.length());
+
     this.userDataAction();
     this.puzzleDataAction();
     this.leadersBoardAction();
+};
+
+Handlers.prototype.disconnect = function() {
+    if(!this.initialized) {return;}
+
+    this.channel.remove(this.session);
+    this.channel.broadcast(MESSAGES.connectedUsersCount, this.channel.length());
+    this.channel.broadcast(MESSAGES.unlockPieces, this.puzzle.unlockAll(this.user._id));
 };
 
 Handlers.prototype.retrieveUser = function(userId, callback) {
@@ -190,14 +195,11 @@ Handlers.prototype.retrievePuzzle = function(puzzleId, callback) {
 
 Handlers.prototype.addScore = function(found, completion) {
     var self = this;
-    var points = 0;
+    var points = Math.floor((100 - completion) / 2) * found;
+    self.channel.broadcast(MESSAGES.completionPercentage, completion);
 
     flow.exec(
         function() {
-            points = Math.floor((100 - completion) / 2) * found;
-            self.session.send(MESSAGES.completionPercentage, completion);
-            self.session.broadcast(MESSAGES.completionPercentage, completion);
-            
             self.user.addScore(points, this.MULTI());
             self.user.addPuzzleScore(points, self.puzzle._id, this.MULTI());
             self.user.addFoundPieces(found, self.puzzle._id, this.MULTI());
@@ -205,8 +207,7 @@ Handlers.prototype.addScore = function(found, completion) {
         function() {
             self.userDataAction();
             self.getLeadersBoardData(function(data) {
-                self.session.send(MESSAGES.leadersBoard, data);
-                self.session.broadcast(MESSAGES.leadersBoard, data);
+                self.channel.broadcast(MESSAGES.leadersBoard, data);
             });
         });
 };
@@ -222,7 +223,7 @@ Handlers.prototype.getLeadersBoardData = function(callback) {
         },
         function(users) {
             flow.serialForEach(users, function(user) {
-                var online = self.puzzle.isConnected(user._id);
+                var online = self.channel.includesUser(user._id);
                 result[user._id] = {name: user.name, online: online};
                 user.getPuzzleData(self.puzzle._id, this);
             }, function(puzzleData, userId) {

@@ -8,18 +8,13 @@ var Puzzles = models.Puzzles;
 var Pieces = models.Pieces;
 
 var lockedPieces = {};
-var connectedUsers = {};
 
 function setExternals(puzzle) {
-    if(_.isUndefined(connectedUsers[puzzle._id])) {
-        connectedUsers[puzzle._id] = [];
-    }
     if(_.isUndefined(lockedPieces[puzzle._id])) {
         lockedPieces[puzzle._id] = {};
     }
-    puzzle.connected = connectedUsers[puzzle._id];
     puzzle.locked = lockedPieces[puzzle._id];
-};
+}
 
 Puzzles.add = function(piecesData, settings, callback) {
 
@@ -102,8 +97,7 @@ Puzzles.prototype.compactInfo = function(callback) {
         vLength: data.vLength,
         swaps: data.swapsCount,
         pieceSize: data.pieceSize,
-        created: data.created.getTime(),
-        connected: this.connected.length
+        created: data.created.getTime()
     };
 
     this.getCompletionPercentage(function(percentage) {
@@ -179,30 +173,6 @@ Puzzles.prototype.unlockAll = function(userId) {
     })
 
     return unlocked;
-};
-
-Puzzles.prototype.connectUser = function(userId) {
-    if(_.include(this.connected, userId)) {
-        throw new Error('Trying to connect already connected user');
-    }
-    this.connected.push(userId);
-};
-
-Puzzles.prototype.disconnectUser = function(userId) {
-    if(!_.include(this.connected, userId)) {
-        throw new Error('Trying to disconnect not connected user');
-    }
-    this.connected.splice(this.connected.indexOf(userId), 1);
-};
-
-Puzzles.prototype.isConnected = function(userId) {
-    var connected = _.detect(this.connected, function(connected) {
-        return _.isEqual(connected, userId);
-    });
-    if(connected) {
-        return true;
-    }
-    return false;
 };
 
 Puzzles.prototype.swap = function(x1, y1, x2, y2, userId, callback) {

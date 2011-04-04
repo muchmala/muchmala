@@ -57,8 +57,8 @@ Puzz.Server = (function() {
         },
         initialize: function(userId, puzzleId) {
             var data = {};
-            if (!_.isUndefined(userId)) { data.userId = userId; }
-            if (!_.isUndefined(puzzleId)) { data.puzzleId = puzzleId; }
+            if (!_.isNull(userId)) { data.userId = userId; }
+            if (!_.isNull(puzzleId)) { data.puzzleId = puzzleId; }
 
             sendMessage(createMessage(m.initialize, data));
         },

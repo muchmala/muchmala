@@ -23,6 +23,13 @@ server.listen(config.server.port, config.server.host);
 db.connect(function() {
     var socket = io.listen(server);
     socket.on('connection', function(client) {
-        new Handlers(new Session(client));
+        var session = new Session(client);
+        var handlers = new Handlers(session);
+
+        session.onDisconnect(function() {
+            handlers.disconnect();
+            delete handlers;
+            delete session;
+        });
     });
 });
