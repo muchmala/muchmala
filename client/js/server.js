@@ -1,6 +1,7 @@
 Puzz.Server = (function() {
     var observer = Utils.Observer();
     var socket = new io.Socket(null, {
+        transports: ['websocket', 'flashsocket', 'xhr-multipart', 'xhr-polling'],
         rememberTransport: false
     });
     

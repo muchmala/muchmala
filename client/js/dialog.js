@@ -87,7 +87,7 @@ UserNameDialog.prototype.show = function() {
 
 function MenuDialog() {
     MenuDialog.superproto.constructor.call(this);
-    this.element.append($('#menu').html());
+    this.element.append($('#menu').show());
     
     this.tabs = {};
     this.pages = {};

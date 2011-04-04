@@ -21,12 +21,19 @@ Puzz.Puzzle = function puzzle(settings) {
     var events = puzzle.EVENTS;
     var overed = null;
 
-    settings.viewport.click(function(event) {
+    settings.viewport.get(0).addEventListener('click', function(event) {
         var found = findPieces(event.clientX, event.clientY);
         _.each(found, function(piece) {
             observer.fire(events.leftClicked, piece);
         });
-    });
+    }, false);
+    
+    /*settings.viewport.click(function(event) {
+        var found = findPieces(event.clientX, event.clientY);
+        _.each(found, function(piece) {
+            observer.fire(events.leftClicked, piece);
+        });
+    });*/
 
     settings.viewport.bind('contextmenu', function(event) {
         observer.fire(events.rightClicked);

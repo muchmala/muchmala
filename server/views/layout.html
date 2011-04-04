@@ -15,6 +15,7 @@
 </head>
 <body class="fallback">
 <%- body %>
+<% if (config.production) { %>
 <script type="text/javascript">
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', 'UA-22398110-1']);
@@ -26,5 +27,6 @@
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
     })();
 </script>
+<% } %>
 </body>
 </html>
