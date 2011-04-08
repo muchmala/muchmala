@@ -57,6 +57,7 @@
                 <file name="panel.css"/>
                 <file name="dialog.css"/>
                 <file name="menu.css"/>
+                <file name="complete.css"/>
             </filelist>
         </concat>
         <echo message="${MINIFIED_CSS} concatinated." />
