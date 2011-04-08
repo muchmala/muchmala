@@ -85,7 +85,8 @@ Puzz.Piece.prototype.select = function() {
     this.selected = true;
     this.render();
 };
-Puzz.Piece.prototype.lock = function() {
+Puzz.Piece.prototype.lock = function(title) {
+    this.canvas.setAttribute('title', title);
     this.locked = true;
     this.render();
 };
@@ -94,6 +95,7 @@ Puzz.Piece.prototype.unselect = function() {
     this.render();
 };
 Puzz.Piece.prototype.unlock = function() {
+    this.canvas.removeAttribute('title');
     this.locked = false;
     this.render();
 };

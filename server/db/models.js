@@ -10,9 +10,9 @@ var PuzzlesSchema = new Schema({
     hLength     : Number,
     vLength     : Number,
     swapsCount  : {type: Number, 'default': 0},
+    invisible   : {type: Boolean, 'default': false},
     created     : {type: Date, 'default': Date.now},
-    complete    : {type: Boolean, 'default': false},
-    invisible   : {type: Boolean, 'default': false}
+    completed   : Date
 });
 
 var PiecesSchema = new Schema({
@@ -30,7 +30,7 @@ var PiecesSchema = new Schema({
 });
 
 var UsersSchema = new Schema({
-    name    : String,
+    name    : {type: String, unique: true},
     score   : {type: Number, 'default': 0},
     created : {type: Date, 'default': Date.now}
 });

@@ -63,7 +63,7 @@ Puzzles.get = function(id, callback) {
 Puzzles.last = function(callback) {
     var query = new Query()
         .where('invisible', false)
-        .where('complete', false);
+        .where('completed', null);
     
     var options = {
         sort: {'created': 1},
@@ -92,6 +92,7 @@ Puzzles.prototype.getPiece = function(x, y, callback) {
 Puzzles.prototype.compactInfo = function(callback) {
     var data = this.toObject();
     var compact = {
+        id: data._id,
         name: data.name,
         hLength: data.hLength,
         vLength: data.vLength,
@@ -99,6 +100,10 @@ Puzzles.prototype.compactInfo = function(callback) {
         pieceSize: data.pieceSize,
         created: data.created.getTime()
     };
+
+    if (!_.isUndefined(data.completed)) {
+        compact.completed = data.completed.getTime();
+    }
 
     this.getCompletionPercentage(function(percentage) {
         compact.completion = percentage;
@@ -224,7 +229,7 @@ Puzzles.prototype.swap = function(x1, y1, x2, y2, userId, callback) {
 
                     self.getCompletionPercentage(function(completion) {
                         if (completion == 100) {
-                            self.complete = true;
+                            self.completed = Date.now();
                             self.save();
                         }
                         result.completion = completion;

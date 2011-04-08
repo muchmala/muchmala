@@ -20,14 +20,34 @@
     padding:0 5px;
 }
 
-.dialog .title {
-    margin-bottom:8px;
+.dialog.loading {
+    background-image: url(/img/loader.gif);
+    background-repeat: no-repeat;
+    background-position: 2px 2px;
 }
 
-.dialog .inputText {
+#username {
+    display:none;
+}
+
+#username .error {
+    display:none;
+    padding:1px 5px;
+    background:#ff0;
+    color:#000;
+}
+
+#username .inputText {
+    margin:8px 0;
     padding:0 5px;
     height:30px;
     width:240px;
     border:none;
     font-size:20px;
+}
+
+#username p {
+    width:250px;
+    line-height:14px;
+    text-align:justify;
 }

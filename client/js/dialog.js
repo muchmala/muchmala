@@ -2,6 +2,7 @@
 
 function Dialog() {
     this.shown = false;
+    this.shaking = false;
     this.observer = Utils.Observer();
     this.close = $('<span class="button close">x</span>');
 
@@ -34,10 +35,15 @@ Dialog.prototype.show = function() {
 };
 
 Dialog.prototype.shake = function() {
-    for(var i = 0, offset = 10; i < 6; i++, offset = -offset) {
-        this.element.animate({marginLeft: offset}, 100);
+    if (this.shaking) {return;}
+
+    this.shaking = true;
+    for(var i = 0, offset = 5; i < 6; i++, offset = -offset) {
+        this.element.animate({marginLeft: offset}, 50);
     }
-    this.element.animate({marginLeft: 0}, 100);
+    this.element.animate({marginLeft: 0}, 50, null, _.bind(function() {
+        this.shaking = false;
+    }, this));
 };
 
 Dialog.prototype.hide = function() {
@@ -57,28 +63,39 @@ function UserNameDialog() {
     UserNameDialog.superproto.constructor.call(this);
 
     this.events = UserNameDialog.EVENTS;
-    this.input = $('<input type="text" class="inputText" />');
-    this.element.append('<div class="title">Your name:</div>')
-                .append(this.input);
+    this.element.append($('#username').show());
+    this.input = this.element.find('input');
     
     this.input.keypress(_.bind(function(event) {
-        if(event.which != 13) {return;}
+        if (event.which != 13) {return;}
         
         var newName = this.input.val();
-        if(newName.length) {
-            this.observer.fire('entered', newName);
-            this.hide();
+        
+        if(/^[A-Za-z0-9_]{3,20}$/.test(newName) ) {
+            Puzz.Server.setUserName(newName);
+            this.element.addClass('loading');
+            this.element.find('.error').hide();
         } else {
             this.shake();
         }
     }, this));
+
+    Puzz.Server.on(MESSAGES.setUserName, _.bind(function(data) {
+        this.element.removeClass('loading');
+
+        if (!_.isUndefined(data) && !_.isUndefined(data.error)) {
+            this.element.find('.error.' + data.error).show();
+        } else {
+            this.hide();
+        }
+    }, this));
+
+    Puzz.Server.on(MESSAGES.userData, _.bind(function(data) {
+        this.input.val(data.name);
+    }, this));
 }
 
 inherit(UserNameDialog, Dialog);
-
-UserNameDialog.EVENTS = {
-    entered: 'entered'
-};
 
 UserNameDialog.prototype.show = function() {
     UserNameDialog.superproto.show.call(this);
@@ -94,8 +111,8 @@ function MenuDialog() {
 
     var self = this;
 
-    this.element.find('.tabs li').each(function() { self.tabs[$(this).data('page')] = $(this); });
-    this.element.find('.page').each(function() { self.pages[$(this).data('name')] = $(this); });
+    this.element.find('.tabs li').each(function() {self.tabs[$(this).data('page')] = $(this);});
+    this.element.find('.page').each(function() {self.pages[$(this).data('name')] = $(this);});
 
     _.each(this.tabs, function(tab) {
         tab.click(function() {
@@ -114,8 +131,8 @@ function MenuDialog() {
     Puzz.Server.subscribe(MESSAGES.initialized, function() {
         self.requestPuzzles();
         self.requestTopTwenty();
-        self.tabs.leaders.click(function() { self.requestTopTwenty(); });
-        self.tabs.puzzles.click(function() { self.requestPuzzles(); });
+        self.tabs.leaders.click(function() {self.requestTopTwenty();});
+        self.tabs.puzzles.click(function() {self.requestPuzzles();});
     });
 
     Puzz.Server.subscribe(MESSAGES.topTwenty, function(data) {
@@ -137,8 +154,8 @@ function MenuDialog() {
 inherit(MenuDialog, Dialog);
 
 MenuDialog.prototype.openPage = function(pageName) {
-    _.each(this.tabs, function(tab) { tab.removeClass('sel'); });
-    _.each(this.pages, function(page) { page.hide(); });
+    _.each(this.tabs, function(tab) {tab.removeClass('sel');});
+    _.each(this.pages, function(page) {page.hide();});
 
     this.tabs[pageName].addClass('sel');
     this.pages[pageName].show();
@@ -153,7 +170,7 @@ MenuDialog.prototype.updateTopTwenty = function(users) {
         var row = '<li>' +
             '<span class="num">' + (i + 1) + '.</span>' +
             '<span class="name">' + user.name + '</span>' +
-            '<span class="time">' + TimeHelper.diffString(user.created) + '</span>' +
+            '<span class="time">' + Puzz.TimeHelper.diffString(user.created) + '</span>' +
             '<span class="score">' + user.score + '</span>' +
         '</li>';
 
@@ -174,7 +191,7 @@ MenuDialog.prototype.show = function() {
     MenuDialog.superproto.show.call(this);
 
     var lastViewed = Puzz.Storage.menu.lastViewedPage();
-    if (lastViewed) { this.openPage(lastViewed); }
+    if (lastViewed) {this.openPage(lastViewed);}
     // TODO: Refactor this
     if (lastViewed == 'leaders') {
         this.pages.leaders.viewport('update');
@@ -187,9 +204,76 @@ MenuDialog.prototype.hide = function() {
     Puzz.Storage.menu.setShown();
 };
 
+function CompleteDialog() {
+    CompleteDialog.superproto.constructor.call(this);
+    this.element.append($('#complete').show());
+
+    this.leadersData = null;
+    this.leadersShow = 'score';
+
+    var self = this;
+
+    this.element.find('.button.sort').click(function() {
+        if (self.leadersShow == 'score') {
+            self.leadersShow = 'found';
+        } else if (self.leadersShow == 'found') {
+            self.leadersShow = 'score';
+        }
+        $(this).html('by ' + self.leadersShow);
+        self.updateLeadersBoard();
+    });
+
+    this.element.find('.button.big').click(function() {
+        window.location.href = '/';
+    });
+
+    Puzz.Server.subscribe(MESSAGES.puzzleData, function(data) {
+        if (_.isUndefined(data.completed)) {return;}
+
+        var creationTime = +(new Date(data.created));
+        var completionTime = +(new Date(data.completed));
+        var timeSpent = Puzz.TimeHelper.diffHoursMinutes(creationTime, completionTime);
+        self.element.find('.pieces .value').html(data.vLength * data.hLength);
+        self.element.find('.participants .value').html(data.participants);
+        self.element.find('.timespent .value').html(timeSpent);
+        self.element.find('.swaps .value').html(data.swaps);
+    });
+
+    Puzz.Server.subscribe(MESSAGES.leadersBoard, function(data) {
+        self.leadersData = data;
+        self.updateLeadersBoard();
+    });
+}
+
+inherit(CompleteDialog, Dialog);
+
+CompleteDialog.prototype.show = function() {
+    CompleteDialog.superproto.show.call(this);
+}
+
+CompleteDialog.prototype.updateLeadersBoard = function() {
+    var leadersBoard = this.element.find('.leaders').empty();
+
+    this.leadersData = _.sortBy(this.leadersData, _.bind(function(row) {
+        return row[this.leadersShow];
+    }, this));
+
+    for(var i = this.leadersData.length, num = 1; i > 0 && num < 6; i--) {
+        var row = $('<li></li>');
+        var data = this.leadersData[i-1];
+
+        row.append('<span class="num">' + (num++) + '.</span>');
+        row.append('<span class="name">' + data.name + '</span>');
+        row.append('<span class="dots"></span>');
+        row.append('<span class="score">' + data[this.leadersShow] + '</span>');
+        row.appendTo(leadersBoard);
+    }
+};
+
 Puzz.Dialog = Dialog;
 Puzz.UserNameDialog = UserNameDialog;
 Puzz.MenuDialog = new MenuDialog();
+Puzz.CompleteDialog = new CompleteDialog();
 
 function inherit(child, parent) {
     function F() {}
@@ -200,7 +284,7 @@ function inherit(child, parent) {
     return child;
 }
 
-var TimeHelper = {
+Puzz.TimeHelper = {
     MONTH: 60*60*24*30,
     DAY: 60*60*24,
     HOUR: 60*60,
@@ -241,6 +325,22 @@ var TimeHelper = {
         }
 
         return result;
+    },
+
+    diffHoursMinutes: function(startTime, finishTime) {
+        finishTime = finishTime || new Date();
+        
+        var diff = Math.floor((finishTime - startTime) / 1000);
+        var hours = Math.floor(diff / 3600);
+        var minutes = Math.floor((diff % 3600) / 60);
+
+        if((hours+'').length == 1) {
+            hours = '0' + hours;
+        }
+        if((minutes+'').length == 1) {
+            minutes = '0' + minutes;
+        }
+        return hours + ':' + minutes;
     }
 };
 

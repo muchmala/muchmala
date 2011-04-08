@@ -75,13 +75,7 @@ Puzz.Server = (function() {
             sendMessage(createMessage(m.lockPiece, [x, y]));
         },
         unlockPiece: function(x, y) {
-            sendMessage(createMessage(m.unlockPieces, [[x, y]]));
-        },
-        selectPiece: function(x, y) {
-            sendMessage(createMessage(m.selectPiece, [x, y]));
-        },
-        releasePiece: function(x, y) {
-            sendMessage(createMessage(m.releasePiece, [x, y]));
+            sendMessage(createMessage(m.unlockPiece, [x, y]));
         },
         swapPieces: function(x1, y1, x2, y2) {
             sendMessage(createMessage(m.swapPieces, [[x1, y1], [x2, y2]]));

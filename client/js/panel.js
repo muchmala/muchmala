@@ -7,13 +7,11 @@ Puzz.Panel = (function() {
     element.draggable({containment: 'document'});
 
     var userNameDialog = new Puzz.UserNameDialog();
-    userNameDialog.on('entered', function(value) {
-        observer.fire('userNameChanged', value);
-    });
 
-    element.find('.user .name').click(function(event) {
-        if(userNameDialog.shown) { return; }
-        userNameDialog.show();
+    element.find('.user .name').click(function() {
+        if(!userNameDialog.shown) {
+            userNameDialog.show();
+        }
     });
     element.find('header h1 span').click(function() {
         if (Puzz.MenuDialog.shown) { return; }
@@ -31,12 +29,6 @@ Puzz.Panel = (function() {
         Puzz.Storage.user.id(data.id);
         self.setUserData(data);
     });
-    server.subscribe(m.connectedUsersCount, function(count) {
-        self.setConnectedUsersCount(count);
-    });
-    server.subscribe(m.completionPercentage, function(percent) {
-        self.setCompleteLevel(percent);
-    });
     server.subscribe(m.swapsCount, function(count) {
         self.setSwapsCount(count);
     });
@@ -52,15 +44,15 @@ Puzz.Panel = (function() {
     });
 
     var leadersData = null;
-    var leadersShows = 'score';
+    var leadersShow = 'score';
 
     element.find('.leadersboard .button').click(function() {
-        if (leadersShows == 'score') {
-            leadersShows = 'found';
-        } else if (leadersShows == 'found') {
-            leadersShows = 'score';
+        if (leadersShow == 'score') {
+            leadersShow = 'found';
+        } else if (leadersShow == 'found') {
+            leadersShow = 'score';
         }
-        $(this).html(leadersShows);
+        $(this).html(leadersShow);
         self.updateLeadersBoard();
     });
 
@@ -97,9 +89,15 @@ Puzz.Panel = (function() {
             element.find('.statistics .quantity').text(data.vLength * data.hLength);
 
             var creationDate = new Date(data.created);
-            this.updateTimeSpent(creationDate.getTime());
+            var completionDate = new Date(data.completed);
+
+            if (_.isUndefined(data.completed)) {
+                completionDate = new Date();
+            }
+
+            this.updateTimeSpent(creationDate, completionDate);
             setInterval(_.bind(function() {
-                this.updateTimeSpent(creationDate);
+                this.updateTimeSpent(creationDate, completionDate);
             }, this), 60000);
         },
         setSwapsCount: function(count) {
@@ -112,18 +110,9 @@ Puzz.Panel = (function() {
             element.find('.statistics .complete').text(percent + '%');
         },
         
-        updateTimeSpent: function(creationTime) {
-            var diff = Math.floor((new Date() - creationTime) / 1000);
-            var hours = Math.floor(diff / 3600);
-            var minutes = Math.floor((diff % 3600) / 60);
-
-            if((hours+'').length == 1) {
-                hours = '0' + hours;
-            }
-            if((minutes+'').length == 1) {
-                minutes = '0' + minutes;
-            }
-            element.find('.statistics .timeSpent').text(hours + ':' + minutes);
+        updateTimeSpent: function(creationTime, completionDate) {
+            var timeSpent = Puzz.TimeHelper.diffHoursMinutes(creationTime, completionDate);
+            element.find('.statistics .timeSpent').text(timeSpent);
         },
         
         updateLeadersBoard: function() {
@@ -132,7 +121,7 @@ Puzz.Panel = (function() {
             var leadersBoard = element.find('.leadersboard ul').empty();
 
             leadersData = _.sortBy(leadersData, function(row) {
-                return row[leadersShows];
+                return row[leadersShow];
             });
 
             for(var i = leadersData.length; i > 0; i--) {
@@ -141,7 +130,7 @@ Puzz.Panel = (function() {
                 
                 row.append('<span class="status ' + (data.online ? 'online' : 'offline') + '"></span>');
                 row.append('<span class="name">' + data.name + '</span>');
-                row.append('<span class="num">' + data[leadersShows] + '</span>');
+                row.append('<span class="num">' + data[leadersShow] + '</span>');
                 row.appendTo(leadersBoard);
             }
         }

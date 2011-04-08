@@ -5,6 +5,8 @@ var Canvas = require('canvas'),
     db = require('./db'),
     Image = Canvas.Image;
 
+var IMAGES_DIR = __dirname + '/../client/img/puzzles/';
+
 var options = [
     {
         'short': 'i',
@@ -52,26 +54,28 @@ image.onload = function() {
     settings.hLength = puzzle.hLength;
     settings.vLength = puzzle.vLength;
 
-    function onCut() {
-        console.log('Picture is cut...');
+    db.connect(function() {
+        console.log('Creating puzzle...');
+        db.Puzzles.add(puzzle.pieces, settings, function(added) {
+            var puzzleId = added._id.toHexString();
 
-        db.connect(function() {
-            db.Puzzles.add(puzzle.pieces, settings, function(map) {
-                console.log('Map is added. Id: ' + map._id.toHexString());
-                process.exit();
+            console.log('Puzzle is created. Id: ' + puzzleId + '.');
+            console.log('Creating sprites images...');
+
+            cutter.cut({
+                image: image,
+                hLength: puzzle.hLength,
+                vLength: puzzle.vLength,
+                piecesMap: puzzle.pieces,
+                pieceSize: settings.pieceSize,
+                resultDir: IMAGES_DIR + puzzleId,
+                onFinish: function() {
+                    console.log('Sprites images are created.');
+                    process.exit();
+                }
             });
         });
-    }
-    
-    cutter.cut({
-        image: image,
-        hLength: puzzle.hLength,
-        vLength: puzzle.vLength,
-        piecesMap: puzzle.pieces,
-        pieceSize: settings.pieceSize,
-        resultDir: __dirname + '/../client/img/' + settings.name,
-        onFinish: onCut
     });
 };
 
-image.src = __dirname + '/../client/' + opts.get('image');
+image.src = __dirname + '/' + opts.get('image');

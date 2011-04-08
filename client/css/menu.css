@@ -1,23 +1,23 @@
-.menu {
+#menu {
     display:none;
     width:440px;
     height:250px;
 }
 
-.menu .tabs {
+#menu .tabs {
     position:absolute;
     top:10px;
     left:20px;
     height:14px;
 }
 
-.menu .tabs li {
+#menu .tabs li {
     float:left;
     position:relative;
     margin-right:10px;
 }
 
-.menu .tabs li.sel {
+#menu .tabs li.sel {
     background: -webkit-gradient(
         linear,
         left bottom,
@@ -37,7 +37,7 @@
     );
 }
 
-.menu .tabs li.sel i {
+#menu .tabs li.sel i {
     position:absolute;
     left:50%;
     top:100%;
@@ -47,7 +47,7 @@
     border-top-color:#fff;
 }
 
-.menu .page {
+#menu .page {
     margin-top:20px;
     height:100%;
     line-height:20px;
@@ -55,27 +55,27 @@
     text-align:justify;
 }
 
-.menu .welcome {
+#menu .welcome {
     text-align:center;
 }
 
-.menu .welcome h1 {
-    padding:60px 0 25px 0;
+#menu .welcome h1 {
+    padding:30px 0 25px 0;
     font-size:30px;
 }
 
-.menu .welcome h2 {
-    padding:0 0 25px 0;
+#menu .welcome h2 {
+    padding:0 0 20px 0;
     font-size:12px;
     font-weight:normal;
     letter-spacing:1px;
 }
 
-.menu .welcome .button.big {
+#menu .welcome .button.big {
     width:120px;
 }
 
-.menu .welcome .button.loading {
+#menu .welcome .button.loading {
     background:none;
     border:none;
     color:#fff;
@@ -90,93 +90,93 @@
     border-radius:none;
 }
 
-.menu .welcome p {
+#menu .welcome p {
     margin-top:20px;
     font-size:10px;
 }
 
-.menu .howtoplay h1 {
+#menu .howtoplay h1 {
     padding:5px 4px;
     font-size:20px;
 }
 
-.menu .howtoplay p {
+#menu .howtoplay p {
     margin:5px 4px 10px 4px;
     font-size:12px;
 }
 
-.menu .howtoplay .red { padding:1px 5px; background:#f44; }
-.menu .howtoplay .dim { padding:1px 5px; background:#fff; color:#000; }
-.menu .howtoplay .blue { padding:1px 5px; background:#44f; }
+#menu .howtoplay .red { padding:1px 5px; background:#f44; }
+#menu .howtoplay .dim { padding:1px 5px; background:#fff; color:#000; }
+#menu .howtoplay .blue { padding:1px 5px; background:#44f; }
 
-.menu .howtoplay .loading {
+#menu .howtoplay .loading {
     display:inline-block;
     margin-bottom:-3px;
     height:16px;
     width:16px;
 }
 
-.menu .leaders {
+#menu .leaders {
     position:relative;
     overflow:hidden;
     width:440px;
 }
 
-.menu .loading {
+#menu .loading {
     background-image:url('/img/loader.gif');
     background-repeat:no-repeat;
     background-position:center;
 }
 
-.menu .leaders .viewportContent {
+#menu .leaders .viewportContent {
     z-index:99;
 }
 
-.menu .leaders ul {
+#menu .leaders ul {
     display:block;
     width:440px;
 }
 
-.menu .leaders li {
+#menu .leaders li {
     display:block;
     height:25px;
     width:100%;
     line-height:24px;
 }
 
-.menu .leaders span {
+#menu .leaders span {
     display:inline-block;
 }
 
-.menu .leaders .num {
+#menu .leaders .num {
     margin-right:5px;
     width:20px;
     font-size:11px;
     text-align:right;
 }
 
-.menu .leaders .name {
+#menu .leaders .name {
     width:240px;
 }
 
-.menu .leaders .time {
+#menu .leaders .time {
     width:60px;
     padding-right:10px;
     font-size:10px;
     text-align:center;
 }
 
-.menu .leaders .num,
-.menu .leaders .score {
+#menu .leaders .num,
+#menu .leaders .score {
     font-family:Georgia;
 }
 
-.menu .leaders .score {
+#menu .leaders .score {
     width:70px;
     text-align:right;
 }
 
-.menu .leaders .scrolla {
+#menu .leaders .scrolla {
     position:absolute;
     z-index:100;
     right:2px;
@@ -211,9 +211,16 @@
     );
 }
 
-.menu .puzzles p,
-.menu .credits p {
+#menu .puzzles p,
+#menu .credits p {
     width:100%;
     padding-top:50px;
     text-align:center;
+}
+
+.fb_edge_widget_with_comment {
+    display:block !important;
+    margin:0 auto 15px auto;
+    height:27px;
+    width:85px;
 }

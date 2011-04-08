@@ -61,8 +61,8 @@ Handlers.prototype.topTwentyAction = function() {
 };
 
 Handlers.prototype.puzzleDataAction = function() {
-    this.puzzle.compactInfo(_.bind(function(info) {
-        this.session.send(MESSAGES.puzzleData, info);
+    this.getPuzzleData(_.bind(function(data) {
+        this.session.send(MESSAGES.puzzleData, data);
     }, this));
 };
 
@@ -73,61 +73,77 @@ Handlers.prototype.piecesDataAction = function() {
 };
 
 Handlers.prototype.setUserNameAction = function(userName) {
-    this.user.setName(userName, _.bind(function() {
-        this.userDataAction();
-        this.leadersBoardAction();
-    }, this));
+    if (!(/^[A-Za-z0-9_]{3,20}$/).test(userName)) {
+        this.session.send(MESSAGES.setUserName, {error: 'incorrect'});
+        return;
+    }
+
+    var self = this;
+
+    db.Users.checkName(userName, function(available) {
+        if (!available && self.user.name != userName) {
+            self.session.send(MESSAGES.setUserName, {error: 'duplicate'});
+            return;
+        }
+        self.user.setName(userName, function() {
+            self.session.send(MESSAGES.setUserName);
+            self.leadersBoardAction();
+            self.userDataAction();
+        });
+    });
 };
 
-Handlers.prototype.selectPieceAction = function(coords) {
+Handlers.prototype.lockPieceAction = function(coords) {
     if (this.selected) {return;}
 
-    this.puzzle.getPiece(coords[0], coords[1], _.bind(function(piece) {
-        if(!piece.isCollected() && !piece.isLocked()) {
-            piece.lock(this.user._id);
+    var self = this;
+    
+    self.puzzle.getPiece(coords[0], coords[1], function(piece) {
+        if (piece.isCollected() || piece.isLocked()) {return;}
 
-            this.selected = true;
-            this.session.send(MESSAGES.selectPiece, coords);
-            this.channel.broadcast(MESSAGES.lockPiece, coords, [this.session]);
-            this.session.startCountDown(_.bind(function() {
-                var coords = this.puzzle.unlockAll(this.user._id);
-                this.session.send(MESSAGES.releasePiece, coords[0]);
-                this.channel.broadcast(MESSAGES.unlockPieces, coords, [this.session]);
-                this.selected = false;
-            }, this));
-        }
-    }, this));
+        piece.lock(self.user._id);
+
+        self.selected = true;
+        self.channel.broadcast(MESSAGES.lockPiece, {
+            userName: self.user.name,
+            coords: coords
+        });
+
+        self.session.startCountDown(function() {
+            var unlocked = self.puzzle.unlockAll(self.user._id);
+            self.broadcastUnlockPiece(unlocked[0]);
+            self.selected = false;
+        });
+    });
 };
 
-Handlers.prototype.releasePieceAction = function(coords) {
-    if(this.puzzle.unlock(coords[0], coords[1], this.user._id)) {
-        this.session.send(MESSAGES.releasePiece, coords);
-        this.channel.broadcast(MESSAGES.unlockPieces, [coords], [this.session]);
-        this.session.stopCountDown();
+Handlers.prototype.unlockPieceAction = function(coords) {
+    if (this.puzzle.unlock(coords[0], coords[1], this.user._id)) {
         this.selected = false;
+        this.session.stopCountDown();
+        this.broadcastUnlockPiece(coords);
     }
 };
 
 Handlers.prototype.swapPiecesAction = function(coords) {
     var self = this;
     self.puzzle.swap(coords[0][0], coords[0][1], coords[1][0], coords[1][1], self.user._id, function(swaped) {
-        if(!swaped) {return;} 
+        if (!swaped) {return;}
 
         self.selected = false;
         self.session.stopCountDown();
-        
+        self.broadcastUnlockPiece(coords[0]);
         self.channel.broadcast(MESSAGES.swapPieces, coords);
-        self.channel.broadcast(MESSAGES.unlockPieces, coords, [self.session]);
 
-        self.user.addSwap(self.puzzle._id);
-        
         self.puzzle.addSwap(function() {
-            self.channel.broadcast(MESSAGES.swapsCount, self.puzzle.swapsCount);
+            self.broadcastPuzzleData();
         });
-        
-        if(swaped.found > 0) {
-            self.addScore(swaped.found, swaped.completion);
-        }
+
+        self.user.addSwap(self.puzzle._id, function() {
+            if(swaped.found > 0) {
+                self.addScore(swaped.found, swaped.completion);
+            }
+        });
     });
 };
 
@@ -142,24 +158,29 @@ Handlers.prototype.initialize = function(user, puzzle) {
     this.session.userId = user._id;
 
     this.session.send(MESSAGES.initialized);
-    this.channel.broadcast(MESSAGES.connectedUsersCount, this.channel.length());
-
+    
     this.userDataAction();
-    this.puzzleDataAction();
     this.leadersBoardAction();
+    this.broadcastPuzzleData();
 };
 
 Handlers.prototype.disconnect = function() {
-    if(!this.initialized) {return;}
+    if (!this.initialized) {return;}
 
     this.channel.remove(this.session);
-    this.channel.broadcast(MESSAGES.connectedUsersCount, this.channel.length());
-    this.channel.broadcast(MESSAGES.unlockPieces, this.puzzle.unlockAll(this.user._id));
+
+    var unlocked = this.puzzle.unlockAll(this.user._id);
+
+    if (unlocked.length) {
+        this.channel.broadcast(MESSAGES.unlockPieces, unlocked);
+    }
+    
+    this.broadcastPuzzleData();
 };
 
 Handlers.prototype.retrieveUser = function(userId, callback) {
     if (userId == null) {
-        db.Users.add('anonymous', function(anonymous) {
+        db.Users.addAnonymous(function(anonymous) {
             callback(anonymous);
         });
         return;
@@ -169,7 +190,7 @@ Handlers.prototype.retrieveUser = function(userId, callback) {
             callback(user);
             return;
         }
-        db.Users.add('anonymous', function(anonymous) {
+        db.Users.addAnonymous(function(anonymous) {
             callback(anonymous);
         });
     });
@@ -196,7 +217,6 @@ Handlers.prototype.retrievePuzzle = function(puzzleId, callback) {
 Handlers.prototype.addScore = function(found, completion) {
     var self = this;
     var points = Math.floor((100 - completion) / 2) * found;
-    self.channel.broadcast(MESSAGES.completionPercentage, completion);
 
     flow.exec(
         function() {
@@ -210,6 +230,30 @@ Handlers.prototype.addScore = function(found, completion) {
                 self.channel.broadcast(MESSAGES.leadersBoard, data);
             });
         });
+};
+
+Handlers.prototype.getPuzzleData = function(callback) {
+    this.puzzle.compactInfo(_.bind(function(info) {
+        db.Users.countOfLinkedWith(this.puzzle._id, _.bind(function(count) {
+            callback(_.extend(info, {
+                connected: this.channel.length(),
+                participants: count
+            }));
+        }, this));
+    }, this));
+};
+
+Handlers.prototype.broadcastPuzzleData = function() {
+    this.getPuzzleData(_.bind(function(data) {
+        this.channel.broadcast(MESSAGES.puzzleData, data);
+    }, this));
+};
+
+Handlers.prototype.broadcastUnlockPiece = function(coords) {
+    this.channel.broadcast(MESSAGES.unlockPiece, {
+        userName: this.user.name,
+        coords: coords
+    });
 };
 
 //TODO: Refactor this when bug in mongoose is fixed

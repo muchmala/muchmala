@@ -32,12 +32,38 @@ Users.allLinkedWith = function(puzzleId, callback) {
     });
 };
 
+Users.countOfLinkedWith = function(puzzleId, callback) {
+    UsersToPuzzles.count({puzzleId: puzzleId}, function(error, count) {
+        if(error) {throw error;}
+        callback(count);
+    });
+};
+
 Users.add = function(name, callback) {
     var user = new Users();
     user.name = name;
     user.save(function(error) {
         if(error) {throw error;}
         callback(user);
+    });
+};
+
+Users.addAnonymous = function(callback) {
+    var name = 'anonymous_' + Math.floor(Math.random()* 10000);
+
+    Users.checkName(name, function(available) {console.log(available);
+        if (available) {
+            Users.add(name, callback);
+        } else {
+            Users.addAnonymous(callback);
+        }
+    });
+};
+
+Users.checkName = function(name, callback) {
+    Users.findOne({name: name}, function(error, user) {
+        if (error) { throw error; }
+        callback(_.isNull(user) ? true : false);
     });
 };
 
