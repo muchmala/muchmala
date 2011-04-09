@@ -58,6 +58,7 @@
                 <file name="dialog.css"/>
                 <file name="menu.css"/>
                 <file name="complete.css"/>
+                <file name="browser.css"/>
             </filelist>
         </concat>
         <echo message="${MINIFIED_CSS} concatinated." />

@@ -4,7 +4,7 @@ body {
 }
 
 body.fallback {
-    background:url('/img/bg.jpg') repeat;
+    background:url('/img/bg.gif') repeat;
 }
 
 input {

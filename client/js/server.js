@@ -1,90 +1,93 @@
-Puzz.Server = (function() {
-    var observer = Utils.Observer();
-    var socket = new io.Socket(null, {
+var Puzz = (function(ns) {
+
+function Server() {
+    this.observer = Utils.Observer();
+    this.socket = new io.Socket(null, {
         transports: ['websocket', 'flashsocket', 'xhr-multipart', 'xhr-polling'],
         rememberTransport: false
     });
     
-    var reconnectTime = 1000;
-    var connecting = false;
-    var m = MESSAGES;
-    
-    socket.on('message', function(data) {
-        var parsed = JSON.parse(data);
-        log('received ' + parsed.event);
-        if(parsed.event != null) {
-            observer.fire(parsed.event, parsed.data);
-        }
-    });
+    this.reconnectTime = 1000;
+    this.connecting = false;
 
-    socket.on('disconnect', function() {
+    var self = this;
+    
+    this.socket.on('message', function(data) {
+        var parsed = JSON.parse(data);
+        self.observer.fire(parsed.event, parsed.data);
+        log('Received: ' + parsed.event);
+    });
+    this.socket.on('disconnect', function() {
         log('Disconnected');
         self.connect();
     });
-    
-    socket.on('connect', function() {
+    this.socket.on('connect', function() {
+        self.observer.fire('connected');
         log('Connected');
-        observer.fire('connected');
     });
 
-    function sendMessage(message) {
-        if(socket.connected) {
-            log('sent ' + message);
-            socket.send(message);
-        }
+    this.on = this.observer.on;
+    this.once = this.observer.once;
+}
+
+Server.prototype.sendMessage = function(message) {
+    if(this.socket.connected) {
+        log('sent ' + message);
+        this.socket.send(message);
     }
+}
 
-    function createMessage(action, data) {
-        return JSON.stringify({action: action, data: data});
-    }
+Server.prototype.createMessage = function(action, data) {
+    return JSON.stringify({action: action, data: data});
+}
 
-    var self = {
-        connect: function() {
-            socket.connect();
-            var connecting = setInterval(function() {
-                if (socket.connected) {
-                    clearTimeout(connecting);
-                } else if (!socket.connecting) {
-                    socket.connect();
-                }
-            }, reconnectTime);
-        },
-        disconnect: function() {
-            socket.disconnect();
-            if (connecting) {
-                clearTimeout(connecting);
-            }
-        },
-        initialize: function(userId, puzzleId) {
-            var data = {};
-            if (!_.isNull(userId)) { data.userId = userId; }
-            if (!_.isNull(puzzleId)) { data.puzzleId = puzzleId; }
-
-            sendMessage(createMessage(m.initialize, data));
-        },
-        getPiecesData: function(puzzleId) {
-            sendMessage(createMessage(m.piecesData, puzzleId));
-        },
-        getUserData: function(userId) {
-            sendMessage(createMessage(m.userData, userId));
-        },
-        setUserName: function(userName) {
-            sendMessage(createMessage(m.setUserName, userName));
-        },
-        lockPiece: function(x, y) {
-            sendMessage(createMessage(m.lockPiece, [x, y]));
-        },
-        unlockPiece: function(x, y) {
-            sendMessage(createMessage(m.unlockPiece, [x, y]));
-        },
-        swapPieces: function(x1, y1, x2, y2) {
-            sendMessage(createMessage(m.swapPieces, [[x1, y1], [x2, y2]]));
-        },
-        getTopTwenty: function() {
-            sendMessage(createMessage(m.topTwenty));
+Server.prototype.connect = function() {
+    this.socket.connect();
+    var connecting = setInterval(_.bind(function() {
+        if (this.socket.connected) {
+            clearTimeout(connecting);
+        } else if (!this.socket.connecting) {
+            this.socket.connect();
         }
-    };
+    }, this), this.reconnectTime);
+},
+Server.prototype.disconnect = function() {
+    this.socket.disconnect();
+    if (this.connecting) {
+        clearTimeout(this.connecting);
+    }
+},
+Server.prototype.initialize = function(userId, puzzleId) {
+    var data = {};
+    if (!_.isNull(userId)) { data.userId = userId; }
+    if (!_.isNull(puzzleId)) { data.puzzleId = puzzleId; }
 
-    return _.extend(self, observer);
-})();
+    this.sendMessage(this.createMessage(MESSAGES.initialize, data));
+},
+Server.prototype.getPiecesData = function(puzzleId) {
+    this.sendMessage(this.createMessage(MESSAGES.piecesData, puzzleId));
+},
+Server.prototype.getUserData = function(userId) {
+    this.sendMessage(this.createMessage(MESSAGES.userData, userId));
+},
+Server.prototype.setUserName = function(userName) {
+    this.sendMessage(this.createMessage(MESSAGES.setUserName, userName));
+},
+Server.prototype.lockPiece = function(x, y) {
+    this.sendMessage(this.createMessage(MESSAGES.lockPiece, [x, y]));
+},
+Server.prototype.unlockPiece = function(x, y) {
+    this.sendMessage(this.createMessage(MESSAGES.unlockPiece, [x, y]));
+},
+Server.prototype.swapPieces = function(x1, y1, x2, y2) {
+    this.sendMessage(this.createMessage(MESSAGES.swapPieces, [[x1, y1], [x2, y2]]));
+},
+Server.prototype.getTopTwenty = function() {
+    this.sendMessage(this.createMessage(MESSAGES.topTwenty));
+}
 
+ns.Server = Server;
+
+return ns;
+
+})(Puzz || {});

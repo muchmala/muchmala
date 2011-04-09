@@ -1,31 +1,32 @@
-Puzz.Viewport = (function() {
-    var element = $('#viewport').viewport();
-    var content = element.viewport('content');
+var Puzz = (function(ns) {
 
-    content.draggable({
+ns.Viewport = function() {
+    this.element = $('#viewport').viewport();
+    this.content = this.element.viewport('content');
+
+    this.content.draggable({
         containment: 'parent'
     });
-    content.scraggable({
+    this.content.scraggable({
         containment: 'parent',
         sensitivity: 10
     });
 
-    $(window).resize(function() {
-         element.viewport('adjust');
-    });
+    $(window).resize(_.bind(function() {
+         this.element.viewport('adjust');
+    }, this));
+}
 
-    function arrange(pieceSize, vLength, hLength) {
-        var step = Math.floor(pieceSize / 6);
-        var rectSize = step * 4 + 1;
-        var height = rectSize * vLength + step * 2;
-        var width = rectSize * hLength + step * 2;
+ns.Viewport.prototype.arrange = function(pieceSize, vLength, hLength) {
+    var step = Math.floor(pieceSize / 6);
+    var rectSize = step * 4 + 1;
+    var height = rectSize * vLength + step * 2;
+    var width = rectSize * hLength + step * 2;
 
-        element.viewport('size', height, width);
-        element.viewport('update');
-    }
+    this.element.viewport('size', height, width);
+    this.element.viewport('update');
+};
 
-    return {
-        content: content,
-        arrange: arrange
-    };
-})();
+return ns;
+
+})(Puzz || {});

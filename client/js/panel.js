@@ -1,23 +1,25 @@
-Puzz.Panel = (function() {
-    var element = $('nav');
-    var observer = Utils.Observer();
-    var server = Puzz.Server;
-    var m = MESSAGES;
+var Puzz = (function(ns) {
 
-    element.draggable({containment: 'document'});
+ns.Panel = function(server) {
+    this.element = $('nav');
+    this.observer = Utils.Observer();
 
-    var userNameDialog = new Puzz.UserNameDialog();
+    this.element.draggable({containment: 'window'});
 
-    element.find('.user .name').click(function() {
+    var userNameDialog = new Puzz.UserNameDialog(server);
+
+    var self = this;
+
+    this.element.find('.user .name').click(function() {
         if(!userNameDialog.shown) {
             userNameDialog.show();
         }
     });
-    element.find('header h1 span').click(function() {
+    this.element.find('header h1 span').click(function() {
         if (Puzz.MenuDialog.shown) { return; }
         Puzz.MenuDialog.show();
     });
-    element.find('.expcol').click(function() {
+    this.element.find('.expcol').click(function() {
         if($(this).hasClass('opened')) {
             self.collapse();
         } else {
@@ -25,116 +27,123 @@ Puzz.Panel = (function() {
         }
     });
 
-    server.subscribe(m.userData, function(data) {
+    server.on(MESSAGES.userData, function(data) {
         Puzz.Storage.user.id(data.id);
         self.setUserData(data);
     });
-    server.subscribe(m.swapsCount, function(count) {
+    server.on(MESSAGES.leadersBoard, function(data) {
+        self.leadersData = data;
+        self.updateLeadersBoard();
+    });
+    server.on(MESSAGES.swapsCount, function(count) {
         self.setSwapsCount(count);
     });
-    server.subscribe(m.puzzleData, function(data) {
+    server.on(MESSAGES.piecesData, function() {
+        self.element.removeClass('loading');
+    });
+    server.on(MESSAGES.puzzleData, function(data) {
         self.setPuzzleData(data);
     });
-    server.subscribe(m.piecesData, function() {
-        element.removeClass('loading');
+    server.once(MESSAGES.puzzleData, function(data) {
+        var creationDate = new Date(data.created);
+        var completionDate = null;
+        
+        if (!_.isUndefined(data.completed)) {
+            completionDate = new Date(data.completed);
+        }
+
+        self.updateTimeSpent(creationDate, completionDate);
+        setInterval(function() {
+            self.updateTimeSpent(creationDate, completionDate);
+        }, 6000);
     });
-    server.subscribe(m.leadersBoard, function(data) {
-        leadersData = data;
+
+    this.leadersData = null;
+    this.leadersShow = 'score';
+
+    this.element.find('.leadersboard .button').click(function() {
+        if (self.leadersShow == 'score') {
+            self.leadersShow = 'found';
+        } else if (self.leadersShow == 'found') {
+            self.leadersShow = 'score';
+        }
+        $(this).html(self.leadersShow);
         self.updateLeadersBoard();
     });
 
-    var leadersData = null;
-    var leadersShow = 'score';
+    this.on = this.observer.on;
+}
 
-    element.find('.leadersboard .button').click(function() {
-        if (leadersShow == 'score') {
-            leadersShow = 'found';
-        } else if (leadersShow == 'found') {
-            leadersShow = 'score';
-        }
-        $(this).html(leadersShow);
-        self.updateLeadersBoard();
+ns.Panel.prototype.show = function() {
+    this.element.show();
+};
+
+ns.Panel.prototype.expand = function() {
+    this.element.find('header').show();
+    this.element.find('.statistics').show();
+    this.element.find('.leadersboard').show();
+    this.element.find('.expcol').addClass('opened');
+};
+
+ns.Panel.prototype.collapse = function() {
+    this.element.find('header').hide();
+    this.element.find('.statistics').hide();
+    this.element.find('.leadersboard').hide();
+    this.element.find('.expcol').removeClass('opened');
+};
+
+ns.Panel.prototype.setUserData = function(data) {
+    this.element.find('.expcol').show();
+    this.element.find('.user .num').text(data.score);
+    this.element.find('.user .name').text(data.name);
+    this.element.addClass('filled');
+};
+
+ns.Panel.prototype.setPuzzleData = function(data) {
+    this.setSwapsCount(data.swaps);
+    this.setCompleteLevel(data.completion);
+    this.setConnectedUsersCount(data.connected);
+    this.element.find('.statistics .quantity').text(data.vLength * data.hLength);
+};
+
+ns.Panel.prototype.setSwapsCount = function(count) {
+    this.element.find('.statistics .swaps').text(count);
+};
+
+ns.Panel.prototype.setConnectedUsersCount = function(count) {
+    this.element.find('.statistics .connected').text(count);
+};
+
+ns.Panel.prototype.setCompleteLevel = function(percent) {
+    this.element.find('.statistics .complete').text(percent + '%');
+};
+
+ns.Panel.prototype.updateTimeSpent = function(creationTime, completionDate) {
+    var timeSpent = Puzz.TimeHelper.diffHoursMinutes(creationTime, completionDate);
+    this.element.find('.statistics .timeSpent').text(timeSpent);
+};
+
+ns.Panel.prototype.updateLeadersBoard = function() {
+    if(_.size(this.leadersData) == 0) { return; }
+
+    var leadersBoard = this.element.find('.leadersboard ul').empty();
+    var leadersShow = this.leadersShow;
+
+    this.leadersData = _.sortBy(this.leadersData, function(row) {
+        return row[leadersShow];
     });
 
-    var self = {
-        on: observer.on,
+    for(var i = this.leadersData.length; i > 0; i--) {
+        var row = $('<li></li>');
+        var data = this.leadersData[i-1];
 
-        expand: function() {
-            element.find('header').show();
-            element.find('.statistics').show();
-            element.find('.leadersboard').show();
-            element.find('.expcol').addClass('opened');
-        },
-        collapse: function() {
-            element.find('header').hide();
-            element.find('.statistics').hide();
-            element.find('.leadersboard').hide();
-            element.find('.expcol').removeClass('opened');
-        },
+        row.append('<span class="status ' + (data.online ? 'online' : 'offline') + '"></span>');
+        row.append('<span class="name">' + data.name + '</span>');
+        row.append('<span class="num">' + data[this.leadersShow] + '</span>');
+        row.appendTo(leadersBoard);
+    }
+};
 
-        loading: function() {
-            element.addClass('loading');
-        },
-        
-        setUserData: function(data) {
-            element.find('.expcol').show();
-            element.find('.user .num').text(data.score);
-            element.find('.user .name').text(data.name);
-            element.addClass('filled');
-        },
-        setPuzzleData: function(data) {
-            this.setSwapsCount(data.swaps);
-            this.setCompleteLevel(data.completion);
-            this.setConnectedUsersCount(data.connected);
-            element.find('.statistics .quantity').text(data.vLength * data.hLength);
+return ns;
 
-            var creationDate = new Date(data.created);
-            var completionDate = new Date(data.completed);
-
-            if (_.isUndefined(data.completed)) {
-                completionDate = new Date();
-            }
-
-            this.updateTimeSpent(creationDate, completionDate);
-            setInterval(_.bind(function() {
-                this.updateTimeSpent(creationDate, completionDate);
-            }, this), 60000);
-        },
-        setSwapsCount: function(count) {
-            element.find('.statistics .swaps').text(count);
-        },
-        setConnectedUsersCount: function(count) {
-            element.find('.statistics .connected').text(count);
-        },
-        setCompleteLevel: function(percent) {
-            element.find('.statistics .complete').text(percent + '%');
-        },
-        
-        updateTimeSpent: function(creationTime, completionDate) {
-            var timeSpent = Puzz.TimeHelper.diffHoursMinutes(creationTime, completionDate);
-            element.find('.statistics .timeSpent').text(timeSpent);
-        },
-        
-        updateLeadersBoard: function() {
-            if(_.size(leadersData) == 0) { return; }
-
-            var leadersBoard = element.find('.leadersboard ul').empty();
-
-            leadersData = _.sortBy(leadersData, function(row) {
-                return row[leadersShow];
-            });
-
-            for(var i = leadersData.length; i > 0; i--) {
-                var row = $('<li></li>');
-                var data = leadersData[i-1];
-                
-                row.append('<span class="status ' + (data.online ? 'online' : 'offline') + '"></span>');
-                row.append('<span class="name">' + data.name + '</span>');
-                row.append('<span class="num">' + data[leadersShow] + '</span>');
-                row.appendTo(leadersBoard);
-            }
-        }
-    };
-
-    return self;
-})();
+})(Puzz || {});

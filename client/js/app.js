@@ -1,43 +1,41 @@
 $(function() {
-    var panel = Puzz.Panel,
-        server = Puzz.Server,
-        viewport = Puzz.Viewport,
-        storage = Puzz.Storage;
-
-    var preloader = new Puzz.Preloader();
-    var puzzle, selected, userName;
-    var m = MESSAGES;
-
-    server.connect();
-    panel.loading();
-
-    Puzz.MenuDialog.show();
-    Puzz.MenuDialog.openPage('welcome');
     
-    server.subscribe('connected', function() {
-        var puzzleId = null;
+    if (!$.browser.mozilla && !$.browser.webkit
+        && !($.browser.opera && $.browser.version >= 10.0)
+        && !($.browser.msie && $.browser.version >= 9.0)) {
+        $('#browser').show();
+        return;
+    }
+
+    var server = new Puzz.Server();
+    var panel = new Puzz.Panel(server);
+    var menu = new Puzz.MenuDialog(server);
+    var complete = new Puzz.CompleteDialog(server);
+    var viewport = new Puzz.Viewport();
+
+    var puzzle, puzzleId, selected, userName;
+    
+    server.on('connected', function() {
         if (window.location.hash.length) {
             puzzleId = window.location.hash.replace('#', '');
         }
-        server.initialize(storage.user.id(), puzzleId);
+        server.initialize(Puzz.Storage.user.id(), puzzleId);
     });
 
-    server.subscribe(m.puzzleData, function(data) {
-        if (data.completion == 100) {
-            if (!Puzz.CompleteDialog.shown) {
-                Puzz.MenuDialog.hide();
-                Puzz.MenuDialog.on('hidden', function() {
-                    Puzz.CompleteDialog.show(data);
-                });
-            }
-        }
-    });
-
-    server.subscribe(m.userData, function(data) {
+    server.on(MESSAGES.userData, function(data) {
         userName = data.name;
     });
 
-    server.once(m.puzzleData, function(data) {
+    server.on(MESSAGES.puzzleData, function(data) {
+        if (data.completion != 100) {return;}
+        if (complete.shown) {return;}
+        
+        menu.hide().on('hidden', function() {
+            complete.show(data);
+        });
+    });
+
+    server.once(MESSAGES.puzzleData, function(data) {
         var images = {
             spriteSrc: '/img/puzzles/' + data.id + '/pieces.png',
             defaultCoverSrc: '/img/puzzles/' + data.id + '/default_covers.png',
@@ -46,6 +44,8 @@ $(function() {
         };
         
         viewport.arrange(data.pieceSize, data.vLength, data.hLength);
+
+        var preloader = new Puzz.Preloader();
 
         preloader.loadImages(images, function() {
             puzzle = Puzz.Puzzle({
@@ -61,15 +61,15 @@ $(function() {
         });
     });
 
-    server.once(m.piecesData, function(pieces) {
+    server.once(MESSAGES.piecesData, function(pieces) {
         puzzle.build(pieces);
 
         puzzle.subscribe(puzzle.events.leftClicked, processClickedPiece);
         puzzle.subscribe(puzzle.events.rightClicked, releaseSelectedPiece);
-        
-        $(document.body).removeClass('fallback');
 
-        server.on(m.lockPiece, function(locked) {
+        $(document.body).removeClass('fallback')
+
+        server.on(MESSAGES.lockPiece, function(locked) {
             var piece = puzzle.getPiece(locked.coords[0], locked.coords[1]);
             if (locked.userName == userName) {
                 selected = piece;
@@ -79,7 +79,7 @@ $(function() {
                 piece.lock(locked.userName);
             }
         });
-        server.on(m.unlockPiece, function(unlocked) {
+        server.on(MESSAGES.unlockPiece, function(unlocked) {
             var piece = puzzle.getPiece(unlocked.coords[0], unlocked.coords[1]);
             if (unlocked.userName == userName) {
                 piece.unselect();
@@ -88,14 +88,14 @@ $(function() {
                 piece.unlock();
             }
         });
-        server.on(m.swapPieces, function(coord) {
+        server.on(MESSAGES.swapPieces, function(coord) {
             puzzle.flipPiecesByCoords(coord);
             selectedIndicator.hide();
         });
-        server.on(m.initialized, function() {
+        server.on(MESSAGES.initialized, function() {
             server.getPiecesData();
         });
-        server.on(m.piecesData, function(pieces) {
+        server.on(MESSAGES.piecesData, function(pieces) {
             puzzle.update(pieces);
         });
     });
@@ -134,6 +134,12 @@ $(function() {
             }
         }
     }
+
+    server.connect();
+    
+    menu.show();
+    menu.openPage('welcome');
+    panel.show();
 });
 
 function log(message) {

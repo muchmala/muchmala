@@ -1,4 +1,4 @@
-(function() {
+var Puzz = (function(ns) {
 
 function Dialog() {
     this.shown = false;
@@ -59,7 +59,7 @@ Dialog.prototype.on = function(eventName, callback) {
     this.observer.subscribe(eventName, callback);
 }
 
-function UserNameDialog() {
+function UserNameDialog(server) {
     UserNameDialog.superproto.constructor.call(this);
 
     this.events = UserNameDialog.EVENTS;
@@ -72,7 +72,7 @@ function UserNameDialog() {
         var newName = this.input.val();
         
         if(/^[A-Za-z0-9_]{3,20}$/.test(newName) ) {
-            Puzz.Server.setUserName(newName);
+            server.setUserName(newName);
             this.element.addClass('loading');
             this.element.find('.error').hide();
         } else {
@@ -80,7 +80,7 @@ function UserNameDialog() {
         }
     }, this));
 
-    Puzz.Server.on(MESSAGES.setUserName, _.bind(function(data) {
+    server.on(MESSAGES.setUserName, _.bind(function(data) {
         this.element.removeClass('loading');
 
         if (!_.isUndefined(data) && !_.isUndefined(data.error)) {
@@ -90,7 +90,7 @@ function UserNameDialog() {
         }
     }, this));
 
-    Puzz.Server.on(MESSAGES.userData, _.bind(function(data) {
+    server.on(MESSAGES.userData, _.bind(function(data) {
         this.input.val(data.name);
     }, this));
 }
@@ -102,9 +102,10 @@ UserNameDialog.prototype.show = function() {
     this.input.focus();
 }
 
-function MenuDialog() {
+function MenuDialog(server) {
     MenuDialog.superproto.constructor.call(this);
     this.element.append($('#menu').show());
+    this.server = server;
     
     this.tabs = {};
     this.pages = {};
@@ -128,21 +129,21 @@ function MenuDialog() {
     this.pages.leaders.viewport('content').scraggable({axis: 'y', containment: 'parent'});
     this.pages.leaders.scrolla({content: this.pages.leaders.viewport('content')});
 
-    Puzz.Server.subscribe(MESSAGES.initialized, function() {
+    this.server.on(MESSAGES.initialized, function() {
         self.requestPuzzles();
         self.requestTopTwenty();
         self.tabs.leaders.click(function() {self.requestTopTwenty();});
         self.tabs.puzzles.click(function() {self.requestPuzzles();});
     });
 
-    Puzz.Server.subscribe(MESSAGES.topTwenty, function(data) {
+    this.server.on(MESSAGES.topTwenty, function(data) {
         self.updateTopTwenty(data);
         self.pages.leaders.viewport('update');
         self.pages.leaders.scrolla('update');
         self.pages.leaders.removeClass('loading');
     });
 
-    Puzz.Server.subscribe(MESSAGES.piecesData, function() {
+    this.server.on(MESSAGES.piecesData, function() {
         self.element.find('.welcome .button.big').html('Start Playing');
         self.element.find('.welcome .button.big').removeClass('loading');
         self.element.find('.welcome .button.big').click(function() {
@@ -160,7 +161,7 @@ MenuDialog.prototype.openPage = function(pageName) {
     this.tabs[pageName].addClass('sel');
     this.pages[pageName].show();
 
-    Puzz.Storage.menu.lastViewedPage(pageName)
+    ns.Storage.menu.lastViewedPage(pageName)
 };
 
 MenuDialog.prototype.updateTopTwenty = function(users) {
@@ -170,7 +171,7 @@ MenuDialog.prototype.updateTopTwenty = function(users) {
         var row = '<li>' +
             '<span class="num">' + (i + 1) + '.</span>' +
             '<span class="name">' + user.name + '</span>' +
-            '<span class="time">' + Puzz.TimeHelper.diffString(user.created) + '</span>' +
+            '<span class="time">' + ns.TimeHelper.diffString(user.created) + '</span>' +
             '<span class="score">' + user.score + '</span>' +
         '</li>';
 
@@ -179,7 +180,7 @@ MenuDialog.prototype.updateTopTwenty = function(users) {
 };
 
 MenuDialog.prototype.requestTopTwenty = function() {
-    Puzz.Server.getTopTwenty();
+    this.server.getTopTwenty();
     this.pages.leaders.addClass('loading');
 };
 
@@ -190,21 +191,23 @@ MenuDialog.prototype.requestPuzzles = function() {
 MenuDialog.prototype.show = function() {
     MenuDialog.superproto.show.call(this);
 
-    var lastViewed = Puzz.Storage.menu.lastViewedPage();
+    var lastViewed = ns.Storage.menu.lastViewedPage();
     if (lastViewed) {this.openPage(lastViewed);}
     // TODO: Refactor this
     if (lastViewed == 'leaders') {
         this.pages.leaders.viewport('update');
         this.pages.leaders.scrolla('update');
     }
+    return this;
 }
 
 MenuDialog.prototype.hide = function() {
     MenuDialog.superproto.hide.call(this);
-    Puzz.Storage.menu.setShown();
+    ns.Storage.menu.setShown();
+    return this;
 };
 
-function CompleteDialog() {
+function CompleteDialog(server) {
     CompleteDialog.superproto.constructor.call(this);
     this.element.append($('#complete').show());
 
@@ -227,19 +230,19 @@ function CompleteDialog() {
         window.location.href = '/';
     });
 
-    Puzz.Server.subscribe(MESSAGES.puzzleData, function(data) {
+    server.on(MESSAGES.puzzleData, function(data) {
         if (_.isUndefined(data.completed)) {return;}
 
         var creationTime = +(new Date(data.created));
         var completionTime = +(new Date(data.completed));
-        var timeSpent = Puzz.TimeHelper.diffHoursMinutes(creationTime, completionTime);
+        var timeSpent = ns.TimeHelper.diffHoursMinutes(creationTime, completionTime);
         self.element.find('.pieces .value').html(data.vLength * data.hLength);
         self.element.find('.participants .value').html(data.participants);
         self.element.find('.timespent .value').html(timeSpent);
         self.element.find('.swaps .value').html(data.swaps);
     });
 
-    Puzz.Server.subscribe(MESSAGES.leadersBoard, function(data) {
+    server.on(MESSAGES.leadersBoard, function(data) {
         self.leadersData = data;
         self.updateLeadersBoard();
     });
@@ -270,11 +273,6 @@ CompleteDialog.prototype.updateLeadersBoard = function() {
     }
 };
 
-Puzz.Dialog = Dialog;
-Puzz.UserNameDialog = UserNameDialog;
-Puzz.MenuDialog = new MenuDialog();
-Puzz.CompleteDialog = new CompleteDialog();
-
 function inherit(child, parent) {
     function F() {}
     F.prototype = parent.prototype;
@@ -284,7 +282,7 @@ function inherit(child, parent) {
     return child;
 }
 
-Puzz.TimeHelper = {
+ns.TimeHelper = {
     MONTH: 60*60*24*30,
     DAY: 60*60*24,
     HOUR: 60*60,
@@ -344,4 +342,11 @@ Puzz.TimeHelper = {
     }
 };
 
-})();
+ns.Dialog = Dialog;
+ns.UserNameDialog = UserNameDialog;
+ns.MenuDialog = MenuDialog;
+ns.CompleteDialog = CompleteDialog;
+
+return ns;
+
+})(Puzz || {});

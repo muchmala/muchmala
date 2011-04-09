@@ -5,10 +5,7 @@
 <%- partial('dialogs/name') %>
 <%- partial('dialogs/complete') %>
 <%- partial('panel') %>
-
-<script type="text/javascript">
-    window.Puzz = {};
-</script>
+<%- partial('browser') %>
 
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 <% if (config.production) { %>
