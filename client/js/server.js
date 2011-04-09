@@ -1,4 +1,4 @@
-var Puzz = (function(ns) {
+window.Puzz = (function(ns) {
 
 function Server() {
     this.observer = Utils.Observer();
@@ -90,4 +90,4 @@ ns.Server = Server;
 
 return ns;
 
-})(Puzz || {});
+})(window.Puzz || {});

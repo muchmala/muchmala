@@ -1,4 +1,4 @@
-var Puzz = (function(ns) {
+window.Puzz = (function(ns) {
 
 function Dialog() {
     this.shown = false;
@@ -349,4 +349,4 @@ ns.CompleteDialog = CompleteDialog;
 
 return ns;
 
-})(Puzz || {});
+})(window.Puzz || {});

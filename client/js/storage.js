@@ -1,4 +1,4 @@
-var Puzz = (function(ns) {
+window.Puzz = (function(ns) {
 
 ns.Storage = (function() {
     var storage = window.localStorage;
@@ -31,4 +31,4 @@ ns.Storage = (function() {
 
 return ns;
 
-})(Puzz || {});
+})(window.Puzz || {});

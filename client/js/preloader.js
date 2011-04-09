@@ -1,4 +1,4 @@
-var Puzz = (function(ns) {
+window.Puzz = (function(ns) {
 
 ns.Preloader = function() {
     this.cache = {};
@@ -21,4 +21,4 @@ ns.Preloader.prototype.loadImages = function(sources, callback) {
 
 return ns;
 
-})(Puzz || {});
+})(window.Puzz || {});

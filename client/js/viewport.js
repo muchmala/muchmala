@@ -1,4 +1,4 @@
-var Puzz = (function(ns) {
+window.Puzz = (function(ns) {
 
 ns.Viewport = function() {
     this.element = $('#viewport').viewport();
@@ -29,4 +29,4 @@ ns.Viewport.prototype.arrange = function(pieceSize, vLength, hLength) {
 
 return ns;
 
-})(Puzz || {});
+})(window.Puzz || {});

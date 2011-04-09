@@ -1,4 +1,4 @@
-var Puzz = (function(ns) {
+window.Puzz = (function(ns) {
 
 ns.Panel = function(server) {
     this.element = $('nav');
@@ -146,4 +146,4 @@ ns.Panel.prototype.updateLeadersBoard = function() {
 
 return ns;
 
-})(Puzz || {});
+})(window.Puzz || {});
