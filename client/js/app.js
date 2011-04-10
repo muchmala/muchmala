@@ -8,8 +8,8 @@ $(function() {
     }
 
     var server = new Puzz.Server();
-    var panel = new Puzz.Panel(server);
     var menu = new Puzz.MenuDialog(server);
+    var panel = new Puzz.Panel(server, menu);
     var complete = new Puzz.CompleteDialog(server);
     var viewport = new Puzz.Viewport();
 

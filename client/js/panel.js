@@ -1,6 +1,6 @@
 window.Puzz = (function(ns) {
 
-ns.Panel = function(server) {
+ns.Panel = function(server, menu) {
     this.element = $('nav');
     this.observer = Utils.Observer();
 
@@ -16,8 +16,7 @@ ns.Panel = function(server) {
         }
     });
     this.element.find('header h1 span').click(function() {
-        if (Puzz.MenuDialog.shown) { return; }
-        Puzz.MenuDialog.show();
+        if (!menu.shown) { menu.show(); }
     });
     this.element.find('.expcol').click(function() {
         if($(this).hasClass('opened')) {

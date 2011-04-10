@@ -14,6 +14,12 @@
     <link rel="stylesheet" href="/css/complete.css" />
     <link rel="stylesheet" href="/css/browser.css" />
     <% } %>
+    <!--[if lte IE 8]>
+    <script>
+        document.createElement('nav');
+        document.createElement('section');
+    </script>
+    <![endif]-->
 </head>
 <body class="fallback">
 <%- body %>
