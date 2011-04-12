@@ -1,10 +1,10 @@
 window.Puzz = (function(ns) {
 
-ns.Preloader = function() {
+function Preloader() {
     this.cache = {};
-};
+}
 
-ns.Preloader.prototype.loadImages = function(sources, callback) {
+Preloader.prototype.loadImages = function(sources, callback) {
     var imagesCount = _.size(sources);
     var that = this;
     _.each(sources, function(src) {
@@ -18,6 +18,8 @@ ns.Preloader.prototype.loadImages = function(sources, callback) {
         };
     });
 };
+
+ns.Preloader = Preloader;
 
 return ns;
 

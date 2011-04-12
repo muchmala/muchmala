@@ -1,1 +1,1 @@
-var console, _ , $, Utils, Puzz, JSON, MESSAGES, io, exports, module, jQuery;
+var console, _ , $, JSON, MESSAGES, io, exports, module, jQuery;

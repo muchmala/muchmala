@@ -57,18 +57,45 @@
 
 #menu .welcome {
     text-align:center;
+    font-size:10px;
 }
 
 #menu .welcome h1 {
-    padding:30px 0 25px 0;
+    display:inline-block;
+    position:relative;
+    padding:20px 0 15px 0;
     font-size:30px;
 }
 
+#menu .welcome h1 span {
+    position:absolute;
+    top:12px;
+    right:-15px;
+    line-height:12px;
+    font-weight:normal;
+    font-size:10px;
+}
+
 #menu .welcome h2 {
-    padding:0 0 20px 0;
+    padding:0 0 15px 0;
     font-size:12px;
     font-weight:normal;
     letter-spacing:1px;
+}
+
+#menu .welcome a {
+    display:inline-block;
+    color:#fff;
+}
+
+#menu .welcome .twitter {
+    padding-left:22px;
+    background:url(/img/twitter.png) no-repeat left center;
+}
+#menu .welcome .ideas {
+    margin-left:5px;
+    padding-left:18px;
+    background:url(/img/ideas.png) no-repeat left center;
 }
 
 #menu .welcome .button.big {
@@ -220,7 +247,7 @@
 
 .fb_edge_widget_with_comment {
     display:block !important;
-    margin:0 auto 15px auto;
+    margin:10px auto 10px auto;
     height:27px;
     width:85px;
 }

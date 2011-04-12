@@ -1,11 +1,13 @@
-Puzz.Puzzle = function puzzle(settings) {
+window.Puzz = (function(ns) {
+
+function Puzzle(settings) {
     settings = $.extend({
         viewport: null,
         pieceSize: null,
         indexCellSize: 60
     }, settings);
 
-    Puzz.Piece.setImages({
+    ns.Piece.setImages({
         sprite: settings.sprite,
         defaultCover: settings.defaultCover,
         selectCover: settings.selectCover,
@@ -17,8 +19,8 @@ Puzz.Puzzle = function puzzle(settings) {
 
     var index = {};
     var pieces = {};
-    var observer = Utils.Observer();
-    var events = puzzle.EVENTS;
+    var observer = ns.Observer();
+    var events = Puzzle.EVENTS;
     var overed = null;
     
     settings.viewport.click(function(event) {
@@ -130,7 +132,7 @@ Puzz.Puzzle = function puzzle(settings) {
     }
 
     function addPiece(data) {
-        var piece = new Puzz.Piece({
+        var piece = new ns.Piece({
             ears: {
                 left: data.l, bottom: data.b,
                 right: data.r, top: data.t
@@ -190,7 +192,13 @@ Puzz.Puzzle = function puzzle(settings) {
     };
 };
 
-Puzz.Puzzle.EVENTS = {
+Puzzle.EVENTS = {
     leftClicked: 'leftClicked',
     rightClicked: 'rightClicked'
 };
+
+ns.Puzzle = Puzzle;
+
+return ns;
+
+})(window.Puzz || {});

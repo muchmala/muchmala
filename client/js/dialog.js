@@ -3,7 +3,7 @@ window.Puzz = (function(ns) {
 function Dialog() {
     this.shown = false;
     this.shaking = false;
-    this.observer = Utils.Observer();
+    this.observer = ns.Observer();
     this.close = $('<span class="button close">x</span>');
 
     this.element = $('<div class="dialog"></div>');

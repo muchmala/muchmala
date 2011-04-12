@@ -1,5 +1,6 @@
-Utils = {};
-Utils.Observer = function() {
+window.Puzz = (function(ns) {
+
+ns.Observer = function() {
     var ONCE = 'once';
     var MULTIPLE = 'multiple';
 
@@ -46,3 +47,7 @@ Utils.Observer = function() {
         once: subscribeOnce
     };
 };
+
+return ns;
+
+})(window.Puzz || {});

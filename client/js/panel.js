@@ -1,12 +1,12 @@
 window.Puzz = (function(ns) {
 
-ns.Panel = function(server, menu) {
+function Panel(server, menu) {
     this.element = $('nav');
-    this.observer = Utils.Observer();
+    this.observer = ns.Observer();
 
     this.element.draggable({containment: 'window'});
 
-    var userNameDialog = new Puzz.UserNameDialog(server);
+    var userNameDialog = new ns.UserNameDialog(server);
 
     var self = this;
 
@@ -27,7 +27,7 @@ ns.Panel = function(server, menu) {
     });
 
     server.on(MESSAGES.userData, function(data) {
-        Puzz.Storage.user.id(data.id);
+        ns.Storage.user.id(data.id);
         self.setUserData(data);
     });
     server.on(MESSAGES.leadersBoard, function(data) {
@@ -73,56 +73,56 @@ ns.Panel = function(server, menu) {
     this.on = this.observer.on;
 }
 
-ns.Panel.prototype.show = function() {
+Panel.prototype.show = function() {
     this.element.show();
 };
 
-ns.Panel.prototype.expand = function() {
+Panel.prototype.expand = function() {
     this.element.find('header').show();
     this.element.find('.statistics').show();
     this.element.find('.leadersboard').show();
     this.element.find('.expcol').addClass('opened');
 };
 
-ns.Panel.prototype.collapse = function() {
+Panel.prototype.collapse = function() {
     this.element.find('header').hide();
     this.element.find('.statistics').hide();
     this.element.find('.leadersboard').hide();
     this.element.find('.expcol').removeClass('opened');
 };
 
-ns.Panel.prototype.setUserData = function(data) {
+Panel.prototype.setUserData = function(data) {
     this.element.find('.expcol').show();
     this.element.find('.user .num').text(data.score);
     this.element.find('.user .name').text(data.name);
     this.element.addClass('filled');
 };
 
-ns.Panel.prototype.setPuzzleData = function(data) {
+Panel.prototype.setPuzzleData = function(data) {
     this.setSwapsCount(data.swaps);
     this.setCompleteLevel(data.completion);
     this.setConnectedUsersCount(data.connected);
     this.element.find('.statistics .quantity').text(data.vLength * data.hLength);
 };
 
-ns.Panel.prototype.setSwapsCount = function(count) {
+Panel.prototype.setSwapsCount = function(count) {
     this.element.find('.statistics .swaps').text(count);
 };
 
-ns.Panel.prototype.setConnectedUsersCount = function(count) {
+Panel.prototype.setConnectedUsersCount = function(count) {
     this.element.find('.statistics .connected').text(count);
 };
 
-ns.Panel.prototype.setCompleteLevel = function(percent) {
+Panel.prototype.setCompleteLevel = function(percent) {
     this.element.find('.statistics .complete').text(percent + '%');
 };
 
-ns.Panel.prototype.updateTimeSpent = function(creationTime, completionDate) {
-    var timeSpent = Puzz.TimeHelper.diffHoursMinutes(creationTime, completionDate);
+Panel.prototype.updateTimeSpent = function(creationTime, completionDate) {
+    var timeSpent = ns.TimeHelper.diffHoursMinutes(creationTime, completionDate);
     this.element.find('.statistics .timeSpent').text(timeSpent);
 };
 
-ns.Panel.prototype.updateLeadersBoard = function() {
+Panel.prototype.updateLeadersBoard = function() {
     if(_.size(this.leadersData) == 0) { return; }
 
     var leadersBoard = this.element.find('.leadersboard ul').empty();
@@ -142,6 +142,8 @@ ns.Panel.prototype.updateLeadersBoard = function() {
         row.appendTo(leadersBoard);
     }
 };
+
+ns.Panel = Panel;
 
 return ns;
 

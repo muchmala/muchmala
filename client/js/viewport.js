@@ -1,6 +1,6 @@
 window.Puzz = (function(ns) {
 
-ns.Viewport = function() {
+function Viewport() {
     this.element = $('#viewport').viewport();
     this.content = this.element.viewport('content');
 
@@ -17,7 +17,7 @@ ns.Viewport = function() {
     }, this));
 }
 
-ns.Viewport.prototype.arrange = function(pieceSize, vLength, hLength) {
+Viewport.prototype.arrange = function(pieceSize, vLength, hLength) {
     var step = Math.floor(pieceSize / 6);
     var rectSize = step * 4 + 1;
     var height = rectSize * vLength + step * 2;
@@ -26,6 +26,8 @@ ns.Viewport.prototype.arrange = function(pieceSize, vLength, hLength) {
     this.element.viewport('size', height, width);
     this.element.viewport('update');
 };
+
+ns.Viewport = Viewport;
 
 return ns;
 

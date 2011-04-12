@@ -1,4 +1,5 @@
 $(function() {
+    var Puzz = window.Puzz;
     
     if (!$.browser.mozilla && !$.browser.webkit
         && !($.browser.opera && $.browser.version >= 10.0)

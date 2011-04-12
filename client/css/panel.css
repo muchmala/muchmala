@@ -40,7 +40,7 @@ nav header h1 {
 }
 nav header h1 span {
     display:inline-block;
-    margin:3px 0 4px 0;
+    margin:3px 0 0 0;
     font-size:24px;
     font-weight:bold;
     color:#fff;
@@ -48,14 +48,21 @@ nav header h1 span {
 }
 
 nav header a {
-    font-size:10px;
-    color:#fff;
+    display:inline-block;
+    height:18px;
+    width:18px;
+}
+
+nav header .twitter {
+    background:url(/img/twitter.png) no-repeat left center;
+}
+nav header .ideas {
+    background:url(/img/ideas.png) no-repeat left center;
 }
 
 nav .statistics {
     display:none;
     clear:both;
-    margin-top:5px;
     line-height:14px;
     text-align:left;
 }
