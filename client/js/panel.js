@@ -18,6 +18,10 @@ function Panel(server, menu) {
     this.element.find('header h1 span').click(function() {
         if (!menu.shown) { menu.show(); }
     });
+    this.element.find('header .howto').click(function() {
+        if (!menu.shown) { menu.show(); }
+        menu.openPage('howtoplay');
+    });
     this.element.find('.expcol').click(function() {
         if($(this).hasClass('opened')) {
             self.collapse();

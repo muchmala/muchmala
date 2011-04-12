@@ -54,10 +54,13 @@ nav header a {
 }
 
 nav header .twitter {
-    background:url(/img/twitter.png) no-repeat left center;
+    background:url(/img/twitter.png) no-repeat center;
 }
 nav header .ideas {
-    background:url(/img/ideas.png) no-repeat left center;
+    background:url(/img/ideas.png) no-repeat center;
+}
+nav header .howto {
+    background:url(/img/question.gif) no-repeat center;
 }
 
 nav .statistics {
