@@ -51,7 +51,7 @@ Users.add = function(name, callback) {
 Users.addAnonymous = function(callback) {
     var name = 'anonymous_' + Math.floor(Math.random()* 10000);
 
-    Users.checkName(name, function(available) {console.log(available);
+    Users.checkName(name, function(available) {
         if (available) {
             Users.add(name, callback);
         } else {

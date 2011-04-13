@@ -150,7 +150,7 @@ function Puzzle(settings) {
         if(pieces[data.y] == null) {
             pieces[data.y] = {};
         }
-        pieces[data.y][data.x] = piece;
+        return pieces[data.y][data.x] = piece;
     }
 
     function getPiece(x, y) {
@@ -160,34 +160,16 @@ function Puzzle(settings) {
         return false;
     }
 
-    function build(piecesData) {
-        _.each(piecesData, function(pieceData) {
-            addPiece(pieceData);
-        });
-        buildIndex();
-    }
-
-    function update(piecesData) {
-        _.each(piecesData, function(pieceData) {
-            var piece = getPiece(pieceData.x, pieceData.y);
-            piece.selected = false;
-            piece.locked = pieceData.d;
-            piece.realX = pieceData.realX;
-            piece.realY = pieceData.realY;
-            piece.render();
-        });
-    }
-
     return {
         // Properties
         events: events,
         // Methods
-        build: build,
-        update: update,
         getPiece: getPiece,
+        addPiece: addPiece,
         isSameType: isSameType,
         flipPieces: flipPieces,
         flipPiecesByCoords: flipPiecesByCoords,
+        buildIndex: buildIndex,
         subscribe: observer.subscribe
     };
 };

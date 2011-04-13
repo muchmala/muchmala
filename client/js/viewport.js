@@ -3,6 +3,7 @@ window.Puzz = (function(ns) {
 function Viewport() {
     this.element = $('#viewport').viewport();
     this.content = this.element.viewport('content');
+    this.pieceSize = 150;
     this.tooltips = {};
 
     this.content.draggable({
@@ -18,8 +19,8 @@ function Viewport() {
     }, this));
 }
 
-Viewport.prototype.arrange = function(pieceSize, vLength, hLength) {
-    var step = Math.floor(pieceSize / 6);
+Viewport.prototype.arrange = function(vLength, hLength) {
+    var step = Math.floor(this.pieceSize / 6);
     var rectSize = step * 4 + 1;
     var height = rectSize * vLength + step * 2;
     var width = rectSize * hLength + step * 2;
@@ -28,11 +29,11 @@ Viewport.prototype.arrange = function(pieceSize, vLength, hLength) {
     this.element.viewport('update');
 };
 
-Viewport.prototype.addTooltip = function(top, left, pieceSize, title) {
+Viewport.prototype.addTooltip = function(top, left, title) {
      var tooltip = $('<div class="tooltip"><span>' + title + '</span></div>')
         .appendTo(this.content)
-        .css('left', left + Math.floor(pieceSize / 2))
-        .css('top', top + Math.floor(pieceSize / 2));
+        .css('left', left + Math.floor(this.pieceSize / 2))
+        .css('top', top + Math.floor(this.pieceSize / 2));
 
     tooltip.css('margin-left', -Math.floor(tooltip.outerWidth() / 2));
 
@@ -49,6 +50,15 @@ Viewport.prototype.removeTooltip = function(top, left) {
         this.tooltips[left][top].remove();
         delete this.tooltips[left][top];
     }
+};
+
+Viewport.prototype.removeTooltips = function() {
+    _.each(this.tooltips, function(row) {
+        _.each(row, function(tooltip) {
+            tooltip.remove();
+        });
+    });
+    this.tooltips = {};
 };
 
 ns.Viewport = Viewport;

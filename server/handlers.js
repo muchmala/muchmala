@@ -101,7 +101,7 @@ Handlers.prototype.lockPieceAction = function(coords) {
     self.puzzle.getPiece(coords[0], coords[1], function(piece) {
         if (piece.isCollected() || piece.isLocked()) {return;}
 
-        piece.lock(self.user._id);
+        piece.lock(self.user.name);
 
         self.selected = true;
         self.channel.broadcast(MESSAGES.lockPiece, {
@@ -110,7 +110,7 @@ Handlers.prototype.lockPieceAction = function(coords) {
         });
 
         self.session.startCountDown(function() {
-            var unlocked = self.puzzle.unlockAll(self.user._id);
+            var unlocked = self.puzzle.unlockAll(self.user.name);
             self.broadcastUnlockPiece(unlocked[0]);
             self.selected = false;
         });
@@ -118,7 +118,7 @@ Handlers.prototype.lockPieceAction = function(coords) {
 };
 
 Handlers.prototype.unlockPieceAction = function(coords) {
-    if (this.puzzle.unlock(coords[0], coords[1], this.user._id)) {
+    if (this.puzzle.unlock(coords[0], coords[1], this.user.name)) {
         this.selected = false;
         this.session.stopCountDown();
         this.broadcastUnlockPiece(coords);
@@ -169,9 +169,9 @@ Handlers.prototype.disconnect = function() {
 
     this.channel.remove(this.session);
 
-    var unlocked = this.puzzle.unlockAll(this.user._id);
+    var unlocked = this.puzzle.unlockAll(this.user.name);
 
-    if (unlocked.length) {console.log(unlocked);
+    if (unlocked.length) {
         this.broadcastUnlockPiece(unlocked[0]);
     }
     

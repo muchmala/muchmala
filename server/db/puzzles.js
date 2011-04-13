@@ -124,7 +124,7 @@ Puzzles.prototype.compactPieces = function(callback) {
             if(!_.isUndefined(self.locked) &&
                !_.isUndefined(self.locked[piece.y]) &&
                !_.isUndefined(self.locked[piece.y][piece.x])) {
-               locked = true;
+               locked = self.locked[piece.y][piece.x];
             }
             
             return {
@@ -143,14 +143,14 @@ Puzzles.prototype.compactPieces = function(callback) {
     });
 };
 
-Puzzles.prototype.unlock = function(x, y, userId) {
+Puzzles.prototype.unlock = function(x, y, userName) {
     if(_.isUndefined(this.locked) ||
        _.isUndefined(this.locked[y]) ||
        _.isUndefined(this.locked[y][x])) {
        return true;
     }
 
-    if(!_.isEqual(this.locked[y][x], userId)) {
+    if(!_.isEqual(this.locked[y][x], userName)) {
        return false;
     }
 
@@ -158,7 +158,7 @@ Puzzles.prototype.unlock = function(x, y, userId) {
     return true;
 };
 
-Puzzles.prototype.unlockAll = function(userId) {
+Puzzles.prototype.unlockAll = function(userName) {
     if(_.isUndefined(this.locked)) {
        return [];
     }
@@ -166,7 +166,7 @@ Puzzles.prototype.unlockAll = function(userId) {
     var unlocked = [];
     _.each(this.locked, function(row, y) {
         _.each(row, function(piece, x) {
-            if(_.isEqual(piece, userId)) {
+            if(_.isEqual(piece, userName)) {
                 unlocked.push([x, y]);
             }
         });
@@ -284,11 +284,11 @@ Pieces.prototype.isLocked = function() {
     return true;
 };
 
-Pieces.prototype.lock = function(userId) {
+Pieces.prototype.lock = function(userName) {
     if(_.isUndefined(lockedPieces[this.puzzleId][this.y])) {
         lockedPieces[this.puzzleId][this.y] = {};
     }
-    lockedPieces[this.puzzleId][this.y][this.x] = userId;
+    lockedPieces[this.puzzleId][this.y][this.x] = userName;
 };
 
 module.exports = Puzzles;

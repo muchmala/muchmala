@@ -43,8 +43,9 @@ $(function() {
             selectCoverSrc: '/img/puzzles/' + data.id + '/select_covers.png',
             lockCoverSrc: '/img/puzzles/' + data.id + '/lock_covers.png'
         };
-        
-        viewport.arrange(data.pieceSize, data.vLength, data.hLength);
+
+        viewport.pieceSize = data.pieceSize;
+        viewport.arrange(data.vLength, data.hLength);
 
         var preloader = new Puzz.Preloader();
 
@@ -63,7 +64,13 @@ $(function() {
     });
 
     server.once(MESSAGES.piecesData, function(pieces) {
-        puzzle.build(pieces);
+        _.each(pieces, function(pieceData) {
+            var piece = puzzle.addPiece(pieceData);
+            if (piece.locked) {
+                viewport.addTooltip(piece.yCoord, piece.xCoord, piece.locked);
+            }
+        });
+        puzzle.buildIndex();
 
         puzzle.subscribe(puzzle.events.leftClicked, processClickedPiece);
         puzzle.subscribe(puzzle.events.rightClicked, releaseSelectedPiece);
@@ -78,7 +85,7 @@ $(function() {
                 selectedIndicator.show();
             } else {
                 piece.lock();
-                viewport.addTooltip(piece.yCoord, piece.xCoord, piece.size, locked.userName);
+                viewport.addTooltip(piece.yCoord, piece.xCoord, locked.userName);
             }
         });
         server.on(MESSAGES.unlockPiece, function(unlocked) {
@@ -99,7 +106,19 @@ $(function() {
             server.getPiecesData();
         });
         server.on(MESSAGES.piecesData, function(pieces) {
-            puzzle.update(pieces);
+            viewport.removeTooltips();
+            _.each(pieces, function(pieceData) {
+                var piece = puzzle.getPiece(pieceData.x, pieceData.y);
+                piece.selected = false;
+                piece.locked = pieceData.d;
+                piece.realX = pieceData.realX;
+                piece.realY = pieceData.realY;
+                piece.render();
+
+                if (piece.locked) {
+                    viewport.addTooltip(piece.yCoord, piece.xCoord, pieceData.locked);
+                }
+            });
         });
     });
 
