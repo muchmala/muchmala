@@ -50,7 +50,7 @@ Handlers.prototype.userDataAction = function() {
 
 Handlers.prototype.leadersBoardAction = function() {
     this.getLeadersBoardData(_.bind(function(data) {
-        this.session.send(MESSAGES.leadersBoard, data);
+        this.channel.broadcast(MESSAGES.leadersBoard, data);
     }, this));
 };
 
@@ -176,6 +176,7 @@ Handlers.prototype.disconnect = function() {
     }
     
     this.broadcastPuzzleData();
+    this.leadersBoardAction();
 };
 
 Handlers.prototype.retrieveUser = function(userId, callback) {
@@ -226,9 +227,7 @@ Handlers.prototype.addScore = function(found, completion) {
         },
         function() {
             self.userDataAction();
-            self.getLeadersBoardData(function(data) {
-                self.channel.broadcast(MESSAGES.leadersBoard, data);
-            });
+            self.leadersBoardAction();
         });
 };
 
