@@ -6,14 +6,16 @@ function Channel() {
 
 Channel.prototype.add = function(session) {
     if (_.include(this.sessions, session)) {
-        throw new Error('Trying to add already added session');
+        console.log('Trying to add already added session');
+        return;
     }
     this.sessions.push(session);
 };
 
 Channel.prototype.remove = function(session) {
     if (!_.include(this.sessions, session)) {
-        throw new Error('Trying to remove not added session');
+        console.log('Trying to remove not added session');
+        return;
     }
     this.sessions.splice(this.sessions.indexOf(session), 1);
 };
