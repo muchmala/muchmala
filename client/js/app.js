@@ -100,7 +100,6 @@ $(function() {
         });
         server.on(MESSAGES.swapPieces, function(coord) {
             puzzle.flipPiecesByCoords(coord);
-            selectedIndicator.hide();
         });
         server.on(MESSAGES.initialized, function() {
             server.getPiecesData();
@@ -159,8 +158,8 @@ $(function() {
 
     server.connect();
     
-    menu.show();
     menu.openPage('welcome');
+    menu.show();
     panel.show();
 });
 

@@ -65,10 +65,15 @@ function UserNameDialog(server) {
     this.events = UserNameDialog.EVENTS;
     this.element.append($('#username').show());
     this.input = this.element.find('input');
+    this.userName = this.input.val();
+
+    var KEYCODE_ENTER = 13;
+    var KEYCODE_ESC = 27;
     
-    this.input.keypress(_.bind(function(event) {
-        if (event.which != 13) {return;}
-        
+    this.input.keyup(_.bind(function(event) {
+        if (event.keyCode == KEYCODE_ESC) {this.hide();return;}
+        if (event.keyCode != KEYCODE_ENTER) {return;}
+
         var newName = this.input.val();
         
         if(/^[A-Za-z0-9_]{3,20}$/.test(newName) ) {
@@ -91,7 +96,7 @@ function UserNameDialog(server) {
     }, this));
 
     server.on(MESSAGES.userData, _.bind(function(data) {
-        this.input.val(data.name);
+        this.userName = data.name;
     }, this));
 }
 
@@ -99,8 +104,14 @@ inherit(UserNameDialog, Dialog);
 
 UserNameDialog.prototype.show = function() {
     UserNameDialog.superproto.show.call(this);
+    this.input.val(this.userName);
     this.input.focus();
-}
+};
+
+UserNameDialog.prototype.hide = function() {
+    UserNameDialog.superproto.hide.call(this);
+    this.input.blur();
+};
 
 function MenuDialog(server) {
     MenuDialog.superproto.constructor.call(this);
