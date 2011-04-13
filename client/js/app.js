@@ -77,7 +77,8 @@ $(function() {
                 selected.select();
                 selectedIndicator.show();
             } else {
-                piece.lock(locked.userName);
+                piece.lock();
+                viewport.addTooltip(piece.yCoord, piece.xCoord, piece.size, locked.userName);
             }
         });
         server.on(MESSAGES.unlockPiece, function(unlocked) {
@@ -86,6 +87,7 @@ $(function() {
                 piece.unselect();
                 selectedIndicator.hide();
             } else {
+                viewport.removeTooltip(piece.yCoord, piece.xCoord)
                 piece.unlock();
             }
         });

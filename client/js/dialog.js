@@ -212,7 +212,6 @@ MenuDialog.prototype.show = function() {
 
 MenuDialog.prototype.hide = function() {
     MenuDialog.superproto.hide.call(this);
-    ns.Storage.menu.setShown();
     return this;
 };
 

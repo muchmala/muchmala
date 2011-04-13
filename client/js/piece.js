@@ -88,7 +88,6 @@ Piece.prototype.select = function() {
     this.render();
 };
 Piece.prototype.lock = function(title) {
-    this.canvas.setAttribute('title', title);
     this.locked = true;
     this.render();
 };
@@ -97,7 +96,6 @@ Piece.prototype.unselect = function() {
     this.render();
 };
 Piece.prototype.unlock = function() {
-    this.canvas.removeAttribute('title');
     this.locked = false;
     this.render();
 };

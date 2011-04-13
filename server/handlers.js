@@ -171,8 +171,8 @@ Handlers.prototype.disconnect = function() {
 
     var unlocked = this.puzzle.unlockAll(this.user._id);
 
-    if (unlocked.length) {
-        this.channel.broadcast(MESSAGES.unlockPieces, unlocked);
+    if (unlocked.length) {console.log(unlocked);
+        this.broadcastUnlockPiece(unlocked[0]);
     }
     
     this.broadcastPuzzleData();

@@ -3,6 +3,7 @@ window.Puzz = (function(ns) {
 function Viewport() {
     this.element = $('#viewport').viewport();
     this.content = this.element.viewport('content');
+    this.tooltips = {};
 
     this.content.draggable({
         containment: 'parent'
@@ -25,6 +26,29 @@ Viewport.prototype.arrange = function(pieceSize, vLength, hLength) {
 
     this.element.viewport('size', height, width);
     this.element.viewport('update');
+};
+
+Viewport.prototype.addTooltip = function(top, left, pieceSize, title) {
+     var tooltip = $('<div class="tooltip"><span>' + title + '</span></div>')
+        .appendTo(this.content)
+        .css('left', left + Math.floor(pieceSize / 2))
+        .css('top', top + Math.floor(pieceSize / 2));
+
+    tooltip.css('margin-left', -Math.floor(tooltip.outerWidth() / 2));
+
+    if (_.isUndefined(this.tooltips[left])) {
+        this.tooltips[left] = {};
+    }
+    
+    this.tooltips[left][top] = tooltip;
+};
+
+Viewport.prototype.removeTooltip = function(top, left) {
+    if (!_.isUndefined(this.tooltips[left]) &&
+        !_.isUndefined(this.tooltips[left][top])) {
+        this.tooltips[left][top].remove();
+        delete this.tooltips[left][top];
+    }
 };
 
 ns.Viewport = Viewport;
