@@ -127,7 +127,7 @@ Handlers.prototype.unlockPieceAction = function(coords) {
 
 Handlers.prototype.swapPiecesAction = function(coords) {
     var self = this;
-    self.puzzle.swap(coords[0][0], coords[0][1], coords[1][0], coords[1][1], self.user._id, function(swaped) {
+    self.puzzle.swap(coords[0][0], coords[0][1], coords[1][0], coords[1][1], self.user.name, function(swaped) {
         if (!swaped) {return;}
 
         self.selected = false;

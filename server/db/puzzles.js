@@ -180,8 +180,8 @@ Puzzles.prototype.unlockAll = function(userName) {
     return unlocked;
 };
 
-Puzzles.prototype.swap = function(x1, y1, x2, y2, userId, callback) {
-    if(!this.unlock(x1, y1, userId)) {
+Puzzles.prototype.swap = function(x1, y1, x2, y2, userName, callback) {
+    if(!this.unlock(x1, y1, userName)) {
         callback(false);
     }
 
