@@ -13,11 +13,11 @@ ns.Storage = (function() {
             }
         },
         menu: {
-            isShown: function(pageName) {
-                return storage.menuShown == '1';
+            isHowToPlayShown: function(pageName) {
+                return storage.menuHowToPlayShown == '1';
             },
-            setShown: function() {
-                storage.menuShown = 1;
+            setHowToPlayShown: function() {
+                storage.menuHowToPlayShown = 1;
             },
             lastViewedPage: function(pageName) {
                 if (_.isUndefined(pageName)) {

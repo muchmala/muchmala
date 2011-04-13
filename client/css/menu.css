@@ -63,13 +63,13 @@
 #menu .welcome h1 {
     display:inline-block;
     position:relative;
-    padding:20px 0 15px 0;
+    padding:30px 0 15px 0;
     font-size:30px;
 }
 
 #menu .welcome h1 span {
     position:absolute;
-    top:12px;
+    top:22px;
     right:-15px;
     line-height:12px;
     font-weight:normal;
@@ -83,11 +83,14 @@
     letter-spacing:1px;
 }
 
+#menu .welcome .social {
+    height:20px;
+}
+
 #menu .welcome a {
     display:inline-block;
     color:#fff;
 }
-
 #menu .welcome .twitter {
     padding-left:22px;
     background:url(/img/twitter.png) no-repeat left center;
@@ -98,7 +101,22 @@
     background:url(/img/ideas.png) no-repeat left center;
 }
 
+.fb_edge_widget_with_comment {
+    display:inline-block !important;
+    overflow:hidden;
+    bottom:-5px;
+    margin-left:5px;
+    height:20px;
+    width:85px;
+}
+
+.fb_edge_widget_with_comment iframe {
+    height:20px !important;
+    overflow:hidden;
+}
+
 #menu .welcome .button.big {
+    margin-bottom:20px;
     width:120px;
 }
 
@@ -118,7 +136,7 @@
 }
 
 #menu .welcome p {
-    margin-top:20px;
+    margin-top:10px;
     font-size:10px;
 }
 
@@ -243,11 +261,4 @@
     width:100%;
     padding-top:50px;
     text-align:center;
-}
-
-.fb_edge_widget_with_comment {
-    display:block !important;
-    margin:10px auto 10px auto;
-    height:27px;
-    width:85px;
 }

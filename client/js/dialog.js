@@ -129,6 +129,15 @@ function MenuDialog(server) {
     this.pages.leaders.viewport('content').scraggable({axis: 'y', containment: 'parent'});
     this.pages.leaders.scrolla({content: this.pages.leaders.viewport('content')});
 
+    if (!ns.Storage.menu.isHowToPlayShown()) {
+        self.tabs.howtoplay.addClass('highlight');
+    }
+
+    self.tabs.howtoplay.click(function() {
+        ns.Storage.menu.setHowToPlayShown();
+        $(this).removeClass('highlight');
+    });
+
     this.server.on(MESSAGES.initialized, function() {
         self.requestPuzzles();
         self.requestTopTwenty();
