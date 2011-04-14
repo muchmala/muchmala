@@ -162,14 +162,6 @@ function MenuDialog(server) {
         self.pages.leaders.scrolla('update');
         self.pages.leaders.removeClass('loading');
     });
-
-    this.server.on(MESSAGES.piecesData, function() {
-        self.element.find('.welcome .button.big').html('Start Playing');
-        self.element.find('.welcome .button.big').removeClass('loading');
-        self.element.find('.welcome .button.big').click(function() {
-            self.hide();
-        });
-    });
 }
 
 inherit(MenuDialog, Dialog);
@@ -182,6 +174,18 @@ MenuDialog.prototype.openPage = function(pageName) {
     this.pages[pageName].show();
 
     ns.Storage.menu.lastViewedPage(pageName)
+};
+
+MenuDialog.prototype.loaded = function(percent) {
+    this.element.find('.welcome .button.big span').html(percent + '%');
+};
+
+MenuDialog.prototype.loadingComplete = function() {
+    this.element.find('.welcome .button.big').html('Start Playing');
+    this.element.find('.welcome .button.big').removeClass('loading');
+    this.element.find('.welcome .button.big').click(_.bind(function() {
+        this.hide();
+    }, this));
 };
 
 MenuDialog.prototype.updateTopTwenty = function(users) {

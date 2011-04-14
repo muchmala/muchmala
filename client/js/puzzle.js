@@ -7,13 +7,6 @@ function Puzzle(settings) {
         indexCellSize: 60
     }, settings);
 
-    ns.Piece.setImages({
-        sprite: settings.sprite,
-        defaultCover: settings.defaultCover,
-        selectCover: settings.selectCover,
-        lockCover: settings.lockCover
-    });
-
     // TMP
     settings.indexCellSize = Math.floor(settings.pieceSize/3*2);
 
@@ -137,12 +130,11 @@ function Puzzle(settings) {
                 left: data.l, bottom: data.b,
                 right: data.r, top: data.t
             },
-            x: data.x, 
-            y: data.y,
-            locked: data.d,
+            size: settings.pieceSize,
+            x: data.x,  y: data.y,
             realX: data.realX,
             realY: data.realY,
-            size: settings.pieceSize
+            locked: data.d
         });
 
         settings.viewport.append(piece.element);

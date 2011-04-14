@@ -23,6 +23,7 @@ Puzzles.add = function(piecesData, settings, callback) {
     puzzle.hLength = settings.hLength;
     puzzle.vLength = settings.vLength;
     puzzle.pieceSize = settings.pieceSize;
+    puzzle.spriteSize = settings.spriteSize;
     puzzle.invisible = settings.invisible;
     puzzle.piecesCount = piecesData.length;
 
@@ -98,6 +99,7 @@ Puzzles.prototype.compactInfo = function(callback) {
         vLength: data.vLength,
         swaps: data.swapsCount,
         pieceSize: data.pieceSize,
+        spriteSize: data.spriteSize,
         created: data.created.getTime()
     };
 

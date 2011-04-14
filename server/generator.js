@@ -21,11 +21,16 @@ var options = [
         'value': true,
         'required': true
     }, {
-        'short': 's',
+        'short': 'ps',
         'long': 'piecesize',
         'description': 'Piece size',
         'value': true,
         'required': true
+    }, {
+        'short': 'ss',
+        'long': 'spritesize',
+        'description': 'Sprite size',
+        'value': true
     }, {
         'short': 'v',
         'long': 'invisible',
@@ -46,7 +51,8 @@ image.onload = function() {
     var settings = {
         name: opts.get('name'),
         invisible: opts.get('invisible') || false,
-        pieceSize: parseInt(opts.get('piecesize'))
+        pieceSize: parseInt(opts.get('piecesize')),
+        spriteSize: parseInt(opts.get('spritesize')) || 5
     };
 
     var puzzle = random.puzzle(image.width, image.height, settings.pieceSize);
@@ -68,6 +74,7 @@ image.onload = function() {
                 vLength: puzzle.vLength,
                 piecesMap: puzzle.pieces,
                 pieceSize: settings.pieceSize,
+                spriteSize: settings.spriteSize,
                 resultDir: IMAGES_DIR + puzzleId,
                 onFinish: function() {
                     console.log('Sprites images are created.');

@@ -6,6 +6,7 @@ var ObjectId = Schema.ObjectId;
 var PuzzlesSchema = new Schema({
     name        : String,
     pieceSize   : Number,
+    spriteSize  : Number,
     piecesCount : Number,
     hLength     : Number,
     vLength     : Number,

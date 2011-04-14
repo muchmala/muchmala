@@ -30,13 +30,26 @@ function Piece(settings) {
     this.render();
 };
 
+Piece.IMAGES = {
+    sprites: {},
+    defaultCover: null,
+    selectCover: null,
+    lockCover: null
+};
+
+Piece.SPRITE_SIZE = 5;
+
 Piece.setImages = function(images) {
-    Piece.IMAGES = _.extend({
-        sprite: null,
-        defaultCover: null,
-        selectCover: null,
-        lockCover: null
-    }, images);
+    Piece.IMAGES = _.extend(Piece.IMAGES, images);
+};
+Piece.setSpriteSize = function(spriteSize) {
+    Piece.SPRITE_SIZE = spriteSize;
+};
+Piece.setSprite = function(row, col, image) {
+    if (_.isUndefined(Piece.IMAGES.sprites[row])) {
+        Piece.IMAGES.sprites[row] = {};
+    }
+    Piece.IMAGES.sprites[row][col] = image;
 };
 
 Piece.coverOffsets = {
@@ -51,10 +64,14 @@ Piece.coverOffsets = {
 };
 
 Piece.prototype.render = function() {
+    var spriteRow = Math.floor(this.realY / Piece.SPRITE_SIZE);
+    var spriteCol = Math.floor(this.realX / Piece.SPRITE_SIZE);
+
     this.ctx.clearRect(0, 0, this.size, this.size);
-    this.ctx.drawImage(this.images.sprite,  this.realX * this.size,
-                       this.realY * this.size, this.size, this.size,
-                       0, 0, this.size, this.size);
+    this.ctx.drawImage(this.images.sprites[spriteRow][spriteCol],  
+                       this.realX % Piece.SPRITE_SIZE * this.size,
+                       this.realY % Piece.SPRITE_SIZE * this.size,
+                       this.size, this.size, 0, 0, this.size, this.size);
     
     if(this.locked) {
         this.cover(this.images.lockCover);

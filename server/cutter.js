@@ -1,5 +1,6 @@
 var fs = require('fs');
 var flow = require('../shared/flow');
+var _ = require('../shared/underscore')._;
 var Canvas = require('canvas');
 
 var PIECES_MAP_FILENAME = 'pieces.png';
@@ -34,12 +35,10 @@ function Cutter(settings) {
     var image = settings.image,
         piecesMap = settings.piecesMap,
         piceSize = settings.pieceSize,
-        step = Math.floor(piceSize / 6);
-
-    var width = piceSize * settings.hLength,
-        height = piceSize * settings.vLength,
-        mapCanvas = new Canvas(width, height),
-        mapCtx = mapCanvas.getContext('2d');
+        spriteSize = settings.spriteSize,
+        step = Math.floor(piceSize / 6),
+        width = piceSize * settings.hLength,
+        height = piceSize * settings.vLength;
 
     cut(settings.onFinish);
 
@@ -127,6 +126,10 @@ function Cutter(settings) {
     }
 
     function createPieces(callback) {
+        var mapCanvas = new Canvas(width, height),
+            mapCtx = mapCanvas.getContext('2d'),
+            sprites = [];
+        
         piecesMap.forEach(function(piece) {
             var imageX = piece.x * (piceSize - step*2);
             var imageY = piece.y * (piceSize - step*2);
@@ -148,8 +151,40 @@ function Cutter(settings) {
             mapCtx.drawImage(pieceCanvas, 0, 0, piceSize, piceSize, destnX, destnY, piceSize, piceSize);
         });
 
-        mapCanvas.toBuffer(function(err, buffer){
-            fs.writeFile(settings.resultDir + '/' + PIECES_MAP_FILENAME, buffer, callback);
+        for (var i = 0, row = 0; i < settings.vLength; i += spriteSize, row++) {
+            for (var j = 0, col = 0; j < settings.hLength; j += spriteSize, col++) {
+                var hPiecesCountLeft = settings.hLength - j;
+                var vPiecesCountLeft = settings.vLength - i;
+                var spriteWidth = (hPiecesCountLeft >= spriteSize ? spriteSize : hPiecesCountLeft) * piceSize;
+                var spriteHeight = (vPiecesCountLeft >= spriteSize ? spriteSize : vPiecesCountLeft) * piceSize;
+
+                var spriteCanvas = new Canvas(spriteWidth, spriteHeight);
+                var spriteCtx = spriteCanvas.getContext('2d');
+
+                spriteCtx.drawImage(mapCanvas, j*piceSize, i*piceSize, spriteWidth,
+                                    spriteHeight, 0, 0, spriteWidth, spriteHeight);
+
+                sprites.push({
+                    canvas: spriteCanvas,
+                    row: row, col: col
+                });
+            }
+        }
+
+        flow.serialForEach(sprites, function(sprite) {
+            var fileName = sprite.row + '_' + sprite.col + '_' + PIECES_MAP_FILENAME;
+
+            flow.exec(function() {
+                sprite.canvas.toBuffer(this);
+            }, function(err, buffer) {
+                fs.writeFile(settings.resultDir + '/' + fileName, buffer, this);
+            }, this);
+
+            this.fileName = fileName;
+        }, function() {
+            console.log('Created ' + this.fileName + '...');
+        }, function() {
+            callback();
         });
     }
 

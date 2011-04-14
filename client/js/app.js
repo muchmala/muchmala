@@ -37,41 +37,66 @@ $(function() {
     });
 
     server.once(MESSAGES.puzzleData, function(data) {
-        var images = {
-            spriteSrc: '/img/puzzles/' + data.id + '/pieces.png',
-            defaultCoverSrc: '/img/puzzles/' + data.id + '/default_covers.png',
-            selectCoverSrc: '/img/puzzles/' + data.id + '/select_covers.png',
-            lockCoverSrc: '/img/puzzles/' + data.id + '/lock_covers.png'
-        };
-
         viewport.pieceSize = data.pieceSize;
         viewport.arrange(data.vLength, data.hLength);
 
-        var preloader = new Puzz.Preloader();
-
-        preloader.loadImages(images, function() {
-            puzzle = Puzz.Puzzle({
-                pieceSize: data.pieceSize,
-                viewport: viewport.content,
-                sprite: preloader.cache[images.spriteSrc],
-                lockCover: preloader.cache[images.lockCoverSrc],
-                selectCover: preloader.cache[images.selectCoverSrc],
-                defaultCover: preloader.cache[images.defaultCoverSrc]
-            });
-
-            server.getPiecesData();
+        puzzle = Puzz.Puzzle({
+            pieceSize: data.pieceSize,
+            viewport: viewport.content
         });
+
+        var load = new Puzz.Loader();
+        
+        server.once(MESSAGES.piecesData, function(pieces) {
+            flow.exec(function() {
+                load.covers(data.id, this);
+            }, function(covers) {
+
+                Puzz.Piece.setImages({
+                    lockCover: covers.lock,
+                    selectCover: covers.select,
+                    defaultCover: covers['default']
+                });
+
+                Puzz.Piece.setSpriteSize(data.spriteSize);
+
+                var rows = Math.ceil(data.vLength / data.spriteSize);
+                var cols = Math.ceil(data.hLength / data.spriteSize);
+
+                var percentLoaded = (3 + rows * cols) / 100;
+                var objectsLoaded = 3;
+
+                menu.loaded(Math.floor(objectsLoaded / percentLoaded));
+
+                load.sprites(data.id, rows, cols, function(row, col, sprite) {
+                    Puzz.Piece.setSprite(row, col, sprite);
+
+                    menu.loaded(Math.floor(++objectsLoaded / percentLoaded));
+
+                    var piecesToShow = _.select(pieces, function(piece) {
+                        return piece.realX >= col * data.spriteSize &&
+                               piece.realY >= row * data.spriteSize &&
+                               piece.realX <= (col * data.spriteSize) + data.spriteSize - 1 &&
+                               piece.realY <= (row * data.spriteSize) + data.spriteSize - 1;
+                    });
+
+                    _.each(piecesToShow, function(pieceData) {
+                        puzzle.addPiece(pieceData);
+                    });
+                }, this);
+
+            }, function() {
+                enablePuzzle();
+                server.getPiecesData();
+                menu.loadingComplete();
+                puzzle.buildIndex();
+            });
+        });
+
+        server.getPiecesData();
     });
 
-    server.once(MESSAGES.piecesData, function(pieces) {
-        _.each(pieces, function(pieceData) {
-            var piece = puzzle.addPiece(pieceData);
-            if (piece.locked) {
-                viewport.addTooltip(piece.yCoord, piece.xCoord, piece.locked);
-            }
-        });
-        puzzle.buildIndex();
-
+    function enablePuzzle() {
         puzzle.subscribe(puzzle.events.leftClicked, processClickedPiece);
         puzzle.subscribe(puzzle.events.rightClicked, releaseSelectedPiece);
 
@@ -115,11 +140,11 @@ $(function() {
                 piece.render();
 
                 if (piece.locked) {
-                    viewport.addTooltip(piece.yCoord, piece.xCoord, pieceData.locked);
+                    viewport.addTooltip(piece.yCoord, piece.xCoord, pieceData.d);
                 }
             });
         });
-    });
+    }
 
     var selectedIndicator = (function() {
         var element = $('#selected');
