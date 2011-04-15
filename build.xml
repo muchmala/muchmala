@@ -25,6 +25,7 @@
                 <file name="jquery/jquery.scraggable/jquery.scraggable.js"/>
                 <file name="jquery/jquery.viewport/jquery.viewport.js"/>
                 <file name="jquery/jquery.scrolla/jquery.scrolla.js"/>
+                <file name="../../shared/flow.js"/>
                 <file name="observer.js"/>
                 <file name="preloader.js"/>
                 <file name="puzzle.js"/>
