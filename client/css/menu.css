@@ -84,6 +84,7 @@
 }
 
 #menu .welcome .social {
+    margin-top:20px;
     height:20px;
 }
 
@@ -116,23 +117,43 @@
 }
 
 #menu .welcome .button.big {
-    margin-bottom:20px;
-    width:120px;
+    position:relative;
+    width:140px;
+}
+
+#menu .welcome .button.big i {
+    display:block;
+    position:absolute;
+    z-index:1;
+    height:100%;
+    width:0%;
+    background:rgba(0,0,0,0.3);
+}
+
+#menu .welcome .button.big div {
+    position:relative;
+    z-index:2;
+    height:10px;
+    width:100%;
+    text-align:center;
 }
 
 #menu .welcome .button.loading {
-    background:none;
+    padding-left:0;
+    padding-right:0;
+    width:170px;
+    background:rgba(100,100,100,0.8);
     border:none;
     color:#fff;
     cursor:auto;
-
+    
     -webkit-box-shadow:none;
     -moz-box-shadow:none;
     box-shadow:none;
     
-    -webkit-border-radius:none;
-    -moz-border-radius:none;
-    border-radius:none;
+    -webkit-border-radius:0;
+    -moz-border-radius:0;
+    border-radius:0;
 }
 
 #menu .welcome p {

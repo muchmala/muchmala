@@ -177,7 +177,7 @@ MenuDialog.prototype.openPage = function(pageName) {
 };
 
 MenuDialog.prototype.loaded = function(percent) {
-    this.element.find('.welcome .button.big span').html(percent + '%');
+    this.element.find('.welcome .button.big i').css('width', percent + '%');
 };
 
 MenuDialog.prototype.loadingComplete = function() {
