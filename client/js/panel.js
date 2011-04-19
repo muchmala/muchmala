@@ -38,7 +38,6 @@ function Panel(server, menu) {
     });
 
     server.on(MESSAGES.swapsCount, function(count) { self.setSwapsCount(count); });
-    server.on(MESSAGES.piecesData, function() { self.element.removeClass('loading'); });
     server.on(MESSAGES.puzzleData, function(data) { self.setPuzzleData(data); });
 
     server.once(MESSAGES.puzzleData, function(data) {
@@ -81,6 +80,14 @@ var Proto = Panel.prototype;
 
 Proto.show = function() {
     this.element.show();
+};
+
+Proto.loading = function() {
+	this.element.addClass('loading');
+};
+
+Proto.loadingComplete = function() {
+	this.element.removeClass('loading');
 };
 
 Proto.expand = function() {

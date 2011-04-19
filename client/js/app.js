@@ -89,6 +89,7 @@ $(function() {
                 enablePuzzle();
                 server.getPiecesData();
                 menu.loadingComplete();
+				panel.loadingComplete();
                 puzzle.buildIndex();
             });
         });
@@ -183,9 +184,11 @@ $(function() {
 
     server.connect();
     
-    menu.openPage('welcome');
     menu.show();
-    panel.show();
+	panel.show();
+	
+	menu.openPage('welcome');
+	panel.loading();
 });
 
 function log(message) {
