@@ -6,13 +6,8 @@ function Viewport() {
     this.pieceSize = 150;
     this.tooltips = {};
 
-    this.content.draggable({
-        containment: 'parent'
-    });
-    this.content.scraggable({
-        containment: 'parent',
-        sensitivity: 10
-    });
+    this.content.draggable({containment: 'parent'});
+    this.content.scraggable({containment: 'parent'});
 
     $(window).resize(_.bind(function() {
          this.element.viewport('adjust');

@@ -71,11 +71,12 @@ nav .statistics {
 }
 
 nav .statistics li,
-nav .leadersboard li {
+nav .leadersboard em {
     display:block;
-    padding:0 0 2px 0;
-    height:12px;
-    line-height:12px;
+    padding:0;
+    height:14px;
+    line-height:13px;
+	font-style:normal;
 }
 
 nav .statistics span {
@@ -87,13 +88,37 @@ nav .statistics span {
     width:35px;
 }
 
-nav ul {
+nav ul, nav .borders {
     margin:5px 10px 0 0;
     padding:5px;
     border:1px solid #fff;
     background:rgba(0,0,0,0.5);
     -moz-border-radius:3px;
     border-radius:3px;
+}
+
+nav .leadersboard .borders {
+	padding-left:0;
+	padding-right:0;
+}
+
+nav .leadersboard .viewport em {
+	width:140px;
+}
+
+nav .leadersboard .scrolla {
+	position:absolute;
+	right:-1px;
+	width:4px;
+	background:rgba(255,255,255,0.5);
+	
+	-webkit-border-radius:3px;
+	-moz-border-radius:3px;
+	border-radius:3px;
+	
+	-webkit-box-shadow:0 0 2px #000;
+    -moz-box-shadow:0 0 2px #000;
+    box-shadow:0 0 2px #000;
 }
 
 nav .leadersboard {
@@ -110,7 +135,7 @@ nav .leadersboard .button {
     height:12px;
 }
 
-nav .leadersboard li.empty {
+nav .leadersboard .empty {
     text-align:center;
 }
 
@@ -118,6 +143,7 @@ nav .leadersboard .status {
     float:left;
     display:block;
     margin:4px 5px 0 1px;
+	padding:0;
     height:6px;
     width:6px;
     background:#6f0;
