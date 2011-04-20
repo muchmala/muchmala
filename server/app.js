@@ -7,16 +7,25 @@ var Handlers = require('./handlers');
 var Session = require('./session');
 
 var server = express.createServer();
+var httpProxy = require('http-proxy');
+var proxy = new httpProxy.HttpProxy();
 
 server.register('.html', require('ejs'));
 server.set('views', __dirname + '/views');
 server.set('view engine', 'html');
-server.use(express.static(__dirname + '/../client'));
-server.use(express.static(__dirname + '/../shared'));
 
 server.get('/', function(req, res) {
     res.render('puzzle', {config: {production: config.production}});
 });
+
+function proxyToNginx(req, res) {
+	proxy.proxyRequest(req, res, {host: 'localhost', port: 9000});
+};
+
+server.get('/shared/*', proxyToNginx);
+server.get('/img/*', proxyToNginx);
+server.get('/css/*', proxyToNginx);
+server.get('/js/*', proxyToNginx);
 
 server.listen(config.server.port, config.server.host);
 
