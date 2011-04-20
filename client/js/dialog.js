@@ -153,7 +153,7 @@ function MenuDialog(server) {
         self.requestPuzzles();
         self.requestTopTwenty();
         self.tabs.leaders.click(function() {self.requestTopTwenty();});
-        self.tabs.puzzles.click(function() {self.requestPuzzles();});
+        //self.tabs.puzzles.click(function() {self.requestPuzzles();});
     });
 
     this.server.on(MESSAGES.topTwenty, function(data) {

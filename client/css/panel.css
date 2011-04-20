@@ -102,6 +102,10 @@ nav .leadersboard .borders {
 	padding-right:0;
 }
 
+nav .leadersboard .viewport {
+	height:14px;
+}
+
 nav .leadersboard .viewport em {
 	width:140px;
 }

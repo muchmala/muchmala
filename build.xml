@@ -7,6 +7,7 @@
     <property name="MINIFIED_CSS" value="${CSS_DIR}/minified.css" />
     <property name="CLOSURE" value="${basedir}/build/compiler.jar" />
     <property name="YUI" value="${basedir}/build/yuicompressor.jar" />
+	<property name="CSSEMBED" value="${basedir}/build/cssembed.jar" />
     
     <property name="TMP_CSS" value="${basedir}/tmp.css" />
     <property name="TMP_JS" value="${basedir}/tmp.js" />
@@ -64,8 +65,22 @@
         </concat>
         <echo message="${MINIFIED_CSS} concatinated." />
     </target>
+	
+	<target name="embed_datauri_to_css" depends="concat_css">
+        <echo message="Embeding data:uri to the concatinated css" />
+        <java jar="${CSSEMBED}" fork="true" failonerror="true">
+			<arg value="-o" />
+			<arg value="${TMP_CSS}" />
+			<arg value="--charset" />
+			<arg value="UTF-8" />
+			<arg value="--root" />
+			<arg value="client" />
+			<arg value="${TMP_CSS}" />
+		</java>
+        <echo message="Data:uri embedded." />
+    </target>
 
-    <target name="minify_css" depends="concat_css">
+    <target name="minify_css" depends="embed_datauri_to_css">
         <echo message="Building ${MINIFIED_CSS}" />
         <apply executable="java" parallel="false" verbose="true">
             <fileset file="${TMP_CSS}" />
@@ -85,7 +100,7 @@
         <delete file="${TMP_JS}" />
     </target>
 
-    <target name="all" depends="minify_js, concat_js, concat_css, minify_css, clean">
+    <target name="all" depends="minify_js, concat_js, concat_css, embed_datauri_to_css, minify_css, clean">
         <echo message="Build complete." />
     </target>
 </project>
