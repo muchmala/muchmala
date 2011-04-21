@@ -21,14 +21,11 @@ Dialog.EVENTS = {
 };
 
 Dialog.prototype.show = function() {
-    var top = Math.floor($(window).height() / 2 - this.element.outerHeight() / 2);
-    var left = Math.floor($(window).width() / 2 - this.element.outerWidth() / 2);
+	this.element.css('margin-top', -Math.floor(this.element.outerHeight() / 2))
+	this.element.css('margin-left', -Math.floor(this.element.outerWidth() / 2))
+    this.element.css('left', '50%').show();
 
-    this.element.css('top', -this.element.height());
-    this.element.css('left', left);
-    this.element.show();
-
-    this.element.animate({top: top}, 100, _.bind(function() {
+    this.element.animate({top: '50%'}, 100, _.bind(function() {
         this.shown = true;
         this.observer.fire('shown');
     }, this));
