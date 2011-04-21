@@ -236,6 +236,7 @@ function CompleteDialog(server) {
 
     this.leadersData = null;
     this.leadersShow = 'score';
+	this.closed = false;
 
     var self = this;
 
@@ -275,7 +276,12 @@ inherit(CompleteDialog, Dialog);
 
 CompleteDialog.prototype.show = function() {
     CompleteDialog.superproto.show.call(this);
-}
+};
+
+CompleteDialog.prototype.hide = function() {
+    CompleteDialog.superproto.hide.call(this);
+	this.closed = true;
+};
 
 CompleteDialog.prototype.updateLeadersBoard = function() {
     var leadersBoard = this.element.find('.leaders').empty();

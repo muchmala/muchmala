@@ -28,8 +28,10 @@ $(function() {
     });
 
     server.on(MESSAGES.puzzleData, function(data) {
-        if (data.completion != 100) {return;}
-        if (complete.shown) {return;}
+        if (data.completion != 100 ||
+			complete.shown || complete.closed) {
+		    return;
+		}
         
         menu.hide().on('hidden', function() {
             complete.show(data);

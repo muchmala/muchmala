@@ -217,7 +217,11 @@ Handlers.prototype.retrievePuzzle = function(puzzleId, callback) {
 
 Handlers.prototype.addScore = function(found, completion) {
     var self = this;
-    var points = Math.floor((100 - completion) / 2) * found;
+    var points = 1000;
+
+	if (completion < 100) {
+		points = Math.ceil((100 - completion) / 4) * found;
+	}
 
     flow.exec(
         function() {
