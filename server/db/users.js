@@ -68,10 +68,14 @@ Users.checkName = function(name, callback) {
 };
 
 Users.get = function(id, callback) {
-    Users.findById(id, function(error, user) {
-        if(error) {throw error;}
-        callback(user);
-    });
+	try {
+    	Users.findById(id, function(error, user) {
+	        if(error) {throw error;}
+	        callback(user);
+	    });
+	} catch (error) {
+		callback(null);
+	}
 };
 
 Users.prototype.setName = function(name, callback) {

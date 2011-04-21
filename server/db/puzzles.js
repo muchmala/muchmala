@@ -54,11 +54,15 @@ Puzzles.add = function(piecesData, settings, callback) {
 };
 
 Puzzles.get = function(id, callback) {
-    Puzzles.findById(id, function(error, puzzle) {
-        if(error) { throw error; }
-        if(puzzle) { setExternals(puzzle); }
-        callback(puzzle);
-    });
+	try {
+    	Puzzles.findById(id, function(error, puzzle) {
+	        if(error) { throw error; }
+	        if(puzzle) { setExternals(puzzle); }
+	        callback(puzzle);
+	    });
+	} catch (error) {
+		callback(null);
+	}
 };
 
 Puzzles.last = function(callback) {
