@@ -39,7 +39,8 @@ $(function() {
     server.once(MESSAGES.puzzleData, function(data) {
         viewport.pieceSize = data.pieceSize;
         viewport.arrange(data.vLength, data.hLength);
-
+		
+		puzzleId = data.id;
         puzzle = Puzz.Puzzle({
             pieceSize: data.pieceSize,
             viewport: viewport.content
@@ -49,7 +50,7 @@ $(function() {
         
         server.once(MESSAGES.piecesData, function(pieces) {
             flow.exec(function() {
-                load.covers(data.id, this);
+                load.covers(puzzleId, this);
             }, function(covers) {
 
                 Puzz.Piece.setImages({
@@ -68,7 +69,7 @@ $(function() {
 
                 menu.loaded(Math.floor(objectsLoaded / percentLoaded));
 
-                load.sprites(data.id, rows, cols, function(row, col, sprite) {
+                load.sprites(puzzleId, rows, cols, function(row, col, sprite) {
                     Puzz.Piece.setSprite(row, col, sprite);
 
                     menu.loaded(Math.floor(++objectsLoaded / percentLoaded));
