@@ -1,9 +1,7 @@
 $(function() {
     var Puzz = window.Puzz;
     
-    if (!$.browser.mozilla && !$.browser.webkit
-        && !($.browser.opera && $.browser.version >= 10.0)
-        && !($.browser.msie && $.browser.version >= 9.0)) {
+    if ($.browser.msie && $.browser.version < 9.0) {
         $('#browser').show();
         return;
     }
