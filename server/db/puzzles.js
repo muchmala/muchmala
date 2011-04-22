@@ -124,24 +124,18 @@ Puzzles.prototype.compactPieces = function(callback) {
         if(error) {throw error;}
         
         var pieces = _.map(found, function(piece) {
-            piece = piece.toObject();
-            
-            var locked = false;
-            if(!_.isUndefined(self.locked) &&
-               !_.isUndefined(self.locked[piece.y]) &&
-               !_.isUndefined(self.locked[piece.y][piece.x])) {
-               locked = self.locked[piece.y][piece.x];
-            }
+            pieceData = piece.toObject();
             
             return {
-                t: piece.ears.top,
-                l: piece.ears.left,
-                b: piece.ears.bottom,
-                r: piece.ears.right,
-                realX: piece.realX,
-                realY: piece.realY,
-                x: piece.x, y: piece.y,
-                d: locked
+                t: pieceData.ears.top,
+                l: pieceData.ears.left,
+                b: pieceData.ears.bottom,
+                r: pieceData.ears.right,
+                realX: pieceData.realX,
+                realY: pieceData.realY,
+				d: piece.isLocked(),
+                x: pieceData.x, 
+				y: pieceData.y
             };
         });
 
@@ -283,18 +277,20 @@ Pieces.prototype.isCollected = function() {
 };
 
 Pieces.prototype.isLocked = function() {
-    if(_.isUndefined(lockedPieces[this.puzzleId][this.y]) ||
-       _.isUndefined(lockedPieces[this.puzzleId][this.y][this.x])) {
+	var lp = lockedPieces[this.puzzleId];
+    if(_.isUndefined(lp[this.y]) ||
+       _.isUndefined(lp[this.y][this.x])) {
         return false;
     }
-    return true;
+    return lp[this.y][this.x];
 };
 
 Pieces.prototype.lock = function(userName) {
-    if(_.isUndefined(lockedPieces[this.puzzleId][this.y])) {
-        lockedPieces[this.puzzleId][this.y] = {};
+	var lp = lockedPieces[this.puzzleId];
+    if(_.isUndefined(lp[this.y])) {
+        lp[this.y] = {};
     }
-    lockedPieces[this.puzzleId][this.y][this.x] = userName;
+    lp[this.y][this.x] = userName;
 };
 
 module.exports = Puzzles;

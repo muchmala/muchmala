@@ -85,6 +85,10 @@ Handlers.prototype.setUserNameAction = function(userName) {
             self.session.send(MESSAGES.setUserName, {error: 'duplicate'});
             return;
         }
+		
+		var unlocked = self.puzzle.unlockAll(self.user.name);
+		if (unlocked.length) {self.unlockPieceAction(unlocked[0]);}
+		
         self.user.setName(userName, function() {
             self.session.send(MESSAGES.setUserName);
             self.leadersBoardAction();
