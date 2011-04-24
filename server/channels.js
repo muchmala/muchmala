@@ -1,14 +1,16 @@
 var _ = require('../shared/underscore')._;
+var util = require('util');
 
 function Channel() {
     this.sessions = [];
 
 	setInterval(_.bind(function() {
-		var total = 0;
 		_.each(this.sessions, function(session) {
-			total += session.client.connection._writeQueue.length;
+			var length = session.client.connection._writeQueue.length;
+			if (length > 0) {
+				util.log('Queue length: ' + length + ' id: ' + session.userId);
+			}
 		});
-		console.log('Queue length: ' + total);
 	}, this), 10000);
 }
 
