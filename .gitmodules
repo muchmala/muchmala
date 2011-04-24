@@ -13,3 +13,6 @@
 [submodule "cookbooks/mdxp"]
 	path = cookbooks/mdxp
 	url = https://github.com/mdxp/cookbooks.git
+[submodule "node_modules/socket.io"]
+	path = node_modules/socket.io
+	url = git@github.com:borbit/Socket.IO-node.git
