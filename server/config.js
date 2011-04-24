@@ -1,5 +1,6 @@
 var config = {
     production: false,
+	static: 'static.puzzle.home',
     
     server: {
         host: '172.16.45.129',

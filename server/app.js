@@ -15,7 +15,10 @@ server.set('views', __dirname + '/views');
 server.set('view engine', 'html');
 
 server.get('/', function(req, res) {
-    res.render('puzzle', {config: {production: config.production}});
+    res.render('puzzle', {config: {
+		production: config.production,
+		static: config.static
+	}});
 });
 
 function proxyToNginx(req, res) {
