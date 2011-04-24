@@ -16,3 +16,6 @@
 [submodule "node_modules/socket.io"]
 	path = node_modules/socket.io
 	url = git@github.com:borbit/Socket.IO-node.git
+[submodule "client/js/socket.io"]
+	path = client/js/socket.io
+	url = git@github.com:borbit/Socket.IO.git
