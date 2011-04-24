@@ -2,7 +2,10 @@
 , "description" : "Just a multiplayer puzzle in a browser"
 , "author" : "Serge Borbit <serge.borbit@gmail.com>"
 , "version" : "0.0.1"
-, "engines" : { "node" : ">=0.3.0" }
+, "engines" :
+  { "node" : "~0.4"
+  , "npm" : "~1"
+  }
 , "repositories":
   { "type" : "git"
   , "url" : "https://borbit@github.com/borbit/puzzle.git"
