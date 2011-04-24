@@ -1,1 +1,3 @@
 .vagrant
+client/css/minified.css
+client/js/minified.js
