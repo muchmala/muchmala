@@ -7,3 +7,9 @@
 [submodule "client/js/jquery/jquery.scrolla"]
 	path = client/js/jquery/jquery.scrolla
 	url = git@github.com:borbit/jquery.scrolla.git
+[submodule "cookbooks/opscode"]
+	path = cookbooks/opscode
+	url = https://github.com/opscode/cookbooks.git
+[submodule "cookbooks/mdxp"]
+	path = cookbooks/mdxp
+	url = https://github.com/mdxp/cookbooks.git
