@@ -223,9 +223,9 @@ Puzzles.prototype.swap = function(x1, y1, x2, y2, userName, callback) {
                 secondPiece.save(function(error) {
                     if(error) {throw error;}
 
-                    var result = { found: 0, completion: 0 };
-                    if (firstPiece.isCollected()) { result.found++; }
-                    if (secondPiece.isCollected()) { result.found++; }
+                    var result = { found: [], completion: 0 };
+                    if (firstPiece.isCollected()) { result.found.push([x1, y1]); }
+                    if (secondPiece.isCollected()) { result.found.push([x2, y2]); }
 
                     self.getCompletionPercentage(function(completion) {
                         if (completion == 100) {

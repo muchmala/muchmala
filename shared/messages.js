@@ -16,6 +16,8 @@ ns.lockPiece = 'lockPiece';
 ns.unlockPiece = 'unlockPiece';
 ns.swapPieces = 'swapPieces';
 
+ns.scoreAdded = 'scoreAdded';
+
 ns.create = function(event, data) {
     return JSON.stringify({event: event, data: data});
 };

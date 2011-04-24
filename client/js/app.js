@@ -7,10 +7,7 @@ $(function() {
     }
 
     var server = new Puzz.Server();
-    var menu = new Puzz.MenuDialog(server);
-    var panel = new Puzz.Panel(server, menu);
-    var complete = new Puzz.CompleteDialog(server);
-    var viewport = new Puzz.Viewport();
+    var viewport = new Puzz.Viewport(server);
 
     var puzzle, puzzleId, selected, userName;
     
@@ -20,22 +17,9 @@ $(function() {
         }
         server.initialize(Puzz.Storage.user.id(), puzzleId);
     });
-
     server.on(MESSAGES.userData, function(data) {
         userName = data.name;
     });
-
-    server.on(MESSAGES.puzzleData, function(data) {
-        if (data.completion != 100 ||
-			complete.shown || complete.closed) {
-		    return;
-		}
-        
-        menu.hide().on('hidden', function() {
-            complete.show(data);
-        });
-    });
-
     server.once(MESSAGES.puzzleData, function(data) {
         viewport.pieceSize = data.pieceSize;
         viewport.arrange(data.vLength, data.hLength);
@@ -47,32 +31,37 @@ $(function() {
         });
 
         var load = new Puzz.Loader();
+
+		var rows = Math.ceil(data.vLength / data.spriteSize);
+        var cols = Math.ceil(data.hLength / data.spriteSize);
+        var percentLoaded = (4 + rows * cols) / 100;
+        var objectsLoaded = 0;
+
+		function calcLoading() {
+			return Math.floor(objectsLoaded / percentLoaded);
+		}
         
         server.once(MESSAGES.piecesData, function(pieces) {
             flow.exec(function() {
+				objectsLoaded += 1;
                 load.covers(puzzleId, this);
+				viewport.loading(calcLoading());
             }, function(covers) {
-
+				
                 Puzz.Piece.setImages({
                     lockCover: covers.lock,
                     selectCover: covers.select,
                     defaultCover: covers['default']
                 });
-
+				
+				objectsLoaded += 3;
                 Puzz.Piece.setSpriteSize(data.spriteSize);
-
-                var rows = Math.ceil(data.vLength / data.spriteSize);
-                var cols = Math.ceil(data.hLength / data.spriteSize);
-
-                var percentLoaded = (3 + rows * cols) / 100;
-                var objectsLoaded = 3;
-
-                menu.loaded(Math.floor(objectsLoaded / percentLoaded));
+                viewport.loading(calcLoading());
 
                 load.sprites(puzzleId, rows, cols, function(row, col, sprite) {
+					objectsLoaded++;
                     Puzz.Piece.setSprite(row, col, sprite);
-
-                    menu.loaded(Math.floor(++objectsLoaded / percentLoaded));
+                    viewport.loading(calcLoading());
 
                     var piecesToShow = _.select(pieces, function(piece) {
                         return piece.realX >= col * data.spriteSize &&
@@ -88,10 +77,9 @@ $(function() {
 
             }, function() {
                 enablePuzzle();
+				puzzle.buildIndex();
                 server.getPiecesData();
-                menu.loadingComplete();
-				panel.loadingComplete();
-                puzzle.buildIndex();
+                viewport.loadingComplete();
             });
         });
 
@@ -107,9 +95,9 @@ $(function() {
         server.on(MESSAGES.lockPiece, function(locked) {
             var piece = puzzle.getPiece(locked.coords[0], locked.coords[1]);
             if (locked.userName == userName) {
+				viewport.showSelectedIndicator(piece.type());
                 selected = piece;
                 selected.select();
-                selectedIndicator.show();
             } else {
                 piece.lock();
                 viewport.addTooltip(piece.yCoord, piece.xCoord, locked.userName);
@@ -118,8 +106,8 @@ $(function() {
         server.on(MESSAGES.unlockPiece, function(unlocked) {
             var piece = puzzle.getPiece(unlocked.coords[0], unlocked.coords[1]);
             if (unlocked.userName == userName) {
+				viewport.hideSelectedIndicator();
                 piece.unselect();
-                selectedIndicator.hide();
             } else {
                 viewport.removeTooltip(piece.yCoord, piece.xCoord)
                 piece.unlock();
@@ -148,20 +136,6 @@ $(function() {
         });
     }
 
-    var selectedIndicator = (function() {
-        var element = $('#selected');
-        element.click(releaseSelectedPiece);
-        
-        return {
-            show: function() {
-                element.attr('class', '_' + selected.type()).show();
-            },
-            hide: function() {
-                element.hide();
-            }
-        };
-    })();
-
     function releaseSelectedPiece() {
         if(selected && selected.selected) {
             server.unlockPiece(selected.x, selected.y);
@@ -184,12 +158,9 @@ $(function() {
     }
 
     server.connect();
-    
-    menu.show();
-	panel.show();
-	
-	menu.openPage('welcome');
-	panel.loading();
+    viewport.showMenu();
+	viewport.showPanel();
+	viewport.loading();
 });
 
 function log(message) {
