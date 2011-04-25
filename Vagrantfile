@@ -13,6 +13,7 @@ Vagrant::Config.run do |config|
     chef.add_recipe "nodejs"
     chef.add_recipe "nodejs::npm"
     chef.add_recipe "mongodb-debs"
+    chef.add_recipe "nginx"
 
     chef.add_recipe "fix-permissions-and-ownership"
     chef.add_recipe "node-canvas-deps"
