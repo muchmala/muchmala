@@ -82,7 +82,13 @@ $(function() {
                     });
 
                     _.each(piecesToShow, function(pieceData) {
-                        puzzle.addPiece(pieceData);
+                        var piece = puzzle.addPiece(pieceData);
+						
+						if (pieceData.d == userName) {
+		                	piece.selected = true;
+							piece.locked = null;
+							piece.render();
+						}
                     });
                 }, this);
 
@@ -135,8 +141,16 @@ $(function() {
             viewport.removeTooltips();
             _.each(pieces, function(pieceData) {
                 var piece = puzzle.getPiece(pieceData.x, pieceData.y);
-                piece.selected = false;
-                piece.locked = pieceData.d;
+				
+				piece.selected = false;
+				piece.locked = null;
+				
+				if (pieceData.d == userName) {
+                	piece.selected = true;
+				} else if (!_.isNull(pieceData.d)) {
+					piece.locked = pieceData.d;
+				}
+
                 piece.realX = pieceData.realX;
                 piece.realY = pieceData.realY;
                 piece.render();

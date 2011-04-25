@@ -12,8 +12,8 @@ var PuzzlesSchema = new Schema({
     vLength     : Number,
     swapsCount  : {type: Number, 'default': 0},
     invisible   : {type: Boolean, 'default': false},
-    created     : {type: Date, 'default': Date.now},
-    completed   : Date
+    created     : {type: Date, 'default': Date.now, index: true},
+    completed   : {type: Date, index: true}
 });
 
 var PiecesSchema = new Schema({
@@ -21,7 +21,8 @@ var PiecesSchema = new Schema({
     y         : Number,
     realX     : Number,
     realY     : Number,
-    puzzleId  : ObjectId,
+    puzzleId  : {type: ObjectId, index: true},
+	locked    : {type: String, default: null, index: true},
     ears      : {
         top     : Boolean,
         bottom  : Boolean,
@@ -31,15 +32,15 @@ var PiecesSchema = new Schema({
 });
 
 var UsersSchema = new Schema({
-    name    : {type: String, unique: true},
-    score   : {type: Number, 'default': 0},
-    created : {type: Date, 'default': Date.now}
+    name    : {type: String, unique: true, index: true},
+    created : {type: Date, 'default': Date.now, index: true},
+	score   : {type: Number, 'default': 0}
 });
 
 // TODO: Make this schema as a embedded doc in the "Users" doc
 var UsersToPuzzlesSchema = new Schema({
-    userId     : ObjectId,
-    puzzleId   : ObjectId,
+    userId     : {type: ObjectId, index: true},
+    puzzleId   : {type: ObjectId, index: true},
     swapsCount : {type: Number, 'default': 0},
     foundCount : {type: Number, 'default': 0},
     score      : {type: Number, 'default': 0}
