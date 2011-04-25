@@ -86,14 +86,13 @@ Handlers.prototype.setUserNameAction = function(userName) {
             return;
         }
 		
-		var unlocked = self.puzzle.unlockAll(self.user.name);
-		if (unlocked.length) {self.unlockPieceAction(unlocked[0]);}
-		
-        self.user.setName(userName, function() {
-            self.session.send(MESSAGES.setUserName);
-            self.leadersBoardAction();
-            self.userDataAction();
-        });
+		self.unlockSelectedPiece(function() {
+			self.user.setName(userName, function() {
+	            self.session.send(MESSAGES.setUserName);
+	            self.leadersBoardAction();
+	            self.userDataAction();
+	        });
+		});
     });
 };
 
@@ -102,31 +101,22 @@ Handlers.prototype.lockPieceAction = function(coords) {
 
     var self = this;
     
-    self.puzzle.getPiece(coords[0], coords[1], function(piece) {
-        if (piece.isCollected() || piece.isLocked()) {return;}
+    self.puzzle.lockPiece(coords[0], coords[1], this.user.name, function(locked) {
+        if (!locked) {return;}
 
-        piece.lock(self.user.name);
-
-        self.selected = true;
+        self.selected = coords;
         self.channel.broadcast(MESSAGES.lockPiece, {
             userName: self.user.name,
             coords: coords
         });
-
         self.session.startCountDown(function() {
-            var unlocked = self.puzzle.unlockAll(self.user.name);
-            self.broadcastUnlockPiece(unlocked[0]);
-            self.selected = false;
+            self.unlockSelectedPiece();
         });
     });
 };
 
 Handlers.prototype.unlockPieceAction = function(coords) {
-    if (this.puzzle.unlock(coords[0], coords[1], this.user.name)) {
-        this.selected = false;
-        this.session.stopCountDown();
-        this.broadcastUnlockPiece(coords);
-    }
+	this.unlockSelectedPiece();
 };
 
 Handlers.prototype.swapPiecesAction = function(coords) {
@@ -171,14 +161,8 @@ Handlers.prototype.initialize = function(user, puzzle) {
 Handlers.prototype.disconnect = function() {
     if (!this.initialized) {return;}
 
-    this.channel.remove(this.session);
-
-    var unlocked = this.puzzle.unlockAll(this.user.name);
-
-    if (unlocked.length) {
-        this.broadcastUnlockPiece(unlocked[0]);
-    }
-    
+    this.unlockSelectedPiece();
+	this.channel.remove(this.session);
     this.broadcastPuzzleData();
     this.leadersBoardAction();
 };
@@ -305,6 +289,25 @@ Handlers.prototype.getTopTwentyData = function(callback) {
             });
             callback(result.slice(0, 20));
         });
+};
+
+Handlers.prototype.unlockSelectedPiece = function(callback) {
+	if (!this.selected) {return;}
+	
+	var x = this.selected[0];
+	var y = this.selected[1];
+    this.puzzle.unlockPiece(x, y, this.user.name, (function(unlocked) {
+		var result = false;
+		if (unlocked) {
+			this.broadcastUnlockPiece(this.selected);
+			this.session.stopCountDown();
+			this.selected = false;
+			result = true;
+		}
+		if (_.isFunction(callback)) {
+			callback(result);
+		}
+	}).bind(this));
 };
 
 module.exports = Handlers;
