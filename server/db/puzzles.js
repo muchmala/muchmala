@@ -165,7 +165,7 @@ Puzzles.prototype.unlockPiece = function(x, y, userName, callback) {
 };
 
 Puzzles.prototype.swap = function(x1, y1, x2, y2, userName, callback) {
-    this.unlockPiece(x1, y1, userName, function(unlocked) {
+    this.unlockPiece(x1, y1, userName, (function(unlocked) {
 		if (!unlocked) {
 			callback(false);
 		}
@@ -224,7 +224,7 @@ Puzzles.prototype.swap = function(x1, y1, x2, y2, userName, callback) {
 	            });
 	        });
 	    });
-	});
+	}).bind(this));
 };
 
 Puzzles.prototype.getCompletionPercentage = function(callback) {
