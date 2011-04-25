@@ -116,7 +116,7 @@ Handlers.prototype.lockPieceAction = function(coords) {
 };
 
 Handlers.prototype.unlockPieceAction = function(coords) {
-	this.selected = coords;
+	if (!this.selected) {this.selected = coords;}
 	this.unlockSelectedPiece();
 };
 
