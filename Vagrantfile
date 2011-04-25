@@ -1,6 +1,7 @@
 Vagrant::Config.run do |config|
   config.vm.box = "muchmala"
-  config.vm.box_url = "http://files.vagrantup.com/lucid32.box"
+  # only maverick32 is supported :(
+  #config.vm.box_url = "http://files.vagrantup.com/lucid32.box"
 
   config.vm.network "33.33.33.15"
   config.vm.share_folder("v-root", "/opt/muchmala", ".")
