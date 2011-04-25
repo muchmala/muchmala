@@ -15,7 +15,6 @@
   { "canvas" : "~0"
   , "mongoose" : "~1"
   , "express" : "~2"
-  , "http-proxy" : "~0"
   , "opts" : "~1"
   , "ejs" : "~0"
   }
