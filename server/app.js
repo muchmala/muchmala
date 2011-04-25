@@ -1,6 +1,6 @@
 var db = require('./db');
 var io = require('socket.io');
-var config = require('./config');
+var config = require('../config');
 var express = require('express');
 
 var Handlers = require('./handlers');
@@ -12,14 +12,18 @@ server.register('.html', require('ejs'));
 server.set('views', __dirname + '/views');
 server.set('view engine', 'html');
 
+var viewOptions = {
+    config: {
+        production: !config.DEV,
+        static: config.STATIC_HOST + (config.STATIC_PORT != 80 ? ':' + config.STATIC_PORT : '')
+    }
+};
+
 server.get('/', function(req, res) {
-    res.render('puzzle', {config: {
-		production: config.production,
-		static: config.static
-	}});
+    res.render('puzzle', viewOptions);
 });
 
-server.listen(config.server.port, config.server.host);
+server.listen(config.HTTP_PORT, config.HTTP_HOST);
 
 db.connect(function() {
     var socket = io.listen(server);
