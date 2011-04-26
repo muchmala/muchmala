@@ -11,11 +11,11 @@
 	var STATIC_URL = 'http://<%=config.static%>';
 </script>
 
-<script src="http://<%=config.static%>/js/socket.io/socket.io.js"></script>
 <% if (config.production) { %>
-<script src="http://<%=config.static%>/js/minified.js"></script>
+<script src="http://<%=config.static%>/<%=config.version%>/js/minified.js"></script>
 <script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script>
 <% } else { %>
+<script src="http://<%=config.static%>/js/socket.io/socket.io.js"></script>
 <script src="http://<%=config.static%>/js/jquery/jquery.min.js"></script>
 <script src="http://<%=config.static%>/js/jquery/jquery-ui.js"></script>
 <script src="http://<%=config.static%>/js/jquery/jquery.scraggable/jquery.scraggable.js"></script>
