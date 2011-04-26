@@ -7,15 +7,6 @@ var Query = mongoose.Query;
 var Puzzles = models.Puzzles;
 var Pieces = models.Pieces;
 
-var lockedPieces = {};
-
-function setExternals(puzzle) {
-    if(_.isUndefined(lockedPieces[puzzle._id])) {
-        lockedPieces[puzzle._id] = {};
-    }
-    puzzle.locked = lockedPieces[puzzle._id];
-}
-
 Puzzles.add = function(piecesData, settings, callback) {
 
     var puzzle = new Puzzles();
@@ -57,7 +48,6 @@ Puzzles.get = function(id, callback) {
 	try {
     	Puzzles.findById(id, function(error, puzzle) {
 	        if(error) { throw error; }
-	        if(puzzle) { setExternals(puzzle); }
 	        callback(puzzle);
 	    });
 	} catch (error) {
@@ -77,7 +67,6 @@ Puzzles.last = function(callback) {
         
     Puzzles.find(query, [], options, function(error, puzzles) {
         if(error) {throw error;}
-        setExternals(puzzles[0]);
         callback(puzzles[0]);
     });
 };
@@ -133,7 +122,7 @@ Puzzles.prototype.compactPieces = function(callback) {
                 r: pieceData.ears.right,
                 realX: pieceData.realX,
                 realY: pieceData.realY,
-				d: piece.isLocked(),
+				d: piece.locked,
                 x: pieceData.x, 
 				y: pieceData.y
             };
@@ -143,103 +132,106 @@ Puzzles.prototype.compactPieces = function(callback) {
     });
 };
 
-Puzzles.prototype.unlock = function(x, y, userName) {
-    if(_.isUndefined(this.locked) ||
-       _.isUndefined(this.locked[y]) ||
-       _.isUndefined(this.locked[y][x])) {
-       return true;
-    }
-
-    if(!_.isEqual(this.locked[y][x], userName)) {
-       return false;
-    }
-
-    delete this.locked[y][x];
-    return true;
+Puzzles.prototype.lockPiece = function(x, y, userName, callback) {
+	var query = new Query()
+		.where('x', x).where('y', y)
+		.where('locked', null)
+		.where('puzzleId', this._id);
+		
+	Pieces.update(query, {locked: userName}, {safe: true}, function(error, piece) {
+		if (error || _.isNull(piece)) {
+			callback(false);
+			return;
+		}
+		callback(true);
+	});
 };
 
-Puzzles.prototype.unlockAll = function(userName) {
-    if(_.isUndefined(this.locked)) {
-       return [];
-    }
-    
-    var unlocked = [];
-    _.each(this.locked, function(row, y) {
-        _.each(row, function(piece, x) {
-            if(_.isEqual(piece, userName)) {
-                unlocked.push([x, y]);
-            }
-        });
-    });
+Puzzles.prototype.unlockPiece = function(x, y, userName, callback) {
+    var query = new Query()
+		.where('x', x).where('y', y)
+		.where('puzzleId', this._id)
+		.where('locked', userName);
+	
+	Pieces.update(query, {locked: null}, {safe: true}, function(error, piece) {
+		if (error || _.isNull(piece)) {
+			callback(false);
+			return;
+		}
+		callback(true);
+	});	
+};
 
-    var self = this;
-    _.each(unlocked, function(coords) {
-        delete self.locked[coords[1]][coords[0]];
-    })
-
-    return unlocked;
+Puzzles.prototype.isPieceLockedBy = function(x, y, userName, callback) {
+	var query = new Query()
+		.where('x', x).where('y', y)
+		.where('puzzleId', this._id);
+		
+	Pieces.findOne(query, function(error, piece) {
+		if (error || piece.locked != userName) {
+			callback(false);
+			return;
+		}
+		callback(true);
+	});
 };
 
 Puzzles.prototype.swap = function(x1, y1, x2, y2, userName, callback) {
-    if(!this.unlock(x1, y1, userName)) {
-        callback(false);
-    }
+	var self = this;
+	
+	flow.exec(
+		function() {
+			self.isPieceLockedBy(x1, y1, userName, this);
+		},
+		function(locked) {
+			if (!locked) {callback(false); return;}
+			self.lockPiece(x2, y2, userName, this);
+		},
+		function(locked) {
+			if (!locked) {callback(false); return;}
+			
+			Pieces.findOne((new Query()
+		        .where('x', x1).where('y', y1)
+		        .where('puzzleId', self._id)), this);
+		},
+		function(error, piece) {
+			if (error || _.isNull(piece)) {callback(false); return;}
+			this.first = piece;
+			
+			Pieces.findOne((new Query()
+		        .where('x', x2).where('y', y2)
+		        .where('puzzleId', self._id)), this);
+		},
+		function(error, piece) {
+			if (error || _.isNull(piece)) {callback(false); return;}
+			this.second = piece;
+			
+			var tmpX = this.first.realX;
+            var tmpY = this.first.realY;
+            this.first.realX = this.second.realX;
+            this.first.realY = this.second.realY;
+            this.second.realX = tmpX;
+            this.second.realY = tmpY;
 
-    var firstQ = new Query()
-        .where('x', x1)
-        .where('y', y1)
-        .where('puzzleId', this._id);
-    
-    var secondQ = new Query()
-        .where('x', x2)
-        .where('y', y2)
-        .where('puzzleId', this._id);
+			this.first.locked = null;
+			this.second.locked = null;
 
-    var self = this;
-    
-    Pieces.findOne(firstQ, function(error, firstPiece) {
-        if(error) {throw error;}
-        if(_.isNull(firstPiece)) {
-            callback(false);
-            return;
-        }
-        
-        Pieces.findOne(secondQ, function(error, secondPiece) {
-            if(error) {throw error;}
-            if(_.isNull(secondPiece)) {
-                callback(false);
-                return;
-            }
+			this.first.save(this.MULTI());
+			this.second.save(this.MULTI());
+		}, function() {
+			var result = { found: 0, completion: 0 };
+        	if (this.first.isCollected()) { result.found++; }
+        	if (this.second.isCollected()) { result.found++; }
 
-            var tmpX = firstPiece.realX;
-            var tmpY = firstPiece.realY;
-            firstPiece.realX = secondPiece.realX;
-            firstPiece.realY = secondPiece.realY;
-            secondPiece.realX = tmpX;
-            secondPiece.realY = tmpY;
-
-            firstPiece.save(function(error) {
-                if(error) {throw error;}
-                secondPiece.save(function(error) {
-                    if(error) {throw error;}
-
-                    var result = { found: [], completion: 0 };
-                    if (firstPiece.isCollected()) { result.found.push([x1, y1]); }
-                    if (secondPiece.isCollected()) { result.found.push([x2, y2]); }
-
-                    self.getCompletionPercentage(function(completion) {
-                        if (completion == 100) {
-                            self.completed = Date.now();
-                            self.save();
-                        }
-                        result.completion = completion;
-                        callback(result);
-                    });
-                });
-            });
-            
-        });
-    })
+        	self.getCompletionPercentage(function(completion) {
+            	if (completion == 100) {
+                	self.completed = Date.now();
+                	self.save();
+            	}
+            	result.completion = completion;
+            	callback(result);
+        	});
+		});
 };
 
 Puzzles.prototype.getCompletionPercentage = function(callback) {
@@ -274,23 +266,6 @@ Pieces.prototype.isCollected = function() {
         return true;
     }
     return false;
-};
-
-Pieces.prototype.isLocked = function() {
-	var lp = lockedPieces[this.puzzleId];
-    if(_.isUndefined(lp[this.y]) ||
-       _.isUndefined(lp[this.y][this.x])) {
-        return false;
-    }
-    return lp[this.y][this.x];
-};
-
-Pieces.prototype.lock = function(userName) {
-	var lp = lockedPieces[this.puzzleId];
-    if(_.isUndefined(lp[this.y])) {
-        lp[this.y] = {};
-    }
-    lp[this.y][this.x] = userName;
 };
 
 module.exports = Puzzles;

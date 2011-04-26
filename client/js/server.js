@@ -7,9 +7,6 @@ function Server() {
         rememberTransport: false
     });
     
-    this.reconnectTime = 1000;
-    this.connecting = false;
-
     var self = this;
     
     this.socket.on('message', function(data) {
@@ -35,56 +32,55 @@ Server.prototype.sendMessage = function(message) {
         log('sent ' + message);
         this.socket.send(message);
     }
-}
+};
 
 Server.prototype.createMessage = function(action, data) {
     return JSON.stringify({action: action, data: data});
-}
+};
 
 Server.prototype.connect = function() {
     this.socket.connect();
-    var connecting = setInterval(_.bind(function() {
-        if (this.socket.connected) {
-            clearTimeout(connecting);
-        } else if (!this.socket.connecting) {
-            this.socket.connect();
-        }
-    }, this), this.reconnectTime);
-},
+};
+
 Server.prototype.disconnect = function() {
     this.socket.disconnect();
-    if (this.connecting) {
-        clearTimeout(this.connecting);
-    }
-},
+};
+
 Server.prototype.initialize = function(userId, puzzleId) {
     var data = {};
     if (!_.isNull(userId)) { data.userId = userId; }
     if (!_.isNull(puzzleId)) { data.puzzleId = puzzleId; }
 
     this.sendMessage(this.createMessage(MESSAGES.initialize, data));
-},
+};
+
 Server.prototype.getPiecesData = function(puzzleId) {
     this.sendMessage(this.createMessage(MESSAGES.piecesData, puzzleId));
-},
+};
+
 Server.prototype.getUserData = function(userId) {
     this.sendMessage(this.createMessage(MESSAGES.userData, userId));
-},
+};
+
 Server.prototype.setUserName = function(userName) {
     this.sendMessage(this.createMessage(MESSAGES.setUserName, userName));
-},
+};
+
 Server.prototype.lockPiece = function(x, y) {
     this.sendMessage(this.createMessage(MESSAGES.lockPiece, [x, y]));
-},
+};
+
 Server.prototype.unlockPiece = function(x, y) {
     this.sendMessage(this.createMessage(MESSAGES.unlockPiece, [x, y]));
-},
+};
+
 Server.prototype.swapPieces = function(x1, y1, x2, y2) {
     this.sendMessage(this.createMessage(MESSAGES.swapPieces, [[x1, y1], [x2, y2]]));
-},
+};
+
 Server.prototype.getTopTwenty = function() {
     this.sendMessage(this.createMessage(MESSAGES.topTwenty));
-}
+};
 
 ns.Server = Server;
 

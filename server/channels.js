@@ -1,7 +1,17 @@
 var _ = require('../shared/underscore')._;
+var util = require('util');
 
 function Channel() {
     this.sessions = [];
+
+	setInterval(_.bind(function() {
+		_.each(this.sessions, function(session) {
+			var length = session.client.connection._writeQueue.length;
+			if (length > 0) {
+				util.log('Queue length: ' + length + ' id: ' + session.userId);
+			}
+		});
+	}, this), 10000);
 }
 
 Channel.prototype.add = function(session) {

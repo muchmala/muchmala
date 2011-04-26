@@ -85,4 +85,4 @@ image.onload = function() {
     });
 };
 
-image.src = __dirname + '/' + opts.get('image');
+image.src = opts.get('image');

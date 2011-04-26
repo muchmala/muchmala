@@ -1,14 +1,14 @@
 var mongoose = require('mongoose');
-var config = require('../config');
+var config = require('../../config');
 var Puzzles = require('./puzzles');
 var Users = require('./users');
 
 module.exports = {
     connect: function(callback) {
-        mongoose.connect(config.db.user + '://' + 
-                         config.db.host + '/' +
-                         config.db.name);
-                     
+        mongoose.connect(config.MONGODB_USER + '://' +
+                         config.MONGODB_HOST + '/' +
+                         config.MONGODB_DATABASE);
+
         mongoose.connection.on('open', function() {
             callback.call(null);
         });

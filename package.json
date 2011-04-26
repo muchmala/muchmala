@@ -2,17 +2,19 @@
 , "description" : "Just a multiplayer puzzle in a browser"
 , "author" : "Serge Borbit <serge.borbit@gmail.com>"
 , "version" : "0.0.1"
-, "engines" : { "node" : ">=0.3.0" }
+, "main" : "bin/muchmala"
+, "engines" :
+  { "node" : "~0.4"
+  , "npm" : "~1"
+  }
 , "repositories":
   { "type" : "git"
   , "url" : "https://borbit@github.com/borbit/puzzle.git"
   }
 , "dependencies" :
   { "canvas" : "~0"
-  , "socket.io" : "~0"
   , "mongoose" : "~1"
   , "express" : "~2"
-  , "http-proxy" : "~0"
   , "opts" : "~1"
   , "ejs" : "~0"
   }
