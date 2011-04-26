@@ -1,4 +1,5 @@
 .vagrant
+config.local.js
 client/css/minified.css
 client/js/minified.js
 node_modules/.bin/
