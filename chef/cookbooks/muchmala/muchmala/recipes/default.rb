@@ -18,8 +18,9 @@
 # limitations under the License.
 #
 
-include_recipe "build-essential"
 include_recipe "apt"
+include_recipe "build-essential"
+include_recipe "ant"
 include_recipe "nodejs"
 include_recipe "nodejs::npm"
 include_recipe "mongodb-debs"
