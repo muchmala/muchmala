@@ -1,6 +1,7 @@
 Vagrant::Config.run do |config|
   config.vm.box = "muchmala"
-  config.vm.box_url = "http://files.vagrantup.com/lucid32.box"
+  # only maverick32 is supported :(
+  #config.vm.box_url = "http://files.vagrantup.com/lucid32.box"
 
   config.vm.network "33.33.33.15"
   config.vm.share_folder("v-root", "/opt/muchmala", ".")
@@ -12,6 +13,7 @@ Vagrant::Config.run do |config|
     chef.add_recipe "nodejs"
     chef.add_recipe "nodejs::npm"
     chef.add_recipe "mongodb-debs"
+    chef.add_recipe "nginx"
 
     chef.add_recipe "fix-permissions-and-ownership"
     chef.add_recipe "node-canvas-deps"
