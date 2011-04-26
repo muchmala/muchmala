@@ -1,4 +1,5 @@
 var db = require('./db');
+var fs = require('fs');
 var io = require('socket.io');
 var config = require('../config');
 var express = require('express');
@@ -15,7 +16,8 @@ server.set('view engine', 'html');
 var viewOptions = {
     config: {
         production: !config.DEV,
-        static: config.STATIC_HOST + (config.STATIC_PORT != 80 ? ':' + config.STATIC_PORT : '')
+        static: config.STATIC_HOST + (config.STATIC_PORT != 80 ? ':' + config.STATIC_PORT : ''),
+		version: fs.readFileSync(__dirname + '/../static_version', 'utf8')
     }
 };
 

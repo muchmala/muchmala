@@ -43,7 +43,7 @@
 
     <target name="concat_js"  depends="minify_js">
         <concat destfile="${MINIFIED_JS}">
-            <filelist dir="${JS_DIR}" files="jquery/jquery.min.js, jquery/jquery-ui.js" />
+            <filelist dir="${JS_DIR}" files="jquery/jquery.min.js, jquery/jquery-ui.js, socket.io/socket.io.min.js" />
             <filelist dir="${SHARED_JS_DIR}" files="underscore.js" />
             <fileset file="${TMP_JS}" />
         </concat>
