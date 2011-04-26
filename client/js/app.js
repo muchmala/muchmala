@@ -88,6 +88,7 @@ $(function() {
 		                	piece.selected = true;
 							piece.locked = null;
 							piece.render();
+							selected = piece;
 						}
                     });
                 }, this);
@@ -147,6 +148,7 @@ $(function() {
 				
 				if (pieceData.d == userName) {
                 	piece.selected = true;
+					selected = piece;
 				} else if (!_.isNull(pieceData.d)) {
 					piece.locked = pieceData.d;
 				}

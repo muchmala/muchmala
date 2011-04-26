@@ -116,8 +116,13 @@ Handlers.prototype.lockPieceAction = function(coords) {
 };
 
 Handlers.prototype.unlockPieceAction = function(coords) {
-	if (!this.selected) {this.selected = coords;}
-	this.unlockSelectedPiece();
+	this.puzzle.unlockPiece(coords[0], coords[1], this.user.name, (function(unlocked) {
+		if (unlocked) {
+			this.broadcastUnlockPiece(coords);
+			this.session.stopCountDown();
+			this.selected = false;
+		}
+	}).bind(this));
 };
 
 Handlers.prototype.swapPiecesAction = function(coords) {
