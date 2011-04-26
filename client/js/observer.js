@@ -1,6 +1,6 @@
 window.Puzz = (function(ns) {
 
-ns.Observer = function() {
+function Observer() {
     var ONCE = 'once';
     var MULTIPLE = 'multiple';
 
@@ -48,6 +48,6 @@ ns.Observer = function() {
     };
 };
 
-return ns;
+return ns.Utils.Observer = Observer, ns;
 
 })(window.Puzz || {});

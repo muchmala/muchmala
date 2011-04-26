@@ -12,7 +12,7 @@ function Puzzle(settings) {
 
     var index = {};
     var pieces = {};
-    var observer = ns.Observer();
+    var observer = ns.Utils.Observer();
     var events = Puzzle.EVENTS;
     var overed = null;
     
@@ -171,8 +171,6 @@ Puzzle.EVENTS = {
     rightClicked: 'rightClicked'
 };
 
-ns.Puzzle = Puzzle;
+return ns.Views.Puzzle = Puzzle, ns;
 
-return ns;
-
-})(window.Puzz || {});
+})(window.Puzz);

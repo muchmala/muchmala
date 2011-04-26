@@ -31,7 +31,7 @@ function Panel(puzzle, user, leaders, menu) {
 		this.element.find('.statistics .connected').text(puzzle.connectedCount);
 	    this.element.find('.statistics .complete').text(puzzle.completion + '%');
 	    this.element.find('.statistics .quantity').text(puzzle.vLength * puzzle.hLength);
-	}, this);
+	}, this));
 	
 	puzzle.once('change', _.bind(function() {
         this.updateTimeSpent(puzzle.created, data.completed);
@@ -121,8 +121,6 @@ Proto.updateLeadersBoard = function() {
 	this.leadersViewport.scrolla('update');
 };
 
-ns.Panel = Panel;
+return ns.Views.Panel = Panel, ns;
 
-return ns;
-
-})(window.Puzz || {});
+})(window.Puzz);

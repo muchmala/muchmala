@@ -1,11 +1,11 @@
 window.Puzz = (function(ns) {
 
-function Viewport(server) {
+function Viewport(puzzle, user, leaders, server) {
     this.element = $('#viewport').viewport();
     this.content = this.element.viewport('content');
 	
 	this.menu = new Puzz.MenuDialog(server);
-    this.panel = new Puzz.Panel(server, this.menu);
+    this.panel = new Puzz.Panel(puzzle, user, leaders, this.menu);
     this.complete = new Puzz.CompleteDialog(server);
 
 	this.selectedIndicator = $('#selected');
@@ -20,11 +20,16 @@ function Viewport(server) {
          this.element.viewport('adjust');
     }, this));
 
-	server.on(MESSAGES.puzzleData, _.bind(function(data) {
-        if (data.completion != 100 || complete.shown || complete.closed) { return; }
-		this.menu.on('hidden', function() { complete.show(data); });
+	puzzle.on('change', _.bind(function() {
+        if (puzzle.completion != 100 || complete.shown || complete.closed) { return; }
+		this.menu.on('hidden', function() { complete.show(); });
 		this.menu.hide();
     }, this));
+
+	puzzle.once('change', _.bind(function() {
+        this.pieceSize = puzzle.pieceSize;
+        this.arrange(puzzle.vLength, puzzle.hLength);
+	}, this));
 }
 
 var Proto = Viewport.prototype;
@@ -97,8 +102,6 @@ Proto.removeTooltips = function() {
     this.tooltips = {};
 };
 
-ns.Viewport = Viewport;
+return ns.Views.Viewport = Viewport, ns;
 
-return ns;
-
-})(window.Puzz || {});
+})(window.Puzz);

@@ -1,6 +1,6 @@
 window.Puzz = (function(ns) {
 
-ns.Storage = (function() {
+function Storage() {
     var storage = window.localStorage;
 
     return {
@@ -27,8 +27,8 @@ ns.Storage = (function() {
             }
         }
     };
-})();
+};
 
-return ns;
+return ns.Utils.Storage = Storage(), ns;
 
-})(window.Puzz || {});
+})(window.Puzz);

@@ -1,13 +1,16 @@
 window.Puzz = (function(ns) {
 
 function Leaders(server) {
-	this.observer = ns.Observer();
+	this.observer = ns.Utils.Observer();
 	this.list = [];
 	
 	server.on(MESSAGES.leadersBoard, _.bind(function(data) {
 		this.list = data;
 		this.observer.fire('change');
-	}, this)
+	}, this));
+	
+	this.on = this.observer.on;
+	this.once = this.observer.once;
 }
 
 var Proto = Leaders.prototype;
@@ -18,9 +21,6 @@ Proto.getSortedBy = function(sortBy) {
 	});
 };
 
-	
-ns.Leaders = Leaders;
+return ns.Models.Leaders = Leaders, ns;
 
-return ns;
-
-})(window.Puzz || {});
+})(window.Puzz);

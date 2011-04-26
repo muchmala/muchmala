@@ -148,8 +148,6 @@ Piece.prototype.isCollected = function() {
     return this.realX == this.x && this.realY == this.y;
 };
 
-ns.Piece = Piece;
+return ns.Views.Piece = Piece, ns;
 
-return ns;
-
-})(window.Puzz || {});
+})(window.Puzz);

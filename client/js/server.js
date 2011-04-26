@@ -1,7 +1,7 @@
 window.Puzz = (function(ns) {
 
 function Server() {
-    this.observer = ns.Observer();
+    this.observer = ns.Utils.Observer();
     this.socket = new io.Socket(null, {
         transports: ['websocket', 'flashsocket', 'xhr-multipart', 'xhr-polling'],
         rememberTransport: false
@@ -82,8 +82,6 @@ Server.prototype.getTopTwenty = function() {
     this.sendMessage(this.createMessage(MESSAGES.topTwenty));
 };
 
-ns.Server = Server;
-
-return ns;
+return ns.Server = Server, ns;
 
 })(window.Puzz || {});

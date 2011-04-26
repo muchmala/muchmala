@@ -1,8 +1,8 @@
 window.Puzz = (function(ns) {
 
 function User(server) {
-	this.observer = ns.Observer();
-	this.id = ns.Storage.user.id();
+	this.observer = ns.Utils.Observer();
+	this.id = ns.Utils.Storage.user.id();
 	this.name = 'anonymous';
 	this.score = 0;
 	
@@ -20,11 +20,11 @@ function User(server) {
 		}, 0);
 		this.observer.fire('change');
     }, this));
+
+	this.on = this.observer.on;
+	this.once = this.observer.once;
 }
 
-	
-ns.User = User;
-
-return ns;
+return ns.Models.User = User, ns;
 
 })(window.Puzz || {});

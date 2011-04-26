@@ -8,14 +8,17 @@
 <%- partial('browser') %>
 
 <script>
-	var STATIC_URL = 'http://<%=config.static%>';
+	window.STATIC_URL = 'http://<%=config.static%>';
+	window.Puzz = {Utils: {}, Models: {}, Views: {}};
 </script>
 
-<script src="http://<%=config.static%>/js/socket.io/socket.io.js"></script>
 <% if (config.production) { %>
+<script src="http://<%=config.static%>/js/socket.io/socket.io.min.js"></script>
 <script src="http://<%=config.static%>/js/minified.js"></script>
 <script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script>
 <% } else { %>
+<script src="http://<%=config.static%>/js/socket.io/socket.io.js"></script>
+	
 <script src="http://<%=config.static%>/js/jquery/jquery.min.js"></script>
 <script src="http://<%=config.static%>/js/jquery/jquery-ui.js"></script>
 <script src="http://<%=config.static%>/js/jquery/jquery.scraggable/jquery.scraggable.js"></script>
@@ -27,12 +30,13 @@
 <script src="http://<%=config.static%>/shared/messages.js"></script>
 
 <script src="http://<%=config.static%>/js/observer.js"></script>
-<script src="http://<%=config.static%>/js/preloader.js"></script>
-<script src="http://<%=config.static%>/js/server.js"></script>
+<script src="http://<%=config.static%>/js/loader.js"></script>
 <script src="http://<%=config.static%>/js/storage.js"></script>
+<script src="http://<%=config.static%>/js/server.js"></script>
 
 <script src="http://<%=config.static%>/js/models/user.js"></script>
 <script src="http://<%=config.static%>/js/models/puzzle.js"></script>
+<script src="http://<%=config.static%>/js/models/leaders.js"></script>
 
 <script src="http://<%=config.static%>/js/views/puzzle.js"></script>
 <script src="http://<%=config.static%>/js/views/piece.js"></script>

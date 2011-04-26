@@ -7,9 +7,17 @@ $(function() {
     }
 
     var server = new Puzz.Server();
-    var viewport = new Puzz.Viewport(server);
 
-    var puzzle, puzzleId, selected, userName;
+	var models = {
+		puzzle: new Puzz.Models.Puzzle(server),
+		leaders: new Puzz.Models.Leaders(server),
+		user: new Puzz.Models.User(server)
+	};
+	
+	var viewport = new Puzz.Views.Viewport(
+		models.puzzle, models.user, models.leaders, server)
+	
+	var puzzle, selected;
     
     server.on('connected', function() {
         if (window.location.hash.length) {
@@ -17,16 +25,10 @@ $(function() {
         }
         server.initialize(Puzz.Storage.user.id(), puzzleId);
     });
-    server.on(MESSAGES.userData, function(data) {
-        userName = data.name;
-    });
-    server.once(MESSAGES.puzzleData, function(data) {
-        viewport.pieceSize = data.pieceSize;
-        viewport.arrange(data.vLength, data.hLength);
-		
-		puzzleId = data.id;
-        puzzle = Puzz.Puzzle({
-            pieceSize: data.pieceSize,
+
+    models.puzzle.once('change', function() {
+        puzzle = Puzz.View.Puzzle({
+            pieceSize: models.puzzle.pieceSize,
             viewport: viewport.content
         });
 

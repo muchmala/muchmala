@@ -1,12 +1,13 @@
 window.Puzz = (function(ns) {
 
 function Puzzle(server) {
-	this.observer = ns.Observer();
+	this.observer = ns.Utils.Observer();
 	
 	this.id = null;
 	this.created = null;
 	this.completed = null;
 	this.swapsCount = 0;
+	this.pieceSize = 0;
 	this.connectedCount = 0;
 	this.completion = 0;
 	this.vLength = 0;
@@ -27,11 +28,11 @@ function Puzzle(server) {
 		
 		this.observer.fire('change');
 	});
+	
+	this.on = this.observer.on;
+	this.once = this.observer.once;
 }
 
-	
-ns.Puzzle = Puzzle;
+return ns.Models.Puzzle = Puzzle, ns;
 
-return ns;
-
-})(window.Puzz || {});
+})(window.Puzz);
