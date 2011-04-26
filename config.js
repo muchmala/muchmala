@@ -11,6 +11,10 @@ config.MONGODB_HOST     = '127.0.0.1';
 config.MONGODB_USER     = 'mongodb';
 config.MONGODB_DATABASE =  'muchmala';
 
+config.AWS_KEY      = null;
+config.AWS_SECRET   = null;
+config.AWS_BUCKET   = 'static.muchmala.com';
+
 try {
     var config_local = require('./config.local.js');
     for (var key in config_local) {
