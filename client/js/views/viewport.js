@@ -4,9 +4,9 @@ function Viewport(puzzle, user, leaders, server) {
     this.element = $('#viewport').viewport();
     this.content = this.element.viewport('content');
 	
-	this.menu = new Puzz.MenuDialog(server);
-    this.panel = new Puzz.Panel(puzzle, user, leaders, this.menu);
-    this.complete = new Puzz.CompleteDialog(server);
+	this.menu     = new Puzz.Views.MenuDialog(server);
+    this.panel    = new Puzz.Views.Panel(puzzle, user, leaders, this.menu);
+    this.complete = new Puzz.Views.CompleteDialog(server);
 
 	this.selectedIndicator = $('#selected');
 

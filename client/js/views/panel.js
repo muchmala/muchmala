@@ -1,9 +1,9 @@
-window.Puzz = (function(ns) {
+(function() {
 
 function Panel(puzzle, user, leaders, menu) {
     this.element = $('nav').draggable({containment: 'window'});
 
-    var userNameDialog = new ns.UserNameDialog(server);
+    var userNameDialog = new Puzz.Views.UserNameDialog(user);
     var self = this;
 
     this.element.find('.user .name').click(function() {
@@ -34,14 +34,14 @@ function Panel(puzzle, user, leaders, menu) {
 	}, this));
 	
 	puzzle.once('change', _.bind(function() {
-        this.updateTimeSpent(puzzle.created, data.completed);
+        this.updateTimeSpent(puzzle.created, puzzle.completed);
         setInterval(_.bind(function() {
-            this.updateTimeSpent(puzzle.created, data.completed);
+            this.updateTimeSpent(puzzle.created, puzzle.completed);
         }, this), 6000);
     }, this));
 
     leaders.on('change', _.bind(function() {
-		this.updateLeadersBoard();
+		updateLeadersBoard();
     }, this));
 
     this.leadersShow = 'score';
@@ -54,13 +54,35 @@ function Panel(puzzle, user, leaders, menu) {
 		function() {
 	        self.leadersShow = 'found';
 			$(this).html(self.leadersShow);
-	        self.updateLeadersBoard();
+	        updateLeadersBoard();
 		},
 		function() {
 	        self.leadersShow = 'score';
 			$(this).html(self.leadersShow);
-	        self.updateLeadersBoard();
+	        updateLeadersBoard();
 		});
+		
+	var updateLeadersBoard = _.bind(function() {
+    	var leadersCount = leaders.list.length;
+    	if(leadersCount > 0) {
+        	var leadersShow = this.leadersShow;
+    		var leadersBoard = this.leadersViewport.find('.list').empty();
+    	    var leadersList = leaders.getSortedBy(this.leadersShow);
+
+    	    for(var i = leadersCount; i > 0; i--) {
+    	        var row = $('<em></em>');
+    	        var data = leadersList[i-1];
+
+    	        row.append('<span class="status ' + (data.online ? 'online' : 'offline') + '"></span>');
+    	        row.append('<span class="name">' + data.name + '</span>');
+    	        row.append('<span class="num">' + data[this.leadersShow] + '</span>');
+    	        row.appendTo(leadersBoard);
+    	    }
+    		this.leadersViewport.height(row.height() * (leadersCount < 5 ? leadersCount : 5));
+    	}
+    	this.leadersViewport.viewport('update');
+    	this.leadersViewport.scrolla('update');
+    }, this);
 }
 
 var Proto = Panel.prototype;
@@ -95,32 +117,10 @@ Proto.collapse = function() {
 };
 
 Proto.updateTimeSpent = function(creationTime, completionDate) {
-    var timeSpent = ns.TimeHelper.diffHoursMinutes(creationTime, completionDate);
+    var timeSpent = Puzz.TimeHelper.diffHoursMinutes(creationTime, completionDate);
     this.element.find('.statistics .timeSpent').text(timeSpent);
 };
 
-Proto.updateLeadersBoard = function() {
-	var leadersCount = leaders.list.length;
-	if(leadersCount > 0) {
-    	var leadersShow = this.leadersShow;
-		var leadersBoard = this.leadersViewport.find('.list').empty();
-	    var leadersList = leaders.getSortedBy(this.leadersShow);
+Puzz.Views.Panel = Panel;
 
-	    for(var i = leadersCount; i > 0; i--) {
-	        var row = $('<em></em>');
-	        var data = leadersList[i-1];
-
-	        row.append('<span class="status ' + (data.online ? 'online' : 'offline') + '"></span>');
-	        row.append('<span class="name">' + data.name + '</span>');
-	        row.append('<span class="num">' + data[this.leadersShow] + '</span>');
-	        row.appendTo(leadersBoard);
-	    }
-		this.leadersViewport.height(row.height() * (leadersCount < 5 ? leadersCount : 5));
-	}
-	this.leadersViewport.viewport('update');
-	this.leadersViewport.scrolla('update');
-};
-
-return ns.Views.Panel = Panel, ns;
-
-})(window.Puzz);
+})();

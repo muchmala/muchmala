@@ -1,26 +1,23 @@
-window.Puzz = (function(ns) {
+(function() {
 
 function Leaders(server) {
-	this.observer = ns.Utils.Observer();
-	this.list = [];
-	
+	Leaders.superproto.constructor.call(this, {'list': []});
+    
 	server.on(MESSAGES.leadersBoard, _.bind(function(data) {
-		this.list = data;
-		this.observer.fire('change');
+		this.set('list', data);
 	}, this));
-	
-	this.on = this.observer.on;
-	this.once = this.observer.once;
 }
 
 var Proto = Leaders.prototype;
 
 Proto.getSortedBy = function(sortBy) {
-	return _.sortBy(this.list, function(row) {
+	return _.sortBy(this.get('list'), function(row) {
     	return row[sortBy];
 	});
 };
 
-return ns.Models.Leaders = Leaders, ns;
+Puzz.Utils.inherit(Leaders, Puzz.Model);
 
-})(window.Puzz);
+Puzz.Models.Leaders = Leaders;
+
+})();

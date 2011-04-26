@@ -1,4 +1,4 @@
-window.Puzz = (function(ns) {
+(function() {
 
 function Loader() {
     this.cache = {};
@@ -57,8 +57,6 @@ Loader.prototype.sprites = function(puzzleId, rows, cols, callbackSprite, callba
     });
 };
 
-ns.Loader = Loader;
+window.Puzz.Loader = Loader;
 
-return ns;
-
-})(window.Puzz || {});
+})();

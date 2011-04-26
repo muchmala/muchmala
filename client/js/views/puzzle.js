@@ -125,7 +125,7 @@ function Puzzle(settings) {
     }
 
     function addPiece(data) {
-        var piece = new ns.Piece({
+        var piece = new ns.Views.Piece({
             ears: {
                 left: data.l, bottom: data.b,
                 right: data.r, top: data.t
