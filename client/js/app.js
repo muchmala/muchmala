@@ -13,7 +13,7 @@ $(function() {
 	var userModel    = new Puzz.Models.User(server);
 	
 	var viewport = new Puzz.Views.Viewport(puzzleModel, userModel, leadersModel, twentyModel)
-	var puzzleView = Puzz.Views.Puzzle(puzzleModel, viewport.content);
+	var puzzleView = new Puzz.Views.Puzzle(puzzleModel, viewport.content);
 	var selected;
     
     server.on('connected', function() {
@@ -70,7 +70,7 @@ $(function() {
                 _.each(piecesToShow, function(pieceData) {
                     var piece = puzzleView.addPiece(pieceData);
 				
-    				if (pieceData.d == models.user.name) {
+    				if (pieceData.d == userModel.get('name')) {
     				    selected = piece;
                     	piece.selected = true;
     					piece.locked = false;

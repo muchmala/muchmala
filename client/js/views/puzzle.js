@@ -1,6 +1,8 @@
 (function() {
 
 function Puzzle(model, viewport) {
+    Puzzle.superproto.constructor.call(this);
+    
     this.index = {};
     this.pieces = {};
     this.model = model;
@@ -29,6 +31,8 @@ function Puzzle(model, viewport) {
         overed = found[0], overed.highlight();
     }, this));
 }
+
+Puzz.Utils.inherit(Puzzle, Puzz.Observer);
 
 var Proto = Puzzle.prototype;
 
@@ -119,12 +123,12 @@ Proto.flipPiecesByCoords = function(coords) {
 
 Proto.addPiece = function(data) {
     var piece = new Puzz.Views.Piece({
+        size: this.model.get('pieceSize'),
         ears: {
             left: data.l, bottom: data.b,
             right: data.r, top: data.t
         },
-        size: settings.pieceSize,
-        x: data.x,  y: data.y,
+        x: data.x,y: data.y,
         realX: data.realX,
         realY: data.realY,
         locked: data.d
