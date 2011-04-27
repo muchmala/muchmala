@@ -1,4 +1,4 @@
-window.Puzz = (function(ns) {
+(function() {
 
 function Piece(settings) {
     this.x = settings.x;
@@ -63,7 +63,9 @@ Piece.coverOffsets = {
     '0101': [2, 3], '1010': [3, 3]
 };
 
-Piece.prototype.render = function() {
+var Proto = Piece.prototype;
+
+Proto.render = function() {
     var spriteRow = Math.floor(this.realY / Piece.SPRITE_SIZE);
     var spriteCol = Math.floor(this.realX / Piece.SPRITE_SIZE);
 
@@ -84,14 +86,14 @@ Piece.prototype.render = function() {
     return this.canvas;
 };
 
-Piece.prototype.cover = function(coverImage) {
+Proto.cover = function(coverImage) {
     var type = this.type();
     this.ctx.drawImage(coverImage, Piece.coverOffsets[type][0] * this.size,
                        Piece.coverOffsets[type][1] * this.size, this.size,
                        this.size, 0, 0, this.size, this.size);
 };
 
-Piece.prototype.type = function() {
+Proto.type = function() {
     var type = '';
     type += this.ears.left ? '1' : '0';
     type += this.ears.top ? '1' : '0';
@@ -100,32 +102,32 @@ Piece.prototype.type = function() {
     return type;
 };
 
-Piece.prototype.select = function() {
+Proto.select = function() {
     this.selected = true;
     this.render();
 };
-Piece.prototype.lock = function(title) {
+Proto.lock = function(title) {
     this.locked = true;
     this.render();
 };
-Piece.prototype.unselect = function() {
+Proto.unselect = function() {
     this.selected = false;
     this.render();
 };
-Piece.prototype.unlock = function() {
+Proto.unlock = function() {
     this.locked = false;
     this.render();
 };
-Piece.prototype.highlight = function() {
+Proto.highlight = function() {
     this.highlighted = true;
     this.render();
 };
-Piece.prototype.unhighlight = function() {
+Proto.unhighlight = function() {
     this.highlighted = false;
     this.render();
 };
 
-Piece.prototype.hasPoint = function(x, y) {
+Proto.hasPoint = function(x, y) {
     var s = this.size / 6;
     var xc = this.xCoord;
     var yc = this.yCoord;
@@ -144,10 +146,10 @@ Piece.prototype.hasPoint = function(x, y) {
     return false;
 };
 
-Piece.prototype.isCollected = function() {
+Proto.isCollected = function() {
     return this.realX == this.x && this.realY == this.y;
 };
 
-return ns.Views.Piece = Piece, ns;
+window.Puzz.Views.Piece = Piece;
 
-})(window.Puzz);
+})();

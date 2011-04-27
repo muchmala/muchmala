@@ -8,15 +8,15 @@ function Leaders(server) {
 	}, this));
 }
 
+Puzz.Utils.inherit(Leaders, Puzz.Model);
+
 var Proto = Leaders.prototype;
 
-Proto.getSortedBy = function(sortBy) {
+Proto.getListSortedBy = function(sortBy) {
 	return _.sortBy(this.get('list'), function(row) {
     	return row[sortBy];
 	});
 };
-
-Puzz.Utils.inherit(Leaders, Puzz.Model);
 
 Puzz.Models.Leaders = Leaders;
 

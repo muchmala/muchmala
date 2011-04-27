@@ -1,75 +1,70 @@
-window.Puzz = (function(ns) {
+(function() {
 
-function Puzzle(settings) {
-    settings = $.extend({
-        viewport: null,
-        pieceSize: null,
-        indexCellSize: 60
-    }, settings);
-
-    // TMP
-    settings.indexCellSize = Math.floor(settings.pieceSize/3*2);
-
-    var index = {};
-    var pieces = {};
-    var observer = ns.Utils.Observer();
-    var events = Puzzle.EVENTS;
-    var overed = null;
+function Puzzle(model, viewport) {
+    this.index = {};
+    this.pieces = {};
+    this.model = model;
+    this.indexCellSize = 0;
+    this.viewport = viewport;
     
-    settings.viewport.click(function(event) {
-        var found = findPieces(event.clientX, event.clientY);
-        _.each(found, function(piece) {
-            observer.fire(events.leftClicked, piece);
-        });
-    });
+    this.model.once('change', _.bind(function() {
+        this.indexCellSize = Math.floor(model.get('pieceSize') / 3 * 2);
+    }, this));
+    
+    this.viewport.click(_.bind(function(event) {
+        var found = this.findPieces(event.clientX, event.clientY);
+        this.fire(this.EVENTS.leftClicked, found[0]);
+    }, this));
 
-    settings.viewport.bind('contextmenu', function(event) {
-        observer.fire(events.rightClicked);
+    this.viewport.bind('contextmenu', _.bind(function(event) {
+        this.fire(this.EVENTS.rightClicked);
         event.preventDefault();
         event.stopPropagation();
+    }, this));
+
+    var overed = null;
+    this.viewport.mousemove(_.bind(function(event) {
+        if(overed) { overed.unhighlight(); }
+        var found = this.findPieces(event.clientX, event.clientY);
+        overed = found[0], overed.highlight();
+    }, this));
+}
+
+var Proto = Puzzle.prototype;
+
+Proto.EVENTS = {
+    leftClick: 'leftClick',
+    rightClick: 'rightClick'
+};
+
+Proto.findPieces = function(clientX, clientY) {
+    var offset = this.viewport.offset();
+    var eventX = clientX - offset.left;
+    var eventY = clientY - offset.top;
+    var found = this.checkIndexByCoordinates(eventX, eventY);
+
+    return _.select(found, function(piece) {
+        return piece.hasPoint(eventX, eventY);
     });
+};
 
-    settings.viewport.mousemove(function(event) {
-        if(overed) {
-            overed.unhighlight();
-        }
-        var found = findPieces(event.clientX, event.clientY);
-        _.each(found, function(piece) {
-            piece.highlight();
-            overed = piece;
-        });
-    });
-
-    function findPieces(clientX, clientY) {
-        var offset = settings.viewport.offset();
-        var eventX = clientX - offset.left;
-        var eventY = clientY - offset.top;
-        var found = checkIndexByCoordinates(eventX, eventY);
-
-        return _.select(found, function(piece) {
-            return piece.hasPoint(eventX, eventY);
-        });
+Proto.checkIndexByCoordinates = function(x, y) {
+    var xIndex = x - (x % this.indexCellSize);
+    var yIndex = y - (y % this.indexCellSize);
+    
+    if (!_.isUndefined(index[xIndex]) &&
+        !_.isUndefined(index[xIndex][yIndex])) {
+        return index[xIndex][yIndex];
     }
+    return false;
+};
 
-    function checkIndexByCoordinates(x, y) {
-        var xIndex = x - (x % settings.indexCellSize);
-        var yIndex = y - (y % settings.indexCellSize);
-        
-        if (!_.isUndefined(index[xIndex]) &&
-            !_.isUndefined(index[xIndex][yIndex])) {
-            return index[xIndex][yIndex];
-        }
+Proto.buildIndex = function() {
+    var cellSize = this.indexCellSize;
+    var pieceSize = this.model.get('pieceSize');
 
-        return false;
-    }
-
-    function buildIndex() {
-        var pieceSize = settings.pieceSize;
-        var cellSize = settings.indexCellSize;
-
-        _.each(pieces, function(row) {
-            _.each(row, function(piece) {
-
+    _.each(this.pieces, function(row) {
+        _.each(row, function(piece) {
             var cellsCount = 1;
             
             if (pieceSize > cellSize) {
@@ -78,99 +73,79 @@ function Puzzle(settings) {
 
             for (var h = 0; h < cellsCount; h++) {
                 var xIndex = piece.xCoord - (piece.xCoord % cellSize) + (h * cellSize);
-
-                if (index[xIndex] == null) {
-                    index[xIndex] = {};
+                if (this.index[xIndex] == null) {
+                    this.index[xIndex] = {};
                 }
-
+            
                 for (var v = 0; v < cellsCount; v++) {
                     var yIndex = piece.yCoord - (piece.yCoord % cellSize) + (v * cellSize);
-
-                    if (index[xIndex][yIndex] == null) {
-                        index[xIndex][yIndex] = [];
+                    if (this.index[xIndex][yIndex] == null) {
+                        this.index[xIndex][yIndex] = [];
                     }
-                    
-                    index[xIndex][yIndex].push(piece);
+                
+                    this.index[xIndex][yIndex].push(piece);
                 }
             }
-            });
-        });
-    }
-
-    function isSameType(first, second) {
-        if(first.ears.left == second.ears.left &&
-           first.ears.bottom == second.ears.bottom &&
-           first.ears.right == second.ears.right &&
-           first.ears.top == second.ears.top) {
-            return true;
-        }
-        return false;
-    }
-
-    function flipPieces(first, second) {
-        var tmpX = first.realX;
-        var tmpY = first.realY;
-        first.realX = second.realX;
-        first.realY = second.realY;
-        second.realX = tmpX;
-        second.realY = tmpY;
-        second.render();
-        first.render();
-    }
-
-    function flipPiecesByCoords(coords) {
-        var first = getPiece(coords[0][0], coords[0][1]);
-        var second = getPiece(coords[1][0], coords[1][1]);
-        flipPieces(first, second);
-    }
-
-    function addPiece(data) {
-        var piece = new ns.Views.Piece({
-            ears: {
-                left: data.l, bottom: data.b,
-                right: data.r, top: data.t
-            },
-            size: settings.pieceSize,
-            x: data.x,  y: data.y,
-            realX: data.realX,
-            realY: data.realY,
-            locked: data.d
-        });
-
-        settings.viewport.append(piece.element);
-
-        if(pieces[data.y] == null) {
-            pieces[data.y] = {};
-        }
-        return pieces[data.y][data.x] = piece;
-    }
-
-    function getPiece(x, y) {
-        if(!_.isUndefined(pieces[y]) && !_.isUndefined(pieces[y][x])) {
-            return pieces[y][x];
-        }
-        return false;
-    }
-
-    return {
-        // Properties
-        events: events,
-        // Methods
-        getPiece: getPiece,
-        addPiece: addPiece,
-        isSameType: isSameType,
-        flipPieces: flipPieces,
-        flipPiecesByCoords: flipPiecesByCoords,
-        buildIndex: buildIndex,
-        subscribe: observer.subscribe
-    };
+        }, this);
+    }, this);
 };
 
-Puzzle.EVENTS = {
-    leftClicked: 'leftClicked',
-    rightClicked: 'rightClicked'
+Proto.isSameType = function(first, second) {
+    if(first.ears.left == second.ears.left &&
+       first.ears.bottom == second.ears.bottom &&
+       first.ears.right == second.ears.right &&
+       first.ears.top == second.ears.top) {
+        return true;
+    }
+    return false;
 };
 
-return ns.Views.Puzzle = Puzzle, ns;
+Proto.flipPieces = function(first, second) {
+    var tmpX = first.realX;
+    var tmpY = first.realY;
+    first.realX = second.realX;
+    first.realY = second.realY;
+    second.realX = tmpX;
+    second.realY = tmpY;
+    second.render();
+    first.render();
+}
 
-})(window.Puzz);
+Proto.flipPiecesByCoords = function(coords) {
+    var first = getPiece(coords[0][0], coords[0][1]);
+    var second = getPiece(coords[1][0], coords[1][1]);
+    flipPieces(first, second);
+};
+
+Proto.addPiece = function(data) {
+    var piece = new Puzz.Views.Piece({
+        ears: {
+            left: data.l, bottom: data.b,
+            right: data.r, top: data.t
+        },
+        size: settings.pieceSize,
+        x: data.x,  y: data.y,
+        realX: data.realX,
+        realY: data.realY,
+        locked: data.d
+    });
+
+    this.viewport.append(piece.element);
+
+    if(_.isUndefined(this.pieces[data.y])) {
+        this.pieces[data.y] = {};
+    }
+    return this.pieces[data.y][data.x] = piece;
+};
+
+Proto.getPiece = function(x, y) {
+    if(!_.isUndefined(this.pieces[y]) &&
+       !_.isUndefined(this.pieces[y][x])) {
+        return this.pieces[y][x];
+    }
+    return false;
+};
+
+window.Puzz.Views.Puzzle = Puzzle;
+
+})();

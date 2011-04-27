@@ -1,14 +1,13 @@
-window.Puzz = (function(ns) {
+(function() {
 
-function Viewport(puzzle, user, leaders, server) {
+function Viewport(puzzle, user, leaders, twenty) {
     this.element = $('#viewport').viewport();
     this.content = this.element.viewport('content');
-	
-	this.menu     = new Puzz.Views.MenuDialog(server);
-    this.panel    = new Puzz.Views.Panel(puzzle, user, leaders, this.menu);
-    this.complete = new Puzz.Views.CompleteDialog(server);
-
 	this.selectedIndicator = $('#selected');
+	
+	this.menu     = new Puzz.Views.MenuDialog(twenty);
+    this.panel    = new Puzz.Views.Panel(puzzle, user, leaders, this.menu);
+    this.complete = new Puzz.Views.CompleteDialog(puzzle, leaders);
 
     this.pieceSize = 150;
     this.tooltips = {};
@@ -16,20 +15,22 @@ function Viewport(puzzle, user, leaders, server) {
     this.content.draggable({containment: 'parent'});
     this.content.scraggable({containment: 'parent', sensitivity: 10});
 
-    $(window).resize(_.bind(function() {
-         this.element.viewport('adjust');
-    }, this));
-
 	puzzle.on('change', _.bind(function() {
-        if (puzzle.completion != 100 || complete.shown || complete.closed) { return; }
-		this.menu.on('hidden', function() { complete.show(); });
+        if (puzzle.completion != 100 || complete.shown || complete.closed) {return;}
+		this.menu.on('hidden', function() {complete.show();});
 		this.menu.hide();
     }, this));
 
 	puzzle.once('change', _.bind(function() {
         this.pieceSize = puzzle.pieceSize;
+        this.step = Math.floor(this.pieceSize / 6);
+        this.rectSize = this.step * 4 + 1;
         this.arrange(puzzle.vLength, puzzle.hLength);
 	}, this));
+	
+	$(window).resize(_.bind(function() {
+         this.element.viewport('adjust');
+    }, this));
 }
 
 var Proto = Viewport.prototype;
@@ -43,7 +44,7 @@ Proto.showPanel = function() {
 };
 
 Proto.loading = function(percent) {
-	this.panel.loading();
+	this.panel.loading(percent);
 	this.menu.loading(percent);
 };
 
@@ -61,35 +62,32 @@ Proto.hideSelectedIndicator = function() {
 };
 
 Proto.arrange = function(vLength, hLength) {
-    var step = Math.floor(this.pieceSize / 6);
-    var rectSize = step * 4 + 1;
-    var height = rectSize * vLength + step * 2;
-    var width = rectSize * hLength + step * 2;
-
-    this.element.viewport('size', height, width);
+    this.element.viewport('size', 
+            this.rectSize * vLength + this.step * 2,
+            this.rectSize * hLength + this.step * 2);
     this.element.viewport('update');
 };
 
-Proto.addTooltip = function(top, left, title) {
-     var tooltip = $('<div class="tooltip"><span>' + title + '</span></div>')
-        .appendTo(this.content)
-        .css('left', left + Math.floor(this.pieceSize / 2))
-        .css('top', top + Math.floor(this.pieceSize / 2));
+Proto.addTooltip = function(x, y, title) {
+    var tooltip = $('<div class="tooltip"><span>' + title + '</span></div>')
+        .css('left', x * this.restSize + Math.floor(this.pieceSize / 2))
+        .css('top', y * this.restSize + Math.floor(this.pieceSize / 2))
+        .appendTo(this.content);
 
     tooltip.css('margin-left', -Math.floor(tooltip.outerWidth() / 2));
 
     if (_.isUndefined(this.tooltips[left])) {
-        this.tooltips[left] = {};
+        this.tooltips[y] = {};
     }
     
-    this.tooltips[left][top] = tooltip;
+    this.tooltips[y][x] = tooltip;
 };
 
-Proto.removeTooltip = function(top, left) {
-    if (!_.isUndefined(this.tooltips[left]) &&
-        !_.isUndefined(this.tooltips[left][top])) {
-        this.tooltips[left][top].remove();
-        delete this.tooltips[left][top];
+Proto.removeTooltip = function(x, y) {
+    if (!_.isUndefined(this.tooltips[y]) &&
+        !_.isUndefined(this.tooltips[y][x])) {
+        this.tooltips[y][x].remove();
+        delete this.tooltips[y][x];
     }
 };
 
@@ -102,6 +100,6 @@ Proto.removeTooltips = function() {
     this.tooltips = {};
 };
 
-return ns.Views.Viewport = Viewport, ns;
+window.Puzz.Views.Viewport = Viewport;
 
-})(window.Puzz);
+})();

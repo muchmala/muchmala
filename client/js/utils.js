@@ -1,6 +1,6 @@
 (function() {
 
-var Utils = {
+window.Puzz.Utils = {
     inherit: function(child, parent) {
     	function F() {}
     	F.prototype = parent.prototype;
@@ -10,7 +10,5 @@ var Utils = {
     	return child;
     }
 };
-    
-window.Puzz.Utils = Utils;
 
 })();

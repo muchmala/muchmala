@@ -1,36 +1,35 @@
 (function() {
 
 function Server() {
-    this.observer = new Puzz.Observer();
+    Server.superproto.constructor.call(this);
+        
     this.socket = new io.Socket(null, {
         transports: ['websocket', 'flashsocket', 'xhr-multipart', 'xhr-polling'],
         rememberTransport: false
     });
     
-    var self = this;
-    
-    this.socket.on('message', function(data) {
+    this.socket.on('message', _.bind(function(data) {
         var parsed = JSON.parse(data);
-        self.observer.fire(parsed.event, parsed.data);
+        this.fire(parsed.event, parsed.data);
         log('Received: ' + parsed.event);
-    });
-    this.socket.on('disconnect', function() {
+    }, this));
+    
+    this.socket.on('disconnect', _.bind(function() {
         log('Disconnected');
-        self.connect();
-    });
-    this.socket.on('connect', function() {
-        self.observer.fire('connected');
+    }, this));
+    
+    this.socket.on('connect', _.bind(function() {
+        this.fire('connected');
         log('Connected');
-    });
-
-    this.on = this.observer.on;
-    this.once = this.observer.once;
+    }, this));
 }
+
+Puzz.Utils.inherit(Server, Puzz.Observer);
 
 Server.prototype.sendMessage = function(message) {
     if(this.socket.connected) {
-        log('sent ' + message);
         this.socket.send(message);
+        log('sent ' + message);
     }
 };
 

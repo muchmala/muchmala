@@ -1,9 +1,10 @@
 (function() {
 
 function Dialog() {
+    Dialog.superproto.constructor.call(this);
+    
     this.shown = false;
     this.shaking = false;
-    this.observer = Puzz.Utils.Observer();
     this.close = $('<span class="button close">x</span>');
 
     this.element = $('<div class="dialog"></div>');
@@ -14,6 +15,8 @@ function Dialog() {
         this.hide();
     }, this));
 }
+
+Puzz.Utils.inherit(Dialog, Puzz.Observer);
 
 Dialog.EVENTS = {
     shown: 'shown',
@@ -27,8 +30,10 @@ Dialog.prototype.show = function() {
 
     this.element.animate({top: '50%'}, 100, _.bind(function() {
         this.shown = true;
-        this.observer.fire('shown');
+        this.fire('shown');
     }, this));
+    
+    return this;
 };
 
 Dialog.prototype.shake = function() {
@@ -41,6 +46,8 @@ Dialog.prototype.shake = function() {
     this.element.animate({marginLeft: 0}, 50, null, _.bind(function() {
         this.shaking = false;
     }, this));
+    
+    return this;
 };
 
 Dialog.prototype.hide = function() {
@@ -48,21 +55,19 @@ Dialog.prototype.hide = function() {
     this.element.animate({top: top}, 100, _.bind(function() {
         this.shown = false;
         this.element.hide();
-        this.observer.fire('hidden');
+        this.fire('hidden');
     }, this));
+    
+    return this;
 };
 
-Dialog.prototype.on = function(eventName, callback) {
-    this.observer.subscribe(eventName, callback);
-}
-
-function UserNameDialog(server) {
+function UserNameDialog(model) {
     UserNameDialog.superproto.constructor.call(this);
 
     this.events = UserNameDialog.EVENTS;
     this.element.append($('#username').show());
     this.input = this.element.find('input');
-    this.userName = this.input.val();
+    this.model = model;
 
     var KEYCODE_ENTER = 13;
     var KEYCODE_ESC = 27;
@@ -74,34 +79,30 @@ function UserNameDialog(server) {
         var newName = this.input.val();
         
         if(/^[A-Za-z0-9_]{3,20}$/.test(newName) ) {
-            server.setUserName(newName);
-            this.element.addClass('loading');
+            model.set('name', newName).save('name');
             this.element.find('.error').hide();
+            this.element.addClass('loading');
         } else {
             this.shake();
         }
     }, this));
 
-    server.on(MESSAGES.setUserName, _.bind(function(data) {
+    this.model.on('saved:name', _.bind(function() {
         this.element.removeClass('loading');
-
-        if (!_.isUndefined(data) && !_.isUndefined(data.error)) {
-            this.element.find('.error.' + data.error).show();
-        } else {
-            this.hide();
-        }
+        this.hide();
     }, this));
-
-    server.on(MESSAGES.userData, _.bind(function(data) {
-        this.userName = data.name;
+    
+    this.model.on('error:saving:name', _.bind(function(reason) {
+        this.element.find('.error.' + reason).show();
+        this.element.removeClass('loading');
     }, this));
 }
 
-inherit(UserNameDialog, Dialog);
+Puzz.Utils.inherit(UserNameDialog, Dialog);
 
 UserNameDialog.prototype.show = function() {
     UserNameDialog.superproto.show.call(this);
-    this.input.val(this.userName);
+    this.input.val(this.model.get('name'));
     this.input.focus();
 };
 
@@ -110,10 +111,10 @@ UserNameDialog.prototype.hide = function() {
     this.input.blur();
 };
 
-function MenuDialog(server) {
+function MenuDialog(twenty) {
     MenuDialog.superproto.constructor.call(this);
     this.element.append($('#menu').show());
-    this.server = server;
+    this.twenty = twenty;
     
     this.tabs = {};
     this.pages = {};
@@ -137,7 +138,7 @@ function MenuDialog(server) {
     this.pages.leaders.viewport('content').scraggable({axis: 'y', containment: 'parent'});
     this.pages.leaders.scrolla({content: this.pages.leaders.viewport('content')});
 
-    if (!Puzz.Utils.Storage.menu.isHowToPlayShown()) {
+    if (!Puzz.Storage.menu.isHowToPlayShown()) {
         self.tabs.howtoplay.addClass('highlight');
     }
 
@@ -146,22 +147,15 @@ function MenuDialog(server) {
         $(this).removeClass('highlight');
     });
 
-    this.server.on(MESSAGES.initialized, function() {
-        self.requestPuzzles();
-        self.requestTopTwenty();
-        self.tabs.leaders.click(function() {self.requestTopTwenty();});
-        //self.tabs.puzzles.click(function() {self.requestPuzzles();});
-    });
-
-    this.server.on(MESSAGES.topTwenty, function(data) {
-        self.updateTopTwenty(data);
+    this.twenty.on('change:list', function() {
+        self.updateTopTwenty();
         self.pages.leaders.viewport('update');
         self.pages.leaders.scrolla('update');
         self.pages.leaders.removeClass('loading');
     });
 }
 
-inherit(MenuDialog, Dialog);
+Puzz.Utils.inherit(MenuDialog, Dialog);
 
 MenuDialog.prototype.openPage = function(pageName) {
     _.each(this.tabs, function(tab) {tab.removeClass('sel');});
@@ -185,8 +179,10 @@ MenuDialog.prototype.loadingComplete = function() {
     }, this));
 };
 
-MenuDialog.prototype.updateTopTwenty = function(users) {
+MenuDialog.prototype.updateTopTwenty = function() {
     var list = this.pages.leaders.find('ul').empty();
+    var users = this.twenty.get('list');
+    
     for(var i = 0; i < users.length; i++) {
         var user = users[i];
         var row = '<li>' +
@@ -205,67 +201,53 @@ MenuDialog.prototype.requestTopTwenty = function() {
     this.pages.leaders.addClass('loading');
 };
 
-MenuDialog.prototype.requestPuzzles = function() {
-    // TODO: implement
-};
-
-MenuDialog.prototype.show = function() {
-    MenuDialog.superproto.show.call(this);
-    return this;
-}
-
-MenuDialog.prototype.hide = function() {
-    MenuDialog.superproto.hide.call(this);
-    return this;
-};
-
-function CompleteDialog(server) {
+function CompleteDialog(puzzle, leaders) {
     CompleteDialog.superproto.constructor.call(this);
     this.element.append($('#complete').show());
+    this.leaders = leaders;
+    this.puzzle = puzzle;
 
-    this.leadersData = null;
     this.leadersShow = 'score';
 	this.closed = false;
 
     var self = this;
 
-    this.element.find('.button.sort').click(function() {
-        if (self.leadersShow == 'score') {
+    this.element.find('.button.sort').toggle(
+        function() {
             self.leadersShow = 'found';
-        } else if (self.leadersShow == 'found') {
+            self.updateLeadersBoard();
+            $(this).html('by ' + self.leadersShow);
+        },
+        function() {
             self.leadersShow = 'score';
-        }
-        $(this).html('by ' + self.leadersShow);
-        self.updateLeadersBoard();
-    });
+            self.updateLeadersBoard();
+            $(this).html('by ' + self.leadersShow);
+        });
 
     this.element.find('.button.big').click(function() {
         window.location.href = '/';
     });
 
-    server.on(MESSAGES.puzzleData, function(data) {
-        if (_.isUndefined(data.completed)) {return;}
-
+    this.puzzle.on('change', function() {
+        if (_.isUndefined(self.puzzle.get('completed'))) {return;}
+        
+        var data = self.puzzle.all();
         var creationTime = +(new Date(data.created));
         var completionTime = +(new Date(data.completed));
         var timeSpent = Puzz.TimeHelper.diffHoursMinutes(creationTime, completionTime);
+        
         self.element.find('.pieces .value').html(data.vLength * data.hLength);
         self.element.find('.participants .value').html(data.participants);
         self.element.find('.timespent .value').html(timeSpent);
         self.element.find('.swaps .value').html(data.swaps);
     });
 
-    server.on(MESSAGES.leadersBoard, function(data) {
-        self.leadersData = data;
+    this.leaders.on('change:list', function() {
         self.updateLeadersBoard();
     });
 }
 
-inherit(CompleteDialog, Dialog);
-
-CompleteDialog.prototype.show = function() {
-    CompleteDialog.superproto.show.call(this);
-};
+Puzz.Utils.inherit(CompleteDialog, Dialog);
 
 CompleteDialog.prototype.hide = function() {
     CompleteDialog.superproto.hide.call(this);
@@ -274,14 +256,11 @@ CompleteDialog.prototype.hide = function() {
 
 CompleteDialog.prototype.updateLeadersBoard = function() {
     var leadersBoard = this.element.find('.leaders').empty();
+    var leadersData = this.leaders.getListSortedBy(this.leadersShow);
 
-    this.leadersData = _.sortBy(this.leadersData, _.bind(function(row) {
-        return row[this.leadersShow];
-    }, this));
-
-    for(var i = this.leadersData.length, num = 1; i > 0 && num < 6; i--) {
+    for(var i = leadersData.length, num = 1; i > 0 && num < 6; i--) {
         var row = $('<li></li>');
-        var data = this.leadersData[i-1];
+        var data = leadersData[i-1];
 
         row.append('<span class="num">' + (num++) + '.</span>');
         row.append('<span class="name">' + data.name + '</span>');
@@ -290,15 +269,6 @@ CompleteDialog.prototype.updateLeadersBoard = function() {
         row.appendTo(leadersBoard);
     }
 };
-
-function inherit(child, parent) {
-    function F() {}
-    F.prototype = parent.prototype;
-    child.prototype = new F();
-    child.prototype.constructor = child;
-    child.superproto = parent.prototype;
-    return child;
-}
 
 Puzz.TimeHelper = {
     MONTH: 60*60*24*30,

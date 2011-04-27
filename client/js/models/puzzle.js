@@ -28,13 +28,13 @@ function Puzzle(server) {
 	}, this));
 }
 
+Puzz.Utils.inherit(Puzzle, Puzz.Model);
+
 var Proto = Puzzle.prototype;
 
 Proto.fetchPieces = function() {
     this.server.getPiecesData();
 }
-
-Puzz.Utils.inherit(Puzzle, Puzz.Model);
 
 Puzz.Models.Puzzle = Puzzle;
 

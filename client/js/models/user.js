@@ -1,30 +1,41 @@
 (function() {
 
 function User(server) {
-    var storage = Puzz.Storage;
-    
     User.superproto.constructor.call(this, {
-       'id': storage.user.id(),
+       'id': Puzz.Storage.user.id(),
        'name': 'anonymous',
        'score': 0
     });
+    
+    this.server = server;
     	
-	server.on(MESSAGES.userData, _.bind(function(data) {
+	this.server.on(MESSAGES.userData, _.bind(function(data) {
+		Puzz.Storage.user.id(data.id);
 		this.refresh(data);
-		storage.user.id(data.id);
     }, this));
 
-	server.on(MESSAGES.scoreAdded, _.bind(function(data) {
+	this.server.on(MESSAGES.scoreAdded, _.bind(function(data) {
         this.set('score', _.reduce(data, function(memo, piece) {
 			return memo + piece.pts;
 		}, 0));
     }, this));
-
-	this.on = this.observer.on;
-	this.once = this.observer.once;
+    
+    this.server.on(MESSAGES.setUserName, _.bind(function(data) {
+        if (_.isUndefined(data.error)) {
+            this.fire('error:saving:name', data.error);
+        } else {
+            this.fire('saved:name');
+        }
+    }, this));
 }
 
 Puzz.Utils.inherit(User, Puzz.Model);
+
+var Proto = User.prototype;
+
+Proto.save = function(attributeName) {
+    this.server.setUserName(this.get('name'));
+};
 
 Puzz.Models.User = User;
 

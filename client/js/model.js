@@ -1,20 +1,31 @@
 (function() {
     
 function Model(attributes) {
+    Model.superproto.constructor.call(this);
+    
     this.attributes = {};
     this.refresh(attributes);
 }
 
-Proto = Model.prototype;
+Puzz.Utils.inherit(Model, Puzz.Observer);
+
+var Proto = Model.prototype;
 
 Proto.set = function(name, value) {
     this[name] = value;
     this.fire('change:' + name);
+    return this;
 };
 
 Proto.get = function(name) {
     return this[name];
 };
+
+Proto.all = function() {
+    return _.clone(this.attributes);
+};
+
+Proto.save = function() {};
 
 Proto.refresh = function(attributes) {
     _.each(attributes, _.bind(function(attribute, name) {
@@ -22,8 +33,6 @@ Proto.refresh = function(attributes) {
     }, this));
     this.fire('change');
 };
-
-Puzz.Utils.inherit(Model, Puzz.Observer);
 
 window.Puzz.Model = Model;
     
