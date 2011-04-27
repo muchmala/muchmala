@@ -138,7 +138,7 @@ Handlers.prototype.swapPiecesAction = function(coords) {
         self.puzzle.addSwap(function() {
             self.broadcastPuzzleData();
         });
-
+        
         self.user.addSwap(self.puzzle._id, function() {
             if(swaped.found.length > 0) {
             	self.addScore(swaped.found, swaped.completion);

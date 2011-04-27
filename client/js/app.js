@@ -108,8 +108,8 @@ $(function() {
         });
         
         server.on(MESSAGES.unlockPiece, function(unlocked) {
-            var x = locked.coords[0];
-            var y = locked.coords[1];
+            var x = unlocked.coords[0];
+            var y = unlocked.coords[1];
             var piece = puzzleView.getPiece(x, y);
             
             if (unlocked.userName == userModel.get('name')) {
@@ -122,7 +122,7 @@ $(function() {
         });
         
         server.on(MESSAGES.swapPieces, function(coords) {
-            puzzle.swapPiecesByCoords(coords);
+            puzzleView.swapPiecesByCoords(coords);
         });
         
         server.on(MESSAGES.initialized, function() {
@@ -168,7 +168,7 @@ $(function() {
             } else if(!selected || !selected.selected) {
                 server.lockPiece(piece.x, piece.y);
             } else {
-                if(puzzle.isSameType(selected, piece)) {
+                if(puzzleView.isSameType(selected, piece)) {
                     selected.unselect();
                     server.swapPieces(selected.x, selected.y, piece.x, piece.y);
                 }

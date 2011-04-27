@@ -3,7 +3,8 @@
 function Leaders(server) {
 	Leaders.superproto.constructor.call(this, {'list': []});
     
-	server.on(MESSAGES.leadersBoard, _.bind(function(data) {
+    this.server = server;
+	this.server.on(MESSAGES.leadersBoard, _.bind(function(data) {
 		this.set('list', data);
 	}, this));
 }

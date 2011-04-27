@@ -16,16 +16,22 @@ function Viewport(puzzle, user, leaders, twenty) {
     this.content.scraggable({containment: 'parent', sensitivity: 10});
 
 	puzzle.on('change', _.bind(function() {
-        if (puzzle.completion != 100 || complete.shown || complete.closed) {return;}
-		this.menu.on('hidden', function() {complete.show();});
-		this.menu.hide();
+        if (puzzle.get('completion') != 100 || 
+            complete.shown || complete.closed) {
+            return;
+        }
+        this.menu.hide();
+		this.menu.on('hidden', function() {
+		    complete.show();
+		});
     }, this));
 
 	puzzle.once('change', _.bind(function() {
-        this.pieceSize = puzzle.pieceSize;
-        this.step = Math.floor(this.pieceSize / 6);
+	    var data = puzzle.all();
+        this.pieceSize = data.pieceSize;
+        this.step = Math.floor(data.pieceSize / 6);
         this.rectSize = this.step * 4 + 1;
-        this.arrange(puzzle.vLength, puzzle.hLength);
+        this.arrange(data.vLength, data.hLength);
 	}, this));
 	
 	$(window).resize(_.bind(function() {
@@ -70,13 +76,13 @@ Proto.arrange = function(vLength, hLength) {
 
 Proto.addTooltip = function(x, y, title) {
     var tooltip = $('<div class="tooltip"><span>' + title + '</span></div>')
-        .css('left', x * this.restSize + Math.floor(this.pieceSize / 2))
-        .css('top', y * this.restSize + Math.floor(this.pieceSize / 2))
+        .css('left', x * this.rectSize + Math.floor(this.pieceSize / 2))
+        .css('top', y * this.rectSize + Math.floor(this.pieceSize / 2))
         .appendTo(this.content);
 
     tooltip.css('margin-left', -Math.floor(tooltip.outerWidth() / 2));
 
-    if (_.isUndefined(this.tooltips[left])) {
+    if (_.isUndefined(this.tooltips[y])) {
         this.tooltips[y] = {};
     }
     

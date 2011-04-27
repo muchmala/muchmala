@@ -12,13 +12,13 @@ Puzz.Utils.inherit(Model, Puzz.Observer);
 var Proto = Model.prototype;
 
 Proto.set = function(name, value) {
-    this[name] = value;
+    this.attributes[name] = value;
     this.fire('change:' + name);
     return this;
 };
 
 Proto.get = function(name) {
-    return this[name];
+    return this.attributes[name];
 };
 
 Proto.all = function() {
@@ -28,9 +28,9 @@ Proto.all = function() {
 Proto.save = function() {};
 
 Proto.refresh = function(attributes) {
-    _.each(attributes, _.bind(function(attribute, name) {
+    _.each(attributes, function(attribute, name) {
         this.set(name, attribute);
-    }, this));
+    }, this);
     this.fire('change');
 };
 

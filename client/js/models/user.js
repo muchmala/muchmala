@@ -15,9 +15,10 @@ function User(server) {
     }, this));
 
 	this.server.on(MESSAGES.scoreAdded, _.bind(function(data) {
-        this.set('score', _.reduce(data, function(memo, piece) {
+	    var added = _.reduce(data, function(memo, piece) {
 			return memo + piece.pts;
-		}, 0));
+		}, 0);
+        this.set('score', this.get('score') + added);
     }, this));
     
     this.server.on(MESSAGES.setUserName, _.bind(function(data) {

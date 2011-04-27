@@ -21,26 +21,32 @@ function Panel(puzzle, user, leaders, menu) {
 
     user.on('change', _.bind(function() {
         this.element.find('.expcol').show();
-	    this.element.find('.user .num').text(user.score);
-	    this.element.find('.user .name').text(user.name);
+	    this.element.find('.user .num').text(user.get('score'));
+	    this.element.find('.user .name').text(user.get('name'));
 	    this.element.addClass('filled');
+    }, this));
+    
+    user.on('change:score', _.bind(function() {
+	    this.element.find('.user .num').text(user.get('score'));
     }, this));
 
 	puzzle.on('change', _.bind(function() {
-		this.element.find('.statistics .swaps').text(puzzle.swapsCount);
-		this.element.find('.statistics .connected').text(puzzle.connectedCount);
-	    this.element.find('.statistics .complete').text(puzzle.completion + '%');
-	    this.element.find('.statistics .quantity').text(puzzle.vLength * puzzle.hLength);
+	    var data = puzzle.all();
+		this.element.find('.statistics .swaps').text(data.swaps);
+		this.element.find('.statistics .connected').text(data.connected);
+	    this.element.find('.statistics .complete').text(data.completion + '%');
+	    this.element.find('.statistics .quantity').text(data.vLength * data.hLength);
 	}, this));
 	
 	puzzle.once('change', _.bind(function() {
-        this.updateTimeSpent(puzzle.created, puzzle.completed);
+	    var data = puzzle.all();
+        this.updateTimeSpent(data.created, data.completed);
         setInterval(_.bind(function() {
-            this.updateTimeSpent(puzzle.created, puzzle.completed);
+            this.updateTimeSpent(data.created, data.completed);
         }, this), 6000);
     }, this));
 
-    leaders.on('change', _.bind(function() {
+    leaders.on('change:list', _.bind(function() {
 		updateLeadersBoard();
     }, this));
 
@@ -63,11 +69,11 @@ function Panel(puzzle, user, leaders, menu) {
 		});
 		
 	var updateLeadersBoard = _.bind(function() {
-    	var leadersCount = leaders.list.length;
+    	var leadersCount = leaders.get('list').length;
     	if(leadersCount > 0) {
         	var leadersShow = this.leadersShow;
     		var leadersBoard = this.leadersViewport.find('.list').empty();
-    	    var leadersList = leaders.getSortedBy(this.leadersShow);
+    	    var leadersList = leaders.getListSortedBy(this.leadersShow);
 
     	    for(var i = leadersCount; i > 0; i--) {
     	        var row = $('<em></em>');

@@ -87,7 +87,7 @@ function UserNameDialog(model) {
         }
     }, this));
 
-    this.model.on('saved:name', _.bind(function() {
+    this.model.on('change:name', _.bind(function() {
         this.element.removeClass('loading');
         this.hide();
     }, this));
@@ -142,9 +142,14 @@ function MenuDialog(twenty) {
         self.tabs.howtoplay.addClass('highlight');
     }
 
-    self.tabs.howtoplay.click(function() {
+    this.tabs.howtoplay.click(function() {
         Puzz.Storage.menu.setHowToPlayShown();
         $(this).removeClass('highlight');
+    });
+    
+    this.tabs.leaders.click(function() {
+        self.pages.leaders.addClass('loading');
+        self.twenty.fetch();
     });
 
     this.twenty.on('change:list', function() {
@@ -194,11 +199,6 @@ MenuDialog.prototype.updateTopTwenty = function() {
 
         list.append(row);
     }
-};
-
-MenuDialog.prototype.requestTopTwenty = function() {
-    this.server.getTopTwenty();
-    this.pages.leaders.addClass('loading');
 };
 
 function CompleteDialog(puzzle, leaders) {

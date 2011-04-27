@@ -219,9 +219,9 @@ Puzzles.prototype.swap = function(x1, y1, x2, y2, userName, callback) {
 			this.first.save(this.MULTI());
 			this.second.save(this.MULTI());
 		}, function() {
-			var result = { found: 0, completion: 0 };
-        	if (this.first.isCollected()) { result.found++; }
-        	if (this.second.isCollected()) { result.found++; }
+			var result = { found: [], completion: 0 };
+        	if (this.first.isCollected()) { result.found.push([x1, y1]); }
+        	if (this.second.isCollected()) { result.found.push([x2, y2]); }
 
         	self.getCompletionPercentage(function(completion) {
             	if (completion == 100) {

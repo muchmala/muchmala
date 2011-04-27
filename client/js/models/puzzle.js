@@ -17,10 +17,9 @@ function Puzzle(server) {
     
 	this.server = server;	
 	this.server.on(MESSAGES.puzzleData, _.bind(function(data) {
-		this.refresh(data);
-		if (!_.isUndefined(data.completed)) {
-            this.completed = new Date(data.completed);
-        }
+		if (!_.isUndefined(data.completed)) {data.completed = new Date(data.completed);}
+		if (!_.isUndefined(data.created)) {data.created = new Date(data.created);}
+        this.refresh(data);
     }, this));
 	
 	this.server.on(MESSAGES.piecesData, _.bind(function(data) {

@@ -15,11 +15,13 @@ function Puzzle(model, viewport) {
     
     this.viewport.click(_.bind(function(event) {
         var found = this.findPieces(event.clientX, event.clientY);
-        this.fire(this.EVENTS.leftClicked, found[0]);
+        _.each(found, function(piece) {
+            this.fire(this.EVENTS.leftClick, piece);
+        }, this);
     }, this));
 
     this.viewport.bind('contextmenu', _.bind(function(event) {
-        this.fire(this.EVENTS.rightClicked);
+        this.fire(this.EVENTS.rightClick);
         event.preventDefault();
         event.stopPropagation();
     }, this));
@@ -28,7 +30,9 @@ function Puzzle(model, viewport) {
     this.viewport.mousemove(_.bind(function(event) {
         if(overed) { overed.unhighlight(); }
         var found = this.findPieces(event.clientX, event.clientY);
-        overed = found[0], overed.highlight();
+        _.each(found, function(piece) {
+            overed = piece, overed.highlight();
+        }, this);
     }, this));
 }
 
@@ -56,9 +60,9 @@ Proto.checkIndexByCoordinates = function(x, y) {
     var xIndex = x - (x % this.indexCellSize);
     var yIndex = y - (y % this.indexCellSize);
     
-    if (!_.isUndefined(index[xIndex]) &&
-        !_.isUndefined(index[xIndex][yIndex])) {
-        return index[xIndex][yIndex];
+    if (!_.isUndefined(this.index[xIndex]) &&
+        !_.isUndefined(this.index[xIndex][yIndex])) {
+        return this.index[xIndex][yIndex];
     }
     return false;
 };
@@ -104,7 +108,7 @@ Proto.isSameType = function(first, second) {
     return false;
 };
 
-Proto.flipPieces = function(first, second) {
+Proto.swapPieces = function(first, second) {
     var tmpX = first.realX;
     var tmpY = first.realY;
     first.realX = second.realX;
@@ -115,10 +119,10 @@ Proto.flipPieces = function(first, second) {
     first.render();
 }
 
-Proto.flipPiecesByCoords = function(coords) {
-    var first = getPiece(coords[0][0], coords[0][1]);
-    var second = getPiece(coords[1][0], coords[1][1]);
-    flipPieces(first, second);
+Proto.swapPiecesByCoords = function(coords) {
+    var first = this.getPiece(coords[0][0], coords[0][1]);
+    var second = this.getPiece(coords[1][0], coords[1][1]);
+    this.swapPieces(first, second);
 };
 
 Proto.addPiece = function(data) {
@@ -128,7 +132,7 @@ Proto.addPiece = function(data) {
             left: data.l, bottom: data.b,
             right: data.r, top: data.t
         },
-        x: data.x,y: data.y,
+        x: data.x, y: data.y,
         realX: data.realX,
         realY: data.realY,
         locked: data.d
