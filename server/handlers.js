@@ -298,7 +298,12 @@ Handlers.prototype.getTopTwentyData = function(callback) {
 };
 
 Handlers.prototype.unlockSelectedPiece = function(callback) {
-	if (!this.selected) {return;}
+	if (!this.selected) {
+	    if (_.isFunction(callback)) {
+			callback(false);
+		} 
+		return;
+	}
 	
 	var x = this.selected[0];
 	var y = this.selected[1];
