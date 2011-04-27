@@ -2,16 +2,21 @@ var config = require('./config.js');
 var knox = require('knox');
 
 task('static-upload', [], function (src, dst) {
-    if (!src || !dst) {
-        fail('Usage: jake static-upload <src> <dst>');
+    if (!src) {
+        fail('Usage: jake static-upload <src> [<dst>]');
     }
 
-    console.log('Uploading ' + src + ' to S3 ' + dst);
+    if (!dst) {
+        dst = src;
+    }
 
     var client = createKnox();
+
+    console.log('Uploading ' + src + ' to S3 http://s3.amazonaws.com/' + client.bucket + '/' + dst);
+
     client.putFile(src, dst, function(err, res) {
         if (err) {
-            throw err;
+            fail(err);
         }
 
         if (res.statusCode != 200) {
