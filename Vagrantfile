@@ -7,22 +7,8 @@ Vagrant::Config.run do |config|
   config.vm.share_folder("v-root", "/opt/muchmala", ".")
 
   config.vm.provision :chef_solo do |chef|
-    chef.cookbooks_path = ["cookbooks/muchmala", "cookbooks/opscode", "cookbooks/mdxp"]
-
-    chef.add_recipe "apt"
-    chef.add_recipe "nodejs"
-    chef.add_recipe "nodejs::npm"
-    chef.add_recipe "mongodb-debs"
-    chef.add_recipe "nginx"
-
+    chef.cookbooks_path = ["chef/cookbooks/muchmala", "chef/cookbooks/opscode", "chef/cookbooks/mdxp"]
+    chef.add_recipe "muchmala"
     chef.add_recipe "fix-permissions-and-ownership"
-    chef.add_recipe "node-canvas-deps"
-
-    chef.json.merge!({
-      :nodejs => {
-        :version => "0.4.7",
-        :npm => "1.0.1rc9"
-      }
-    })
   end
 end
