@@ -22,7 +22,8 @@ function User(server) {
     }, this));
     
     this.server.on(MESSAGES.setUserName, _.bind(function(data) {
-        if (_.isUndefined(data.error)) {
+        if (!_.isUndefined(data) &&
+            !_.isUndefined(data.error)) {
             this.fire('error:saving:name', data.error);
         } else {
             this.fire('saved:name');
