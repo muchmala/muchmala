@@ -133,17 +133,32 @@ Puzzles.prototype.compactPieces = function(callback) {
 };
 
 Puzzles.prototype.lockPiece = function(x, y, userName, callback) {
-	var query = new Query()
+	/*var query = new Query()
 		.where('x', x).where('y', y)
 		.where('locked', null)
 		.where('puzzleId', this._id);
-		
-	Pieces.update(query, {locked: userName}, {safe: true}, function(error, piece) {
+	
+	var data = {
+	    //locked: userName,
+	    lockedAt: Date.now()
+	};
+	
+	Pieces.update(query, data, function(error, piece) {
 		if (error || _.isNull(piece)) {
 			callback(false);
 			return;
 		}
 		callback(true);
+	});*/
+	
+	// TODO: Get back commented code when bug in mongoose is fixed
+	this.getPiece(x, y, function(piece) {
+	    if (piece.locked != null) { callback(false); }
+	    piece.locked = userName;
+	    piece.lockedAt = Date.now();
+	    piece.save(function() {
+	        callback(true);
+	    })
 	});
 };
 
@@ -153,13 +168,40 @@ Puzzles.prototype.unlockPiece = function(x, y, userName, callback) {
 		.where('puzzleId', this._id)
 		.where('locked', userName);
 	
-	Pieces.update(query, {locked: null}, {safe: true}, function(error, piece) {
+	var data = {
+	    locked: null, 
+	    lockedAt: null
+	};
+	
+	Pieces.update(query, data, {safe: true}, function(error, piece) {
 		if (error || _.isNull(piece)) {
 			callback(false);
 			return;
 		}
 		callback(true);
 	});	
+};
+
+Puzzles.prototype.unlockOldPieces = function(callback) {
+    var past = new Date(Date.now() - 60000);
+    var query = new Query()
+		.lte('lockedAt', past)
+		.where('puzzleId', this._id)
+		.where('locked').ne(null);
+		
+	Pieces.find(query, function(error, pieces) {
+	    if (error) { callback(false); return; }
+	    
+	    var locked = _.map(pieces, function(piece) {
+	        piece = piece.toObject();
+	        return [piece.x, piece.y];
+	    });
+	    
+	    Pieces.update(query, {locked: null}, {multy: true}, function(error) {
+    		if (error) { callback(false); return; }
+    		callback(locked);
+    	});
+	});
 };
 
 Puzzles.prototype.isPieceLockedBy = function(x, y, userName, callback) {
@@ -189,21 +231,15 @@ Puzzles.prototype.swap = function(x1, y1, x2, y2, userName, callback) {
 		},
 		function(locked) {
 			if (!locked) {callback(false); return;}
-			
-			Pieces.findOne((new Query()
-		        .where('x', x1).where('y', y1)
-		        .where('puzzleId', self._id)), this);
+			self.getPiece(x1, y1, this);
 		},
-		function(error, piece) {
-			if (error || _.isNull(piece)) {callback(false); return;}
+		function(piece) {
+			if (_.isNull(piece)) {callback(false); return;}
 			this.first = piece;
-			
-			Pieces.findOne((new Query()
-		        .where('x', x2).where('y', y2)
-		        .where('puzzleId', self._id)), this);
+			self.getPiece(x2, y2, this);
 		},
-		function(error, piece) {
-			if (error || _.isNull(piece)) {callback(false); return;}
+		function(piece) {
+			if (_.isNull(piece)) {callback(false); return;}
 			this.second = piece;
 			
 			var tmpX = this.first.realX;
@@ -212,7 +248,7 @@ Puzzles.prototype.swap = function(x1, y1, x2, y2, userName, callback) {
             this.first.realY = this.second.realY;
             this.second.realX = tmpX;
             this.second.realY = tmpY;
-
+            
 			this.first.locked = null;
 			this.second.locked = null;
 

@@ -7,14 +7,14 @@ $(function() {
     }
 
     var server       = new Puzz.Server();
-	var puzzleModel  = new Puzz.Models.Puzzle(server);
-	var leadersModel = new Puzz.Models.Leaders(server);
-	var twentyModel  = new Puzz.Models.Twenty(server);
-	var userModel    = new Puzz.Models.User(server);
-	
-	var viewport = new Puzz.Views.Viewport(puzzleModel, userModel, leadersModel, twentyModel)
-	var puzzleView = new Puzz.Views.Puzzle(puzzleModel, viewport.content);
-	var selected;
+    var puzzleModel  = new Puzz.Models.Puzzle(server);
+    var leadersModel = new Puzz.Models.Leaders(server);
+    var twentyModel  = new Puzz.Models.Twenty(server);
+    var userModel    = new Puzz.Models.User(server);
+    
+    var viewport = new Puzz.Views.Viewport(puzzleModel, userModel, leadersModel, twentyModel)
+    var puzzleView = new Puzz.Views.Puzzle(puzzleModel, viewport.content);
+    var selected;
     
     server.on('connected', function() {
         var puzzleId = puzzleModel.get('id');
@@ -31,12 +31,12 @@ $(function() {
     
     var loadPuzzle = (function() {
         var load = new Puzz.Loader();
-		var rows, cols, spriteSize, puzzleId, objectsLoaded;
+        var rows, cols, spriteSize, puzzleId, objectsLoaded;
 
-		function calcLoading(loadedCount) {
-		    objectsLoaded += loadedCount;
-			return Math.floor(objectsLoaded / (4 + rows * cols) / 100);
-		}
+        function calcLoading(loadedCount) {
+            objectsLoaded += loadedCount;
+            return Math.floor(objectsLoaded / (4 + rows * cols) / 100);
+        }
         
         return flow.define(function() {
             puzzleId   = puzzleModel.get('id');
@@ -53,8 +53,8 @@ $(function() {
                 selectCover: covers.select,
                 defaultCover: covers['default']
             });
-		    
-    		viewport.loading(calcLoading(3));
+            
+            viewport.loading(calcLoading(3));
             Puzz.Views.Piece.setSpriteSize(spriteSize);
             
             load.sprites(puzzleId, rows, cols, function(row, col, sprite) {
@@ -69,19 +69,19 @@ $(function() {
 
                 _.each(piecesToShow, function(pieceData) {
                     var piece = puzzleView.addPiece(pieceData);
-				
-    				if (pieceData.d == userModel.get('name')) {
-    				    selected = piece;
-                    	piece.selected = true;
-    					piece.locked = false;
-    					piece.render();
-    				}
+                
+                    if (pieceData.d == userModel.get('name')) {
+                        selected = piece;
+                        piece.selected = true;
+                        piece.locked = false;
+                        piece.render();
+                    }
                 });
             }, this);
 
         }, function() {
             enablePuzzle();
-    		puzzleView.buildIndex();
+            puzzleView.buildIndex();
             puzzleModel.fetchPieces();
         });
     })();
@@ -99,7 +99,7 @@ $(function() {
             var piece = puzzleView.getPiece(x, y);
             
             if (locked.userName == userModel.get('name')) {
-				viewport.showSelectedIndicator(piece.type());
+                viewport.showSelectedIndicator(piece.type());
                 selected = piece, selected.select();
             } else {
                 viewport.addTooltip(x, y, locked.userName);
@@ -113,10 +113,14 @@ $(function() {
             var piece = puzzleView.getPiece(x, y);
             
             if (unlocked.userName == userModel.get('name')) {
-				viewport.hideSelectedIndicator();
+                viewport.hideSelectedIndicator();
                 piece.unselect();
-            } else {
-                viewport.removeTooltip(x, y)
+            } else if (_.isUndefined(unlocked.userName)) {
+                viewport.removeTooltip(x, y);
+                piece.unselect();
+                piece.unlock();
+            } else {        
+                viewport.removeTooltip(x, y);
                 piece.unlock();
             }
         });
@@ -136,17 +140,17 @@ $(function() {
                 var x = pieceData.x;
                 var y = pieceData.y;
                 var piece = puzzleView.getPiece(x, y);
-				
-				piece.selected = false;
-				piece.locked = null;
-				
-				if (pieceData.d == userModel.get('name')) {
-                	piece.selected = true;
-					selected = piece;
-				} else if (pieceData.d) {
-					piece.locked = true;
-					viewport.addTooltip(x, y, pieceData.d);
-				}
+                
+                piece.selected = false;
+                piece.locked = null;
+                
+                if (pieceData.d == userModel.get('name')) {
+                    piece.selected = true;
+                    selected = piece;
+                } else if (pieceData.d) {
+                    piece.locked = true;
+                    viewport.addTooltip(x, y, pieceData.d);
+                }
 
                 piece.realX = pieceData.realX;
                 piece.realY = pieceData.realY;
@@ -178,8 +182,8 @@ $(function() {
 
     server.connect();
     viewport.showMenu();
-	viewport.showPanel();
-	viewport.loading();
+    viewport.showPanel();
+    viewport.loading();
 });
 
 function log(message) {

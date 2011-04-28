@@ -21,9 +21,9 @@ function Viewport(puzzle, user, leaders, twenty) {
             return;
         }
         this.menu.hide();
-		this.menu.on('hidden', function() {
-		    complete.show();
-		});
+		this.menu.on('hidden', _.bind(function() {
+		    this.complete.show();
+		}, this));
     }, this));
 
 	puzzle.once('change', _.bind(function() {

@@ -22,7 +22,8 @@ var PiecesSchema = new Schema({
     realX     : Number,
     realY     : Number,
     puzzleId  : {type: ObjectId, index: true},
-	locked    : {type: String, default: null, index: true},
+    locked    : {type: String, 'default': null, index: true},
+    lockedAt  : {type: Date, 'default': null, index: true},
     ears      : {
         top     : Boolean,
         bottom  : Boolean,
@@ -34,7 +35,8 @@ var PiecesSchema = new Schema({
 var UsersSchema = new Schema({
     name    : {type: String, unique: true, index: true},
     created : {type: Date, 'default': Date.now, index: true},
-	score   : {type: Number, 'default': 0}
+    score   : {type: Number, 'default': 0},
+    online  : {type: Boolean, 'default': false},
 });
 
 // TODO: Make this schema as a embedded doc in the "Users" doc

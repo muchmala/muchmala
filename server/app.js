@@ -3,9 +3,10 @@ var fs = require('fs');
 var io = require('socket.io');
 var config = require('../config');
 var express = require('express');
+var _ = require('../shared/underscore')._;
 
-var Handlers = require('./handlers');
-var Session = require('./session');
+var Games = require('./games');
+var Client = require('./client');
 
 var server = express.createServer();
 
@@ -28,15 +29,23 @@ server.get('/', function(req, res) {
 server.listen(config.HTTP_PORT, config.HTTP_HOST);
 
 db.connect(function() {
+    var games = new Games(db);
     var socket = io.listen(server);
+    
     socket.on('connection', function(client) {
-        var session = new Session(client);
-        var handlers = new Handlers(session);
-
-        session.onDisconnect(function() {
-            handlers.disconnect();
-            delete handlers;
-            delete session;
+        client.on('message', function(message) {
+            message = JSON.parse(message);
+            
+            if (!_.isUndefined(message.action) && message.action == 'initialize') {
+                var puzzleId = null, userId = null;
+                
+                if (!_.isUndefined(message.data)) {
+                    puzzleId = message.data.puzzleId || null;
+                    userId = message.data.userId || null;
+                }
+                
+                games.addPlayer(new Client(client), userId, puzzleId);
+            }
         });
     });
 });
