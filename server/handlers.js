@@ -138,11 +138,11 @@ Handlers.prototype.swapPiecesAction = function(coords) {
         self.puzzle.addSwap(function() {
             self.broadcastPuzzleData();
         });
-
+        
         self.user.addSwap(self.puzzle._id, function() {
-            if(swaped.found > 0) {
-                self.addScore(swaped.found, swaped.completion);
-            }
+            if(swaped.found.length > 0) {
+            	self.addScore(swaped.found, swaped.completion);
+			}
         });
     });
 };
@@ -212,20 +212,23 @@ Handlers.prototype.retrievePuzzle = function(puzzleId, callback) {
 Handlers.prototype.addScore = function(found, completion) {
     var self = this;
     var points = 1000;
+	var foundCount = found.length;
 
 	if (completion < 100) {
-		points = Math.ceil((100 - completion) / 4) * found;
+		points = Math.ceil((100 - completion) / 4);
 	}
 
     flow.exec(
         function() {
-            self.user.addScore(points, this.MULTI());
-            self.user.addPuzzleScore(points, self.puzzle._id, this.MULTI());
-            self.user.addFoundPieces(found, self.puzzle._id, this.MULTI());
+            self.user.addScore(points * foundCount, this.MULTI());
+            self.user.addPuzzleScore(points * foundCount, self.puzzle._id, this.MULTI());
+            self.user.addFoundPieces(foundCount, self.puzzle._id, this.MULTI());
         },
         function() {
-            self.userDataAction();
             self.leadersBoardAction();
+			self.session.send(MESSAGES.scoreAdded, _.map(found, function(piece) {
+				return {x: piece[0], y: piece[1], pts: points};
+			}));
         });
 };
 
@@ -298,7 +301,12 @@ Handlers.prototype.getTopTwentyData = function(callback) {
 };
 
 Handlers.prototype.unlockSelectedPiece = function(callback) {
-	if (!this.selected) {return;}
+	if (!this.selected) {
+	    if (_.isFunction(callback)) {
+			callback(false);
+		} 
+		return;
+	}
 	
 	var x = this.selected[0];
 	var y = this.selected[1];

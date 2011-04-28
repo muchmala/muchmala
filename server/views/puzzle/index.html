@@ -8,7 +8,8 @@
 <%- partial('browser') %>
 
 <script>
-	var STATIC_URL = 'http://<%=config.static%>';
+	window.STATIC_URL = 'http://<%=config.static%>';
+	window.Puzz = {Utils: {}, Models: {}, Views: {}};
 </script>
 
 <% if (config.production) { %>
@@ -16,6 +17,7 @@
 <script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script>
 <% } else { %>
 <script src="http://<%=config.static%>/js/socket.io/socket.io.js"></script>
+
 <script src="http://<%=config.static%>/js/jquery/jquery.min.js"></script>
 <script src="http://<%=config.static%>/js/jquery/jquery-ui.js"></script>
 <script src="http://<%=config.static%>/js/jquery/jquery.scraggable/jquery.scraggable.js"></script>
@@ -26,14 +28,24 @@
 <script src="http://<%=config.static%>/shared/flow.js"></script>
 <script src="http://<%=config.static%>/shared/messages.js"></script>
 
+<script src="http://<%=config.static%>/js/utils.js"></script>
+
 <script src="http://<%=config.static%>/js/observer.js"></script>
-<script src="http://<%=config.static%>/js/preloader.js"></script>
-<script src="http://<%=config.static%>/js/puzzle.js"></script>
-<script src="http://<%=config.static%>/js/piece.js"></script>
-<script src="http://<%=config.static%>/js/server.js"></script>
+<script src="http://<%=config.static%>/js/loader.js"></script>
 <script src="http://<%=config.static%>/js/storage.js"></script>
-<script src="http://<%=config.static%>/js/viewport.js"></script>
-<script src="http://<%=config.static%>/js/dialog.js"></script>
-<script src="http://<%=config.static%>/js/panel.js"></script>
+<script src="http://<%=config.static%>/js/server.js"></script>
+
+<script src="http://<%=config.static%>/js/model.js"></script>
+<script src="http://<%=config.static%>/js/models/user.js"></script>
+<script src="http://<%=config.static%>/js/models/puzzle.js"></script>
+<script src="http://<%=config.static%>/js/models/leaders.js"></script>
+<script src="http://<%=config.static%>/js/models/twenty.js"></script>
+
+<script src="http://<%=config.static%>/js/views/puzzle.js"></script>
+<script src="http://<%=config.static%>/js/views/piece.js"></script>
+<script src="http://<%=config.static%>/js/views/viewport.js"></script>
+<script src="http://<%=config.static%>/js/views/dialog.js"></script>
+<script src="http://<%=config.static%>/js/views/panel.js"></script>
+
 <script src="http://<%=config.static%>/js/app.js"></script>
 <% } %>

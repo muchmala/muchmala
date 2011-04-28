@@ -1,53 +1,51 @@
-window.Puzz = (function(ns) {
+(function() {
 
-ns.Observer = function() {
-    var ONCE = 'once';
-    var MULTIPLE = 'multiple';
+function Observer() {
+    this.subscribers = {};
+    this.subscribers[this.ONCE] = {};
+    this.subscribers[this.MULTIPLE] = {};
+}
 
-    var subscribers = {};
-    subscribers[ONCE] = {};
-    subscribers[MULTIPLE] = {};
+var Proto = Observer.prototype;
 
-    function fire() {
-        var args = _.toArray(arguments);
-        var event = args.shift();
-        
-        if(!_.isUndefined(subscribers[MULTIPLE][event])) {
-            _.each(subscribers[MULTIPLE][event], function(subscriber) {
-                subscriber.apply(null, args);
-            });
-        }
-        if(!_.isUndefined(subscribers[ONCE][event])) {
-            _.each(subscribers[ONCE][event], function(subscriber) {
-                subscriber.apply(null, args);
-            });
-            delete subscribers[ONCE][event];
-        }
+Proto.ONCE = 'once';
+Proto.MULTIPLE = 'multiple';
+
+Proto.fire = function() {
+    var args = _.toArray(arguments);
+    var event = args.shift();
+    
+    if(!_.isUndefined(this.subscribers[this.MULTIPLE][event])) {
+        _.each(this.subscribers[this.MULTIPLE][event], function(subscriber) {
+            subscriber.apply(null, args);
+        });
     }
-
-    function subscribe(event, trigger, type) {
-        if(_.isUndefined(subscribers[type][event])) {
-            subscribers[type][event] = [];
-        }
-        subscribers[type][event].push(trigger);
+    if(!_.isUndefined(this.subscribers[this.ONCE][event])) {
+        _.each(this.subscribers[this.ONCE][event], function(subscriber) {
+            subscriber.apply(null, args);
+        });
+        delete this.subscribers[this.ONCE][event];
     }
-
-    function subscribeOnce(event, trigger) {
-        subscribe(event, trigger, ONCE);
-    }
-
-    function subscribeMultiple(event, trigger) {
-        subscribe(event, trigger, MULTIPLE);
-    }
-
-    return {
-        fire: fire,
-        on: subscribeMultiple,
-        subscribe: subscribeMultiple,
-        once: subscribeOnce
-    };
 };
 
-return ns;
+Proto.subscribe = function(event, trigger, type) {
+    if(_.isUndefined(this.subscribers[type][event])) {
+        this.subscribers[type][event] = [];
+    }
+    this.subscribers[type][event].push(trigger);
+};
 
-})(window.Puzz || {});
+Proto.subscribeOnce = function(event, trigger) {
+    this.subscribe(event, trigger, this.ONCE);
+};
+
+Proto.subscribeMultiple = function(event, trigger) {
+    this.subscribe(event, trigger, this.MULTIPLE);
+};
+
+Proto.on = Proto.subscribeMultiple;
+Proto.once = Proto.subscribeOnce;
+
+window.Puzz.Observer = Observer;
+
+})();
