@@ -6,6 +6,7 @@ config.HTTP_PORT = 80;
 
 config.STATIC_HOST = '33.33.33.15';
 config.STATIC_PORT = 8080;
+config.STATIC_VERSION_FILE = 'static_version';
 
 config.MONGODB_HOST     = '127.0.0.1';
 config.MONGODB_USER     = 'mongodb';

@@ -2,6 +2,7 @@
 config.local.js
 client/css/minified.css
 client/js/minified.js
+static_version
 node_modules/.bin/
 node_modules/canvas/
 node_modules/ejs/
@@ -9,3 +10,4 @@ node_modules/express/
 node_modules/knox/
 node_modules/mongoose/
 node_modules/opts/
+node_modules/flow/
