@@ -1,7 +1,7 @@
 var config = exports;
 config.DEV = true;
 
-config.HTTP_HOST = '33.33.33.15';
+config.HTTP_HOST = '0.0.0.0';
 config.HTTP_PORT = 80;
 
 config.IO_HOST = '33.33.33.15';
@@ -17,7 +17,9 @@ config.MONGODB_DATABASE =  'muchmala';
 
 config.AWS_KEY      = null;
 config.AWS_SECRET   = null;
-config.AWS_BUCKET   = 'static.muchmala.com';
+config.S3_BUCKET_MAIN   = 'muchmala.com';
+config.S3_BUCKET_STATIC = 'static.muchmala.com';
+
 
 try {
     var config_local = require('./config.local.js');

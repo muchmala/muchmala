@@ -1,4 +1,5 @@
 var config = require('./config.js');
+var http = require('http');
 var fs = require('fs');
 var path = require('path');
 var knox = require('knox');
@@ -7,7 +8,7 @@ var flow = require('flow');
 
 
 desc('upload static files to S3');
-task('static-upload', [], function () {
+task('static-upload', [], function() {
     var staticVersion = fs.readFileSync(config.STATIC_VERSION_FILE);
     var uploadFiles = [
         ['client/css/minified.css', staticVersion + '/css/minified.css'],
@@ -22,12 +23,12 @@ task('static-upload', [], function () {
         uploadFiles.push([puzzleFile, url]);
     });
 
-    var s3client = createS3Client();
+    var s3client = createS3Client(config.S3_BUCKET_STATIC);
     flow.serialForEach(uploadFiles,
         function(uploadFile) {
             var src = uploadFile[0];
             var dst = uploadFile[1];
-            console.log('Uploading ' + src + ' to S3 http://s3.amazonaws.com/' + config.AWS_BUCKET + '/' + dst);
+            console.log('Uploading ' + src + ' to S3 http://s3.amazonaws.com/' + config.S3_BUCKET_STATIC + '/' + dst);
             s3client.upload(src, dst, this);
         }, function(err) {
             if (err) {
@@ -38,7 +39,41 @@ task('static-upload', [], function () {
     );
 }, true);
 
+desc('save index.html file');
+task('save-index', [], function() {
+    console.log('Saving index.html');
+    var options = {
+        host: '127.0.0.1',
+        path: '/'
+    };
+    http.get(options, function(res) {
+        var body = '';
+        res.on('data', function(chunk) {
+            body += chunk;
+        });
+        res.on('end', function() {
+            fs.writeFileSync('index.html', body);
+            console.log('DONE');
+            complete();
+        });
+    });
+}, true);
 
+desc('upload index.html file to S3');
+task('upload-index', ['save-index'], function() {
+    var src, dst;
+    src = dst = 'index.html';
+
+    var s3client = createS3Client(config.S3_BUCKET_MAIN);
+    console.log('Uploading ' + src + ' to S3 http://s3.amazonaws.com/' + config.S3_BUCKET_MAIN + '/' + dst);
+    s3client.upload('index.html', 'index.html', function(err) {
+        if (err) {
+            throw err;
+        }
+        console.log('DONE');
+        complete();
+    });
+}, true);
 
 //
 // helpers
@@ -69,7 +104,7 @@ function scanFiles(dir) {
     return files;
 }
 
-function createS3Client() {
+function createS3Client(bucket) {
     if (!config.AWS_KEY || !config.AWS_SECRET) {
         fail('AWS_KEY and/or AWS_SECRET are not defined in config');
     }
@@ -77,7 +112,7 @@ function createS3Client() {
     var knoxClient = knox.createClient({
         key: config.AWS_KEY,
         secret: config.AWS_SECRET,
-        bucket: config.AWS_BUCKET
+        bucket: bucket
     });
 
     return new S3Client(knoxClient);
