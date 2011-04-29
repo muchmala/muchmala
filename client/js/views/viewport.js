@@ -17,7 +17,7 @@ function Viewport(puzzle, user, leaders, twenty) {
 
 	puzzle.on('change', _.bind(function() {
         if (puzzle.get('completion') != 100 || 
-            complete.shown || complete.closed) {
+            this.complete.shown || this.complete.closed) {
             return;
         }
         this.menu.hide();

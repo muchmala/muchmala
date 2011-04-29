@@ -38,12 +38,13 @@ Dialog.prototype.show = function() {
 
 Dialog.prototype.shake = function() {
     if (this.shaking) {return;}
-
+    
     this.shaking = true;
+    var marginLeft = parseInt(this.element.css('margin-left'));
     for(var i = 0, offset = 5; i < 6; i++, offset = -offset) {
-        this.element.animate({marginLeft: offset}, 50);
+        this.element.animate({marginLeft: marginLeft + offset}, 50);
     }
-    this.element.animate({marginLeft: 0}, 50, null, _.bind(function() {
+    this.element.animate({marginLeft: marginLeft}, 50, null, _.bind(function() {
         this.shaking = false;
     }, this));
     
@@ -87,12 +88,13 @@ function UserNameDialog(model) {
         }
     }, this));
 
-    this.model.on('change:name', _.bind(function() {
+    this.model.on('saved:name', _.bind(function() {
         this.element.removeClass('loading');
         this.hide();
     }, this));
     
     this.model.on('error:saving:name', _.bind(function(reason) {
+        console.log(2);
         this.element.find('.error.' + reason).show();
         this.element.removeClass('loading');
     }, this));

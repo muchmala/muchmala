@@ -27,23 +27,33 @@
                 <file name="jquery/jquery.viewport/jquery.viewport.js"/>
                 <file name="jquery/jquery.scrolla/jquery.scrolla.js"/>
                 <file name="../../shared/flow.js"/>
-                <file name="observer.js"/>
-                <file name="preloader.js"/>
-                <file name="puzzle.js"/>
-                <file name="piece.js"/>
-                <file name="server.js"/>
-                <file name="storage.js"/>
-                <file name="viewport.js"/>
-                <file name="dialog.js"/>
-                <file name="panel.js"/>
-                <file name="app.js"/>
+                <file name="utils.js"/>
+
+				<file name="observer.js"/>
+				<file name="loader.js"/>
+				<file name="storage.js"/>
+				<file name="server.js"/>
+
+				<file name="model.js"/>
+				<file name="models/user.js"/>
+				<file name="models/puzzle.js"/>
+				<file name="models/leaders.js"/>
+				<file name="models/twenty.js"/>
+
+				<file name="views/puzzle.js"/>
+				<file name="views/piece.js"/>
+				<file name="views/viewport.js"/>
+				<file name="views/dialog.js"/>
+				<file name="views/panel.js"/>
+
+				<file name="app.js"/>
             </sources>
         </jscomp>
     </target>
 
     <target name="concat_js"  depends="minify_js">
         <concat destfile="${MINIFIED_JS}">
-            <filelist dir="${JS_DIR}" files="jquery/jquery.min.js, jquery/jquery-ui.js, socket.io/socket.io.js" />
+            <filelist dir="${JS_DIR}" files="socket.io/socket.io.min.js, jquery/jquery.min.js, jquery/jquery-ui.js" />
             <filelist dir="${SHARED_JS_DIR}" files="underscore.js" />
             <fileset file="${TMP_JS}" />
         </concat>
