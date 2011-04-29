@@ -9,7 +9,7 @@ var flow = require('flow');
 
 desc('upload static files to S3');
 task('static-upload', [], function() {
-    var staticVersion = fs.readFileSync(config.STATIC_VERSION_FILE);
+    var staticVersion = trim(fs.readFileSync(config.STATIC_VERSION_FILE).toString());
     var uploadFiles = [
         ['client/css/minified.css', staticVersion + '/css/minified.css'],
         ['client/js/minified.js',   staticVersion + '/js/minified.js']
@@ -78,6 +78,11 @@ task('upload-index', ['save-index'], function() {
 //
 // helpers
 //
+function trim(str) {
+    console.log(str);
+    return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+}
+
 function getPuzzlesFiles(puzzlesDir) {
     var puzzlesFiles = [];
     var files = fs.readdirSync(puzzlesDir);
