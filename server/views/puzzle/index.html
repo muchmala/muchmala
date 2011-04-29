@@ -8,44 +8,46 @@
 <%- partial('browser') %>
 
 <script>
-	window.STATIC_URL = 'http://<%=config.static%>';
+	window.STATIC_HOST = 'http://<%=config.STATIC_HOST%>';
+	window.IO_HOST = '<%=config.IO_HOST%>';
+	window.IO_PORT = <%=config.IO_PORT%>;
 	window.Puzz = {Utils: {}, Models: {}, Views: {}};
 </script>
 
 <% if (config.production) { %>
-<script src="http://<%=config.static%>/<%=config.version%>/js/minified.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/<%=config.version%>/js/minified.js"></script>
 <script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script>
 <% } else { %>
-<script src="http://<%=config.static%>/js/socket.io/socket.io.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/socket.io/socket.io.js"></script>
 
-<script src="http://<%=config.static%>/js/jquery/jquery.min.js"></script>
-<script src="http://<%=config.static%>/js/jquery/jquery-ui.js"></script>
-<script src="http://<%=config.static%>/js/jquery/jquery.scraggable/jquery.scraggable.js"></script>
-<script src="http://<%=config.static%>/js/jquery/jquery.viewport/jquery.viewport.js"></script>
-<script src="http://<%=config.static%>/js/jquery/jquery.scrolla/jquery.scrolla.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/jquery/jquery.min.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/jquery/jquery-ui.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/jquery/jquery.scraggable/jquery.scraggable.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/jquery/jquery.viewport/jquery.viewport.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/jquery/jquery.scrolla/jquery.scrolla.js"></script>
 
-<script src="http://<%=config.static%>/shared/underscore.js"></script>
-<script src="http://<%=config.static%>/shared/flow.js"></script>
-<script src="http://<%=config.static%>/shared/messages.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/shared/underscore.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/shared/flow.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/shared/messages.js"></script>
 
-<script src="http://<%=config.static%>/js/utils.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/utils.js"></script>
 
-<script src="http://<%=config.static%>/js/observer.js"></script>
-<script src="http://<%=config.static%>/js/loader.js"></script>
-<script src="http://<%=config.static%>/js/storage.js"></script>
-<script src="http://<%=config.static%>/js/server.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/observer.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/loader.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/storage.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/server.js"></script>
 
-<script src="http://<%=config.static%>/js/model.js"></script>
-<script src="http://<%=config.static%>/js/models/user.js"></script>
-<script src="http://<%=config.static%>/js/models/puzzle.js"></script>
-<script src="http://<%=config.static%>/js/models/leaders.js"></script>
-<script src="http://<%=config.static%>/js/models/twenty.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/model.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/models/user.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/models/puzzle.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/models/leaders.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/models/twenty.js"></script>
 
-<script src="http://<%=config.static%>/js/views/puzzle.js"></script>
-<script src="http://<%=config.static%>/js/views/piece.js"></script>
-<script src="http://<%=config.static%>/js/views/viewport.js"></script>
-<script src="http://<%=config.static%>/js/views/dialog.js"></script>
-<script src="http://<%=config.static%>/js/views/panel.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/views/puzzle.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/views/piece.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/views/viewport.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/views/dialog.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/views/panel.js"></script>
 
-<script src="http://<%=config.static%>/js/app.js"></script>
+<script src="http://<%=config.STATIC_HOST%>/js/app.js"></script>
 <% } %>

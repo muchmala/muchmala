@@ -10,7 +10,7 @@ Loader.prototype.images = function(sources, callback) {
     flow.serialForEach(_.toArray(sources), function(src) {
         this.src = src;
         this.image = new Image();
-        this.image.src = STATIC_URL + this.src;
+        this.image.src = window.STATIC_HOST + this.src;
         this.image.onload = this;
     }, function() {
         self.cache[this.src] = this.image;

@@ -17,7 +17,9 @@ server.set('view engine', 'html');
 var viewOptions = {
     config: {
         production: !config.DEV,
-        static: config.STATIC_HOST + (config.STATIC_PORT != 80 ? ':' + config.STATIC_PORT : ''),
+        IO_HOST: config.IO_HOST,
+        IO_PORT: config.IO_PORT,
+        STATIC_HOST: config.STATIC_HOST + (config.STATIC_PORT != 80 ? ':' + config.STATIC_PORT : ''),
 		version: fs.readFileSync(__dirname + '/../static_version', 'utf8')
     }
 };

@@ -3,7 +3,8 @@
 function Server() {
     Server.superproto.constructor.call(this);
         
-    this.socket = new io.Socket(null, {
+    this.socket = new io.Socket(window.IO_HOST, {
+        port: window.IO_PORT,
         transports: ['websocket', 'flashsocket', 'xhr-multipart', 'xhr-polling'],
         rememberTransport: false
     });
