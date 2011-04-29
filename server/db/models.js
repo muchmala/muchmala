@@ -23,7 +23,7 @@ var PiecesSchema = new Schema({
     realY     : Number,
     puzzleId  : {type: ObjectId, index: true},
     locked    : {type: String, 'default': null, index: true},
-    lockedAt  : {type: Date, 'default': null, index: true},
+    lockedAt  : {type: Number, 'default': null, index: true},
     ears      : {
         top     : Boolean,
         bottom  : Boolean,

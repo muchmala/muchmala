@@ -133,32 +133,22 @@ Puzzles.prototype.compactPieces = function(callback) {
 };
 
 Puzzles.prototype.lockPiece = function(x, y, userName, callback) {
-	/*var query = new Query()
+	var query = new Query()
 		.where('x', x).where('y', y)
 		.where('locked', null)
 		.where('puzzleId', this._id);
 	
 	var data = {
-	    //locked: userName,
+	    locked: userName,
 	    lockedAt: Date.now()
 	};
 	
-	Pieces.update(query, data, function(error, piece) {
+	Pieces.update(query, data, {safe: true}, function(error, piece) {
 		if (error || _.isNull(piece)) {
 			callback(false);
 			return;
 		}
 		callback(true);
-	});*/
-	
-	// TODO: Get back commented code when bug in mongoose is fixed
-	this.getPiece(x, y, function(piece) {
-	    if (piece.locked != null) { callback(false); }
-	    piece.locked = userName;
-	    piece.lockedAt = Date.now();
-	    piece.save(function() {
-	        callback(true);
-	    })
 	});
 };
 
@@ -183,7 +173,7 @@ Puzzles.prototype.unlockPiece = function(x, y, userName, callback) {
 };
 
 Puzzles.prototype.unlockOldPieces = function(callback) {
-    var past = new Date(Date.now() - 60000);
+    var past = parseInt(Date.now() - 60000);
     var query = new Query()
 		.lte('lockedAt', past)
 		.where('puzzleId', this._id)

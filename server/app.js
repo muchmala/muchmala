@@ -38,7 +38,6 @@ db.connect(function() {
             
             if (!_.isUndefined(message.action) && message.action == 'initialize') {
                 var puzzleId = null, userId = null;
-                
                 if (!_.isUndefined(message.data)) {
                     puzzleId = message.data.puzzleId || null;
                     userId = message.data.userId || null;

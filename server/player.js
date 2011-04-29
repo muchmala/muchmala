@@ -76,10 +76,9 @@ Player.prototype.setUserNameAction = function(userName) {
 };
 
 Player.prototype.lockPieceAction = function(coords) {
-    if (this.selected) {return;}
+    if (this.selected) { return; }
     
     var self = this;
-    
     this.puzzle.lockPiece(coords[0], coords[1], this.user.name, function(locked) {
         if (!locked) {return;}
         self.selected = coords;
