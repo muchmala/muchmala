@@ -31,11 +31,11 @@ $(function() {
     
     var loadPuzzle = (function() {
         var load = new Puzz.Loader();
-        var rows, cols, spriteSize, puzzleId, objectsLoaded;
+        var rows, cols, spriteSize, puzzleId, objectsLoaded = 0;
 
         function calcLoading(loadedCount) {
             objectsLoaded += loadedCount;
-            return Math.floor(objectsLoaded / (4 + rows * cols) / 100);
+            return Math.floor(objectsLoaded * 100 / (4 + rows * cols));
         }
         
         return flow.define(function() {
