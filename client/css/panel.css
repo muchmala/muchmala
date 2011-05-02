@@ -138,7 +138,7 @@ nav footer {
 }
 
 nav footer .stayTuned {
-    margin-bottom:10px;
+    margin:0 10px 10px 0;
     line-height:14px;
     font-size:11px;
 }
@@ -285,13 +285,5 @@ nav .user .pts {
 }
 
 nav .openMenu {
-    margin-top:10px;
-}
-
-nav p {
-    margin-top:30px;
-    margin-right:10px;
-    line-height:14px;
-    text-align:justify;
-    font-size:11px;
+    margin:10px 10px 0 0;
 }
