@@ -1,132 +1,157 @@
 (function() {
 
-function Panel(puzzle, user, leaders, menu) {
-    this.element = $('nav').draggable({containment: 'window'});
+var Panel = Backbone.View.extend({
 
-    var userNameDialog = new Puzz.Views.UserNameDialog(user);
-    var self = this;
+    el: $('nav'),
 
-    this.element.find('.user .name').click(function() {
-        if(!userNameDialog.shown) { userNameDialog.show(); }
-    });
-    this.element.find('header h1 span').click(function() {
-        if (!menu.shown) { menu.show(); }
-    });
-    this.element.find('header .howto').click(function() {
-        if (!menu.shown) { menu.show('howtoplay'); }
-    });
-    this.element.find('.expcol').click(function() {
-        if($(this).hasClass('opened')) self.collapse(); else self.expand();
-    });
+    initialize: function(stngs) {        
+        var user = stngs.user, menu = stngs.menu
+        var leadersView = new LeadersView({collection: stngs.leaders});
+        var statisticsView = new StatisticsView({model: stngs.puzzle});
+        var userNameDialog = new Puzz.Views.UserNameDialog(user);
+        
+        var self = this;
+        
+        this.el.find('.openMenu').click(function() {
+            if (!menu.shown) { menu.show(); }
+        });
+        this.el.find('.user .name').click(function() {
+            if(!userNameDialog.shown) { userNameDialog.show(); }
+        });
+        this.el.find('aside').toggle(function() {
+            self.el.addClass('hidden');
+            self.el.animate({right: -160}, 100, function() {
+                self.trigger('hide');
+            });
+        }, function() {
+            self.el.removeClass('hidden');
+            self.el.animate({right: 0}, 100, function() {
+                self.trigger('show');
+            });
+        });
+        
+        user.once('change', function() {
+            self.el.find('.user').show();
+        });
+        user.bind('change', function() {
+            self.el.find('.expcol').show();
+            self.el.find('.user .num').text(user.get('score'));
+            self.el.find('.user .name').text(user.get('name'));
+            self.el.addClass('filled');
+        });
+        user.bind('change:score', function() {
+            self.el.find('.user .num').text(user.get('score'));
+        });
+    },
 
-    user.on('change', _.bind(function() {
-        this.element.find('.expcol').show();
-        this.element.find('.user .num').text(user.get('score'));
-        this.element.find('.user .name').text(user.get('name'));
-        this.element.addClass('filled');
-    }, this));
+    show: function() {
+        this.el.show();
+    },
+
+    loading: function(percent) {
+        this.el.find('.progressbar i').css('width', percent + '%');
+        this.el.find('.progressbar span').html(percent + '%');
+    },
+
+    loadingComplete: function() {
+        setTimeout(_.bind(function() {
+            this.el.find('.progressbar').fadeOut();
+        }, this), 500)
+    }
     
-    user.on('change:score', _.bind(function() {
-        this.element.find('.user .num').text(user.get('score'));
-    }, this));
+});
 
-    puzzle.on('change', _.bind(function() {
-        var data = puzzle.all();
-        this.element.find('.statistics .swaps').text(data.swaps);
-        this.element.find('.statistics .connected').text(data.connected);
-        this.element.find('.statistics .complete').text(data.completion + '%');
-        this.element.find('.statistics .quantity').text(data.vLength * data.hLength);
-    }, this));
+Puzz.Views.Panel = Panel;
+
+var StatisticsView = Backbone.View.extend({
     
-    puzzle.once('change', _.bind(function() {
-        var data = puzzle.all();
+    el: $('nav .statistics'),
+        
+    initialize: function() {
+        _.bindAll(this, 'render', 'startTimer', 'show');
+        
+        this.model.once('change', this.show);
+        this.model.bind('change', this.render);
+        this.model.once('change', this.startTimer);
+    },
+    
+    render: function() {
+        var data = this.model.toJSON();
+        this.el.find('.swaps').text(data.swaps);
+        this.el.find('.connected').text(data.connected);
+        this.el.find('.complete').text(data.completion + '%');
+        this.el.find('.quantity').text(data.vLength * data.hLength);
+    },
+    
+    startTimer: function() {
+        var data = this.model.toJSON();
         this.updateTimeSpent(data.created, data.completed);
         setInterval(_.bind(function() {
             this.updateTimeSpent(data.created, data.completed);
         }, this), 6000);
-    }, this));
-
-    leaders.on('change:list', _.bind(function() {
-        updateLeadersBoard();
-    }, this));
-
-    this.leadersViewport = this.element.find('.leadersboard .viewport');
-    this.leadersViewport.viewport({position: 'top'});
-    this.leadersViewport.viewport('content').scraggable({axis: 'y', containment: 'parent'});
-    this.leadersViewport.scrolla({content: this.leadersViewport.viewport('content')});
-
-    var leadersShow = 'score';
+    },
     
-    this.element.find('.leadersboard .button').toggle(
-        function() {
-            leadersShow = 'found';
-            $(this).html(leadersShow);
-            updateLeadersBoard();
-        },
-        function() {
-            leadersShow = 'score';
-            $(this).html(leadersShow);
-            updateLeadersBoard();
-        });
-        
-    var updateLeadersBoard = _.bind(function() {
-        var leadersCount = leaders.get('list').length;
-        if(leadersCount > 0) {
-            var leadersList = leaders.getListSortedBy(leadersShow);
-            var leadersBoard = this.leadersViewport.find('.list').empty();
+    updateTimeSpent: function(creationTime, completionDate) {
+        this.el.find('.timeSpent').text(Puzz.TimeHelper.diffHoursMinutes(creationTime, completionDate));
+    },
+    
+    show: function() { this.el.show(); },
+    hide: function() { this.el.hide(); }
+    
+});
 
-            for(var i = leadersCount; i > 0; i--) {
+var LeadersView = Backbone.View.extend({
+    
+    el: $('nav .leadersboard'),
+    vp: $('nav .leadersboard .viewport'),
+    
+    events: {
+        'click .button': 'resort'
+    },
+    
+    shows: 'score',
+    
+    initialize: function() {
+        this.vp.viewport({position: 'top'});
+        this.vp.viewport('content').scraggable({axis: 'y', containment: 'parent'});
+        this.vp.scrolla({content: this.vp.viewport('content')});
+        
+        _.bindAll(this, 'render', 'show');
+        this.collection.once('refresh', this.show);
+        this.collection.bind('refresh', this.render);
+    },
+    
+    resort: function() {
+        this.shows = this.shows == 'score' ? 'found' : 'score';
+        this.el.find('.button').html(this.shows);
+        this.render();
+    },
+    
+    render: function() {
+        var count = this.collection.length;
+        if(count > 0) {
+            var list = this.collection.getSortedBy(this.show);
+            var viewport = this.vp.find('.list').empty();
+            
+            for(var i = count; i > 0; i--) {
+                var data = list[i-1].toJSON();
                 var row = $('<em></em>');
-                var data = leadersList[i-1];
 
                 row.append('<span class="status ' + (data.online ? 'online' : 'offline') + '"></span>');
                 row.append('<span class="name">' + data.name + '</span>');
-                row.append('<span class="num">' + data[leadersShow] + '</span>');
-                row.appendTo(leadersBoard);
+                row.append('<span class="num">' + data[this.shows] + '</span>');
+                row.appendTo(viewport);
             }
-            this.leadersViewport.height(row.height() * (leadersCount < 5 ? leadersCount : 5));
+            this.vp.height(row.height() * (count < 10 ? count : 10));
         }
-        this.leadersViewport.viewport('update');
-        this.leadersViewport.scrolla('update');
-    }, this);
-}
-
-var Proto = Panel.prototype;
-
-Proto.show = function() {
-    this.element.show();
-};
-
-Proto.loading = function() {
-    this.element.addClass('loading');
-};
-
-Proto.loadingComplete = function() {
-    this.element.removeClass('loading');
-};
-
-Proto.expand = function() {
-    this.element.find('header').show();
-    this.element.find('.statistics').show();
-    this.element.find('.leadersboard').show();
-    this.element.find('.expcol').addClass('opened');
-
-    this.leadersViewport.viewport('update');
-    this.leadersViewport.scrolla('update');
-};
-
-Proto.collapse = function() {
-    this.element.find('header').hide();
-    this.element.find('.statistics').hide();
-    this.element.find('.leadersboard').hide();
-    this.element.find('.expcol').removeClass('opened');
-};
-
-Proto.updateTimeSpent = function(creationTime, completionDate) {
-    var timeSpent = Puzz.TimeHelper.diffHoursMinutes(creationTime, completionDate);
-    this.element.find('.statistics .timeSpent').text(timeSpent);
-};
-
-Puzz.Views.Panel = Panel;
+        
+        this.vp.viewport('update');
+        this.vp.scrolla('update');
+    },
+    
+    show: function() { this.el.show(); },
+    hide: function() { this.el.hide(); }
+    
+});
 
 })();

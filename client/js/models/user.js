@@ -1,44 +1,51 @@
 (function() {
-
-function User(server) {
-    User.superproto.constructor.call(this, {
-       'id': Puzz.Storage.user.id(),
-       'name': 'anonymous',
-       'score': 0
-    });
     
-    this.server = server;
-    	
-	this.server.on(MESSAGES.userData, _.bind(function(data) {
-		Puzz.Storage.user.id(data.id);
-		this.refresh(data);
-    }, this));
+var strg = window.Puzz.Storage.user;
 
-	this.server.on(MESSAGES.scoreAdded, _.bind(function(data) {
-	    var added = _.reduce(data, function(memo, piece) {
-			return memo + piece.pts;
-		}, 0);
-        this.set('score', this.get('score') + added);
-    }, this));
+Puzz.Models.User = Backbone.IO.Model.extend({
     
-    this.server.on(MESSAGES.setUserName, _.bind(function(data) {
-        if (!_.isUndefined(data) &&
-            !_.isUndefined(data.error)) {
-            this.fire('error:saving:name', data.error);
+    defaults: {
+        'score': 0,
+        'id': strg.id(),
+        'name': 'anonymous'
+    },
+    
+    messages: {
+        'userData': 'refresh',
+        'scoreAdded': 'addScore',
+        'setUserName': 'setName'
+    },
+    
+    refresh: function(data) {
+        strg.id(data.id); 
+        this.set(data);
+    },
+    
+    addScore: function(data) {
+        var added = _.reduce(data, function(memo, piece) {
+            return memo + piece.pts;
+        }, 0);
+        this.set({'score': this.get('score') + added});
+    },
+    
+    setName: function(data) {
+        if (data && data.error) {
+            this.trigger('error', this, data.error);
         } else {
-            this.fire('saved:name');
+            this.trigger('saved', this);
         }
-    }, this));
-}
-
-Puzz.Utils.inherit(User, Puzz.Model);
-
-var Proto = User.prototype;
-
-Proto.save = function(attributeName) {
-    this.server.setUserName(this.get('name'));
-};
-
-Puzz.Models.User = User;
+    },
+    
+    validate: function(attrs) {
+        if (!/^[A-Za-z0-9_]{3,20}$/.test(attrs['name'])) {
+            return 'incorrect';
+        }
+    },
+    
+    sync: function(method, model) {
+        model.socket.setUserName(model.get('name'));
+    }
+    
+});
 
 })();

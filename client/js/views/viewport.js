@@ -3,11 +3,14 @@
 function Viewport(puzzle, user, leaders, twenty) {
     this.element = $('#viewport').viewport();
     this.content = this.element.viewport('content');
-	this.selectedIndicator = $('#selected');
-	
-	this.menu     = new Puzz.Views.MenuDialog(twenty);
-    this.panel    = new Puzz.Views.Panel(puzzle, user, leaders, this.menu);
+    this.selectedIndicator = $('#selected');
+    
+    this.menu = new Puzz.Views.MenuDialog(twenty);
     this.complete = new Puzz.Views.CompleteDialog(puzzle, leaders);
+    this.panel = new Puzz.Views.Panel({
+        leaders: leaders, menu: this.menu,
+        user: user, puzzle: puzzle
+    });
 
     this.pieceSize = 150;
     this.tooltips = {};
@@ -15,48 +18,58 @@ function Viewport(puzzle, user, leaders, twenty) {
     this.content.draggable({containment: 'parent'});
     this.content.scraggable({containment: 'parent', sensitivity: 10});
 
-	puzzle.on('change', _.bind(function() {
+    puzzle.bind('change', _.bind(function() {
         if (puzzle.get('completion') != 100 || 
             this.complete.shown || this.complete.closed) {
             return;
         }
         this.menu.hide();
-		this.menu.on('hidden', _.bind(function() {
-		    this.complete.show();
-		}, this));
+        this.menu.on('hidden', _.bind(function() {
+            this.complete.show();
+        }, this));
     }, this));
 
-	puzzle.once('change', _.bind(function() {
-	    var data = puzzle.all();
+    puzzle.once('change', _.bind(function() {
+        var data = puzzle.toJSON();
+        var step = Math.floor(data.pieceSize / 6);
+        
         this.pieceSize = data.pieceSize;
-        this.step = Math.floor(data.pieceSize / 6);
-        this.rectSize = this.step * 4 + 1;
-        this.arrange(data.vLength, data.hLength);
-	}, this));
-	
-	$(window).resize(_.bind(function() {
-         this.element.viewport('adjust');
+        this.rectSize = step * 4 + 1;
+        
+        this.element.viewport('size', 
+                this.rectSize * data.vLength + step * 2,
+                this.rectSize * data.hLength + step * 2);
+
+        this.updateViewportSize();
     }, this));
+    
+    _.bindAll(this, 'updateViewportSize');
+    this.panel.bind('show', this.updateViewportSize);
+    this.panel.bind('hide', this.updateViewportSize);
+    $(window).resize(this.updateViewportSize);
+    
+    if (!Puzz.Storage.menu.isHowToPlayShown()) {
+        Puzz.Storage.menu.setHowToPlayShown();
+        this.menu.show('howtoplay');
+    }
 }
 
 var Proto = Viewport.prototype;
 
 Proto.showMenu = function() {
-	this.menu.show();
+    this.menu.show();
 };
 
 Proto.showPanel = function() {
-	this.panel.show();
+    this.panel.show();
 };
 
 Proto.loading = function(percent) {
-	this.panel.loading(percent);
-	this.menu.loading(percent);
+    this.panel.loading(percent);
 };
 
 Proto.loadingComplete = function() {
-	this.menu.loadingComplete();
-	this.panel.loadingComplete();
+    this.panel.loadingComplete();
 };
 
 Proto.showSelectedIndicator = function(type) {
@@ -67,11 +80,12 @@ Proto.hideSelectedIndicator = function() {
     this.selectedIndicator.hide();
 };
 
-Proto.arrange = function(vLength, hLength) {
-    this.element.viewport('size', 
-            this.rectSize * vLength + this.step * 2,
-            this.rectSize * hLength + this.step * 2);
-    this.element.viewport('update');
+Proto.updateViewportSize = function() {
+    var windowWidth = $(window).width();
+    var panelWidth = windowWidth - this.panel.el.position().left;
+    
+    this.element.width(windowWidth - panelWidth);
+    this.element.viewport('adjust');
 };
 
 Proto.addTooltip = function(x, y, title) {

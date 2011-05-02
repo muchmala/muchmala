@@ -7,7 +7,7 @@
     <property name="MINIFIED_CSS" value="${CSS_DIR}/minified.css" />
     <property name="CLOSURE" value="${basedir}/build/compiler.jar" />
     <property name="YUI" value="${basedir}/build/yuicompressor.jar" />
-	<property name="CSSEMBED" value="${basedir}/build/cssembed.jar" />
+    <property name="CSSEMBED" value="${basedir}/build/cssembed.jar" />
     
     <property name="TMP_CSS" value="${basedir}/tmp.css" />
     <property name="TMP_JS" value="${basedir}/tmp.js" />
@@ -27,26 +27,32 @@
                 <file name="jquery/jquery.viewport/jquery.viewport.js"/>
                 <file name="jquery/jquery.scrolla/jquery.scrolla.js"/>
                 <file name="../../shared/flow.js"/>
+                
                 <file name="utils.js"/>
 
-				<file name="observer.js"/>
-				<file name="loader.js"/>
-				<file name="storage.js"/>
-				<file name="server.js"/>
+                <file name="backbone/backbone.js"/>
+                <file name="backbone/backbone.io.js"/>
 
-				<file name="model.js"/>
-				<file name="models/user.js"/>
-				<file name="models/puzzle.js"/>
-				<file name="models/leaders.js"/>
-				<file name="models/twenty.js"/>
+                <file name="observer.js"/>
+                <file name="loader.js"/>
+                <file name="storage.js"/>
+                <file name="server.js"/>
 
-				<file name="views/puzzle.js"/>
-				<file name="views/piece.js"/>
-				<file name="views/viewport.js"/>
-				<file name="views/dialog.js"/>
-				<file name="views/panel.js"/>
+                <file name="model.js"/>
+                <file name="models/user.js"/>
+                <file name="models/puzzle.js"/>
 
-				<file name="app.js"/>
+                <file name="collections/pieces.js"/>
+                <file name="collections/leaders.js"/>
+                <file name="collections/twenty.js"/>
+
+                <file name="views/puzzle.js"/>
+                <file name="views/piece.js"/>
+                <file name="views/viewport.js"/>
+                <file name="views/dialogs.js"/>
+                <file name="views/panel.js"/>
+
+                <file name="app.js"/>
             </sources>
         </jscomp>
     </target>
@@ -75,18 +81,18 @@
         </concat>
         <echo message="${MINIFIED_CSS} concatinated." />
     </target>
-	
-	<target name="embed_datauri_to_css" depends="concat_css">
+    
+    <target name="embed_datauri_to_css" depends="concat_css">
         <echo message="Embeding data:uri to the concatinated css" />
         <java jar="${CSSEMBED}" fork="true" failonerror="true">
-			<arg value="-o" />
-			<arg value="${TMP_CSS}" />
-			<arg value="--charset" />
-			<arg value="UTF-8" />
-			<arg value="--root" />
-			<arg value="client" />
-			<arg value="${TMP_CSS}" />
-		</java>
+            <arg value="-o" />
+            <arg value="${TMP_CSS}" />
+            <arg value="--charset" />
+            <arg value="UTF-8" />
+            <arg value="--root" />
+            <arg value="client" />
+            <arg value="${TMP_CSS}" />
+        </java>
         <echo message="Data:uri embedded." />
     </target>
 
