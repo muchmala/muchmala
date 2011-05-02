@@ -77,26 +77,21 @@ function UserNameDialog(model) {
         if (event.keyCode == KEYCODE_ESC) {this.hide();return;}
         if (event.keyCode != KEYCODE_ENTER) {return;}
 
-        var newName = this.input.val();
+        this.element.find('.error').hide();
+        this.element.addClass('loading');
         
-        if(/^[A-Za-z0-9_]{3,20}$/.test(newName) ) {
-            model.set('name', newName).save('name');
-            this.element.find('.error').hide();
-            this.element.addClass('loading');
-        } else {
-            this.shake();
-        }
+        model.save({'name': this.input.val()});
     }, this));
 
-    this.model.on('saved:name', _.bind(function() {
+    this.model.bind('saved', _.bind(function() {
         this.element.removeClass('loading');
         this.hide();
     }, this));
     
-    this.model.on('error:saving:name', _.bind(function(reason) {
-        console.log(2);
-        this.element.find('.error.' + reason).show();
+    this.model.bind('error', _.bind(function(model, error) {
+        this.element.find('.error.' + error).show();
         this.element.removeClass('loading');
+        this.shake();
     }, this));
 }
 
@@ -139,22 +134,13 @@ function MenuDialog(twenty) {
     this.pages.leaders.viewport({position: 'top'});
     this.pages.leaders.viewport('content').scraggable({axis: 'y', containment: 'parent'});
     this.pages.leaders.scrolla({content: this.pages.leaders.viewport('content')});
-
-    if (!Puzz.Storage.menu.isHowToPlayShown()) {
-        self.tabs.howtoplay.addClass('highlight');
-    }
-
-    this.tabs.howtoplay.click(function() {
-        Puzz.Storage.menu.setHowToPlayShown();
-        $(this).removeClass('highlight');
-    });
     
     this.tabs.leaders.click(function() {
         self.pages.leaders.addClass('loading');
         self.twenty.fetch();
     });
 
-    this.twenty.on('change:list', function() {
+    this.twenty.bind('refresh', function() {
         self.updateTopTwenty();
         self.pages.leaders.viewport('update');
         self.pages.leaders.scrolla('update');
@@ -174,21 +160,9 @@ MenuDialog.prototype.openPage = function(pageName) {
     Puzz.Storage.menu.lastViewedPage(pageName)
 };
 
-MenuDialog.prototype.loading = function(percent) {
-    this.element.find('.welcome .button.big i').css('width', percent + '%');
-};
-
-MenuDialog.prototype.loadingComplete = function() {
-    this.element.find('.welcome .button.big').html('Start Playing');
-    this.element.find('.welcome .button.big').removeClass('loading');
-    this.element.find('.welcome .button.big').click(_.bind(function() {
-        this.hide();
-    }, this));
-};
-
 MenuDialog.prototype.updateTopTwenty = function() {
     var list = this.pages.leaders.find('ul').empty();
-    var users = this.twenty.get('list');
+    var users = this.twenty.toJSON();
     
     for(var i = 0; i < users.length; i++) {
         var user = users[i];
@@ -230,10 +204,10 @@ function CompleteDialog(puzzle, leaders) {
         window.location.href = '/';
     });
 
-    this.puzzle.on('change', function() {
+    this.puzzle.bind('change', function() {
         if (_.isUndefined(self.puzzle.get('completed'))) {return;}
         
-        var data = self.puzzle.all();
+        var data = self.puzzle.toJSON();
         var creationTime = +(new Date(data.created));
         var completionTime = +(new Date(data.completed));
         var timeSpent = Puzz.TimeHelper.diffHoursMinutes(creationTime, completionTime);
@@ -244,7 +218,7 @@ function CompleteDialog(puzzle, leaders) {
         self.element.find('.swaps .value').html(data.swaps);
     });
 
-    this.leaders.on('change:list', function() {
+    this.leaders.bind('refresh', function() {
         self.updateLeadersBoard();
     });
 }
@@ -258,11 +232,11 @@ CompleteDialog.prototype.hide = function() {
 
 CompleteDialog.prototype.updateLeadersBoard = function() {
     var leadersBoard = this.element.find('.leaders').empty();
-    var leadersData = this.leaders.getListSortedBy(this.leadersShow);
+    var leadersData = this.leaders.getSortedBy(this.leadersShow);
 
     for(var i = leadersData.length, num = 1; i > 0 && num < 6; i--) {
+        var data = leadersData[i-1].toJSON();
         var row = $('<li></li>');
-        var data = leadersData[i-1];
 
         row.append('<span class="num">' + (num++) + '.</span>');
         row.append('<span class="name">' + data.name + '</span>');

@@ -8,9 +8,10 @@ $(function() {
 
     var server       = new Puzz.Server();
     var puzzleModel  = new Puzz.Models.Puzzle(server);
-    var leadersModel = new Puzz.Models.Leaders(server);
-    var twentyModel  = new Puzz.Models.Twenty(server);
     var userModel    = new Puzz.Models.User(server);
+    var piecesModel  = new Puzz.Collections.Pieces(server);
+    var leadersModel = new Puzz.Collections.Leaders(server);
+    var twentyModel  = new Puzz.Collections.Twenty(server);
     
     var viewport = new Puzz.Views.Viewport(puzzleModel, userModel, leadersModel, twentyModel)
     var puzzleView = new Puzz.Views.Puzzle(puzzleModel, viewport.content);
@@ -25,8 +26,8 @@ $(function() {
     });
 
     puzzleModel.once('change', function() {
-        puzzleModel.once('change:pieces', loadPuzzle);
-        puzzleModel.fetchPieces();
+        piecesModel.once('refresh', loadPuzzle);
+        piecesModel.fetch();
     });
     
     var loadPuzzle = (function() {
@@ -61,7 +62,7 @@ $(function() {
                 viewport.loading(calcLoading(1));
                 Puzz.Views.Piece.setSprite(row, col, sprite);
 
-                var piecesToShow = _.select(puzzleModel.get('pieces'), function(piece) {
+                var piecesToShow = _.select(piecesModel.toJSON(), function(piece) {
                     return piece.realX >= col * spriteSize && piece.realY >= row * spriteSize
                                 && piece.realX <= (col * spriteSize) + spriteSize - 1
                                 && piece.realY <= (row * spriteSize) + spriteSize - 1;
@@ -82,7 +83,7 @@ $(function() {
         }, function() {
             enablePuzzle();
             puzzleView.buildIndex();
-            puzzleModel.fetchPieces();
+            piecesModel.fetch();
         });
     })();
 
@@ -130,10 +131,10 @@ $(function() {
         });
         
         server.on(MESSAGES.initialized, function() {
-            puzzleModel.fetchPieces();
+            piecesModel.fetch();
         });
         
-        puzzleModel.on('change:pieces', function() {
+        piecesModel.bind('refresh', function() {
             viewport.removeTooltips();
             
             _.each(puzzleModel.get('pieces'), function(pieceData) {
@@ -181,9 +182,7 @@ $(function() {
     }
 
     server.connect();
-    viewport.showMenu();
     viewport.showPanel();
-    viewport.loading();
 });
 
 function log(message) {

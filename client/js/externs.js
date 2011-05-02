@@ -1,1 +1,1 @@
-var console, Puzz, _ , flow, $, JSON, MESSAGES, io, exports, module, jQuery, STATIC_URL;
+var console, Backbone, require, Puzz, _ , flow, $, JSON, MESSAGES, io, exports, module, jQuery, STATIC_URL;
