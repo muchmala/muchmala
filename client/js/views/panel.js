@@ -143,11 +143,11 @@ var LeadersView = Backbone.View.extend({
     render: function() {
         var count = this.collection.length;
         if(count > 0) {
-            var list = this.collection.getSortedBy(this.show);
+            var list = this.collection.getSortedBy(this.shows);
             var viewport = this.vp.find('.list').empty();
             
-            for(var i = 0; i < count; i++) {
-                var data = list[i].toJSON();
+            for(var i = count; i > 0; i--) {
+                var data = list[i-1].toJSON();
                 var row = $('<em></em>');
 
                 row.append('<span class="status ' + (data.online ? 'online' : 'offline') + '"></span>');
