@@ -18,15 +18,28 @@ var Panel = Backbone.View.extend({
         this.el.find('.user .name').click(function() {
             if(!userNameDialog.shown) { userNameDialog.show(); }
         });
+        
         this.el.find('aside').toggle(function() {
-            self.el.addClass('hidden');
-            self.el.animate({right: -160}, 100, function() {
-                self.trigger('hide');
+            self.el.animate({right: -160}, {
+                duration: 100, 
+                step: function() {
+                    self.trigger('move');
+                },
+                complete: function() {
+                    self.el.addClass('hidden');
+                    self.trigger('hide');
+                }
             });
         }, function() {
-            self.el.removeClass('hidden');
-            self.el.animate({right: 0}, 100, function() {
-                self.trigger('show');
+            self.el.animate({right: 0}, {
+                duration: 100, 
+                step: function() {
+                    self.trigger('move');
+                },
+                complete: function() {
+                    self.el.removeClass('hidden');
+                    self.trigger('show');
+                }
             });
         });
         
@@ -133,8 +146,8 @@ var LeadersView = Backbone.View.extend({
             var list = this.collection.getSortedBy(this.show);
             var viewport = this.vp.find('.list').empty();
             
-            for(var i = count; i > 0; i--) {
-                var data = list[i-1].toJSON();
+            for(var i = 0; i < count; i++) {
+                var data = list[i].toJSON();
                 var row = $('<em></em>');
 
                 row.append('<span class="status ' + (data.online ? 'online' : 'offline') + '"></span>');

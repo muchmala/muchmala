@@ -3,13 +3,16 @@
 function Viewport(puzzle, user, leaders, twenty) {
     this.element = $('#viewport').viewport();
     this.content = this.element.viewport('content');
-    this.selectedIndicator = $('#selected');
+    
+    this.selectedIndicator = $('<div></div>')
+    this.selectedIndicator.appendTo(this.element);
+    this.selectedIndicator.attr('id', 'selected');
     
     this.menu = new Puzz.Views.MenuDialog(twenty);
     this.complete = new Puzz.Views.CompleteDialog(puzzle, leaders);
     this.panel = new Puzz.Views.Panel({
-        leaders: leaders, menu: this.menu,
-        user: user, puzzle: puzzle
+        leaders: leaders, user: user,
+        menu: this.menu, puzzle: puzzle
     });
 
     this.pieceSize = 150;
@@ -44,6 +47,7 @@ function Viewport(puzzle, user, leaders, twenty) {
     }, this));
     
     _.bindAll(this, 'updateViewportSize');
+    this.panel.bind('move', this.updateViewportSize);
     this.panel.bind('show', this.updateViewportSize);
     this.panel.bind('hide', this.updateViewportSize);
     $(window).resize(this.updateViewportSize);
