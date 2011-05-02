@@ -20,6 +20,7 @@ config.AWS_SECRET   = null;
 config.S3_BUCKET_MAIN   = 'muchmala.com';
 config.S3_BUCKET_STATIC = 'static.muchmala.com';
 
+config.UTILS_DB = 'utils.db';
 
 try {
     var config_local = require('./config.local.js');
