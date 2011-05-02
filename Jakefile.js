@@ -5,14 +5,16 @@ var path = require('path');
 var knox = require('knox');
 var flow = require('flow');
 
+var db = loadDb();
+//console.log('Database:', db);
+
 
 
 desc('upload static files to S3');
 task('static-upload', [], function() {
-    var staticVersion = trim(fs.readFileSync(config.STATIC_VERSION_FILE).toString());
     var uploadFiles = [
-        ['client/css/minified.css', staticVersion + '/css/minified.css'],
-        ['client/js/minified.js',   staticVersion + '/js/minified.js']
+        ['client/css/minified.css', db.staticVersion + '/css/minified.css'],
+        ['client/js/minified.js',   db.staticVersion + '/js/minified.js']
     ];
 
     var puzzlesFiles = getPuzzlesFiles('client/img/puzzles');
@@ -22,6 +24,21 @@ task('static-upload', [], function() {
         var url = parts.join('/');
         uploadFiles.push([puzzleFile, url]);
     });
+
+    // remember the filtration time
+    var thisStaticUpload = Date.now();
+
+    // filter out files that were not modified since the last upload
+    uploadFiles = uploadFiles.filter(function(uploadFile) {
+        var src = uploadFile[0];
+        var srcInfo = fs.statSync(src);
+        return (srcInfo.mtime.getTime() > db.lastStaticUpload);
+    });
+
+    if (uploadFiles.length == 0) {
+        console.log('No new files to upload.');
+        return;
+    }
 
     var s3client = createS3Client(config.S3_BUCKET_STATIC);
     flow.serialForEach(uploadFiles,
@@ -34,6 +51,12 @@ task('static-upload', [], function() {
             if (err) {
                 throw err;
             }
+
+            // update last upload time
+            db.lastStaticUpload = thisStaticUpload;
+            saveDb(db);
+
+            console.log('DONE');
             complete();
         }
     );
@@ -79,7 +102,6 @@ task('upload-index', ['save-index'], function() {
 // helpers
 //
 function trim(str) {
-    console.log(str);
     return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
 }
 
@@ -107,6 +129,41 @@ function scanFiles(dir) {
         return path.join(dir, file);
     });
     return files;
+}
+
+function loadDb() {
+    if (!path.existsSync(config.UTILS_DB)) {
+        console.log(config.UTILS_DB + ' file not found - creating empty one.');
+        fs.writeFileSync(config.UTILS_DB, '{}');
+    }
+
+    var db = JSON.parse(fs.readFileSync(config.UTILS_DB).toString());
+
+    // backwards compatibility
+    var staticVersionFile = 'static_version';
+    if (path.existsSync(staticVersionFile)) {
+        db.staticVersion = parseInt(trim(fs.readFileSync(staticVersionFile).toString()), 10);
+        saveDb(db);
+        fs.unlinkSync(staticVersionFile);
+    }
+
+    if (!db.staticVersion || db.staticVersion < 1) {
+        console.log('db.staticVersion is not set or invalid - set to 1.');
+        db.staticVersion = 1;
+        saveDb(db);
+    }
+
+    if (!db.lastStaticUpload || db.lastStaticUpload < 0) {
+        console.log('db.lastStaticUpload is not set or invalid - set to current time.');
+        db.lastStaticUpload = Date.now();
+        saveDb(db);
+    }
+
+    return db;
+}
+
+function saveDb(db) {
+    return fs.writeFileSync(config.UTILS_DB, JSON.stringify(db));
 }
 
 function createS3Client(bucket) {
