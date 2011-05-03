@@ -137,7 +137,7 @@ $(function() {
         piecesModel.bind('refresh', function() {
             viewport.removeTooltips();
             
-            _.each(puzzleModel.get('pieces'), function(pieceData) {
+            _.each(piecesModel.toJSON(), function(pieceData) {
                 var x = pieceData.x;
                 var y = pieceData.y;
                 var piece = puzzleView.getPiece(x, y);
