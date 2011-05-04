@@ -26,13 +26,16 @@ Puzz.Models.User = Backbone.IO.Model.extend({
             return memo + piece.pts;
         }, 0);
         this.set({'score': this.get('score') + added});
+        this.trigger('score', data);
     },
     
     setName: function(data) {
         if (data && data.error) {
+            this.set({'name': this.previous('name')});
             this.trigger('error', this, data.error);
         } else {
             this.trigger('saved', this);
+            this.change();
         }
     },
     

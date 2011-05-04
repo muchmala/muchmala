@@ -209,3 +209,22 @@ input {
     max-width:62px;
     margin:0 4px;
 }
+
+#viewport .score {
+    display:inline-block;
+    position:absolute;
+    z-index:9999;
+    margin:-50px 0 0 -50px;
+    width:100px;
+    height:100px;
+    line-height:90px;
+    font-size:30px;
+    font-weight:bold;
+    text-align:center;
+    color:#fff;
+    
+    text-shadow:0 0 1px #000,
+                0 0 1px #000, 
+                0 0 1px #000, 
+                0 0 1px #000;
+}

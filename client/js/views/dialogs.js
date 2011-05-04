@@ -80,7 +80,7 @@ function UserNameDialog(model) {
         this.element.find('.error').hide();
         this.element.addClass('loading');
         
-        model.save({'name': this.input.val()});
+        model.save({'name': this.input.val()}, {silent: true});
     }, this));
 
     this.model.bind('saved', _.bind(function() {

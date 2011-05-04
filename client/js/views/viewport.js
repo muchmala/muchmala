@@ -20,6 +20,8 @@ function Viewport(puzzle, user, leaders, twenty) {
 
     this.content.draggable({containment: 'parent'});
     this.content.scraggable({containment: 'parent', sensitivity: 10});
+    
+    var self = this;
 
     puzzle.bind('change', _.bind(function() {
         if (puzzle.get('completion') != 100 || 
@@ -45,6 +47,12 @@ function Viewport(puzzle, user, leaders, twenty) {
 
         this.updateViewportSize();
     }, this));
+    
+    user.bind('score', function(pieces) {
+        _.each(pieces, function(piece) {
+            self.blowScore(piece.x, piece.y, piece.pts);
+        });
+    });
     
     _.bindAll(this, 'updateViewportSize');
     this.panel.bind('move', this.updateViewportSize);
@@ -122,6 +130,21 @@ Proto.removeTooltips = function() {
         });
     });
     this.tooltips = {};
+};
+
+Proto.blowScore = function(x, y, score) {
+    var score = $('<div class="score">' + score + '</div>')
+        .css('left', x * this.rectSize + Math.floor(this.pieceSize / 2))
+        .css('top', y * this.rectSize + Math.floor(this.pieceSize / 2))
+        .appendTo(this.content);
+    
+    score.animate({
+        'margin-top': -120, 
+        'font-size': 80, 
+        'opacity': 0
+    }, 700, function() {
+        score.remove();
+    });
 };
 
 window.Puzz.Views.Viewport = Viewport;
