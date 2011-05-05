@@ -52,7 +52,8 @@ Installation (Vagrant)
 
         sudo bin/muchmala
 
-You can now check if Muchmala is running by opening `http://33.33.33.15/` in your browser.
+Vagrant is pre-configured to give your VM an IP address of 33.33.33.15.
+This way you can now check if Muchmala is running by opening `http://33.33.33.15/` in your browser.
 
 Installation (AWS)
 ------------------
