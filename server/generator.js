@@ -50,7 +50,7 @@ image.onload = function() {
     var settings = {
         name: opts.get('name'),
         invisible: opts.get('invisible') || false,
-        pieceSize: parseInt(opts.get('piecesize')) || 150,
+        pieceSize: parseInt(opts.get('piecesize')) || 120,
         spriteSize: parseInt(opts.get('spritesize')) || 5
     };
 
