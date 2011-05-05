@@ -1,6 +1,6 @@
 server {
-	listen 8080;
-	server_name 33.33.33.15;
+	listen <%= config.STATIC_PORT %>;
+	server_name <%= config.STATIC_HOST %>;
 
 	gzip on;
 	gzip_proxied any;
@@ -9,10 +9,10 @@ server {
 	gzip_comp_level 1;
 
 	location / {
-		root "/opt/muchmala/client";
+		root "<%= root %>/client";
 	}
 
 	location /shared/ {
-		root "/opt/muchmala";
+		root "<%= root %>";
 	}
 }

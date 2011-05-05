@@ -35,24 +35,20 @@ Installation (Vagrant)
 
         npm install
 
-7. Symlink nginx config of the static server. It's using port 8080 by default.
+7. Install jake globally.
 
-        sudo ln -sf /opt/muchmala/config/nginx.conf /etc/nginx/sites-enabled/muchmala
+        sudo npm install jake -g
 
-8. Remove the symlink to default nginx config. This way nginx won't use port 80.
+8. Perform final installation steps using jake.
 
-        sudo rm /etc/nginx/sites-enabled/default
+        sudo jake install
 
-9. Restart nginx for the new configs to take effect.
-
-        sudo /etc/init.d/nginx restart
-
-10. Put some big image into project directory. Call it something like `puzzle.jpg`.
-11. Generate the first puzzle using that image.
+9. Put some big image into project directory. Call it something like `puzzle.jpg`.
+10. Generate the first puzzle using that image.
 
         bin/muchmala-generator -i puzzle.jpg -n puzzle -ps 150
 
-12. Run the actual application server.
+11. Run the actual application server.
 
         sudo bin/muchmala
 
