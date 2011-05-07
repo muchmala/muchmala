@@ -5,8 +5,8 @@ function Viewport(puzzle, user, leaders, twenty) {
     this.content = this.element.viewport('content');
     
     this.selectedIndicator = $('<div></div>')
-    this.selectedIndicator.appendTo(this.element);
-    this.selectedIndicator.attr('id', 'selected');
+            .appendTo(this.element)
+            .attr('id', 'selected');
     
     this.menu = new Puzz.Views.MenuDialog(twenty);
     this.complete = new Puzz.Views.CompleteDialog(puzzle, leaders);
@@ -23,30 +23,30 @@ function Viewport(puzzle, user, leaders, twenty) {
     
     var self = this;
 
-    puzzle.bind('change', _.bind(function() {
+    puzzle.bind('change', function() {
         if (puzzle.get('completion') != 100 || 
-            this.complete.shown || this.complete.closed) {
+            self.complete.shown || self.complete.closed) {
             return;
         }
-        this.menu.hide();
-        this.menu.on('hidden', _.bind(function() {
-            this.complete.show();
-        }, this));
-    }, this));
+        self.menu.hide();
+        self.menu.bind('hidden', function() {
+            self.complete.show();
+        });
+    });
 
-    puzzle.once('change', _.bind(function() {
+    puzzle.once('change', function() {
         var data = puzzle.toJSON();
         var step = Math.floor(data.pieceSize / 6);
         
-        this.pieceSize = data.pieceSize;
-        this.rectSize = step * 4 + 1;
+        self.pieceSize = data.pieceSize;
+        self.rectSize = step * 4 + 1;
         
-        this.element.viewport('size', 
-                this.rectSize * data.vLength + step * 2,
-                this.rectSize * data.hLength + step * 2);
+        self.element.viewport('size', 
+                self.rectSize * data.vLength + step * 2,
+                self.rectSize * data.hLength + step * 2);
 
-        this.updateViewportSize();
-    }, this));
+        self.updateViewportSize();
+    });
     
     user.bind('score', function(pieces) {
         _.each(pieces, function(piece) {

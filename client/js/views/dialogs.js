@@ -1,8 +1,6 @@
 (function() {
 
 function Dialog() {
-    Dialog.superproto.constructor.call(this);
-    
     this.shown = false;
     this.shaking = false;
     this.close = $('<span class="button close">x</span>');
@@ -16,27 +14,29 @@ function Dialog() {
     }, this));
 }
 
-Puzz.Utils.inherit(Dialog, Puzz.Observer);
+_.extend(Dialog.prototype, Backbone.Events);
 
 Dialog.EVENTS = {
     shown: 'shown',
     hidden: 'hidden'
 };
 
-Dialog.prototype.show = function() {
-	this.element.css('margin-top', -Math.floor(this.element.outerHeight() / 2))
-	this.element.css('margin-left', -Math.floor(this.element.outerWidth() / 2))
+var DialogProto = Dialog.prototype;
+
+DialogProto.show = function() {
+	this.element.css('margin-top', -Math.floor(this.element.outerHeight() / 2));
+	this.element.css('margin-left', -Math.floor(this.element.outerWidth() / 2));
     this.element.css('left', '50%').show();
 
     this.element.animate({top: '50%'}, 100, _.bind(function() {
         this.shown = true;
-        this.fire('shown');
+        this.trigger('shown');
     }, this));
     
     return this;
 };
 
-Dialog.prototype.shake = function() {
+DialogProto.shake = function() {
     if (this.shaking) {return;}
     
     this.shaking = true;
@@ -51,12 +51,12 @@ Dialog.prototype.shake = function() {
     return this;
 };
 
-Dialog.prototype.hide = function() {
+DialogProto.hide = function() {
     var top = -this.element.height();
     this.element.animate({top: top}, 100, _.bind(function() {
         this.shown = false;
         this.element.hide();
-        this.fire('hidden');
+        this.trigger('hidden');
     }, this));
     
     return this;
@@ -97,13 +97,15 @@ function UserNameDialog(model) {
 
 Puzz.Utils.inherit(UserNameDialog, Dialog);
 
-UserNameDialog.prototype.show = function() {
+var UserNameDialogProto = UserNameDialog.prototype;
+
+UserNameDialogProto.show = function() {
     UserNameDialog.superproto.show.call(this);
     this.input.val(this.model.get('name'));
     this.input.focus();
 };
 
-UserNameDialog.prototype.hide = function() {
+UserNameDialogProto.hide = function() {
     UserNameDialog.superproto.hide.call(this);
     this.input.blur();
 };
@@ -150,17 +152,17 @@ function MenuDialog(twenty) {
 
 Puzz.Utils.inherit(MenuDialog, Dialog);
 
-MenuDialog.prototype.openPage = function(pageName) {
+var MenuDialogProto = MenuDialog.prototype;
+
+MenuDialogProto.openPage = function(pageName) {
     _.each(this.tabs, function(tab) {tab.removeClass('sel');});
     _.each(this.pages, function(page) {page.hide();});
 
     this.tabs[pageName].addClass('sel');
     this.pages[pageName].show();
-
-    Puzz.Storage.menu.lastViewedPage(pageName)
 };
 
-MenuDialog.prototype.updateTopTwenty = function() {
+MenuDialogProto.updateTopTwenty = function() {
     var list = this.pages.leaders.find('ul').empty();
     var users = this.twenty.toJSON();
     
@@ -225,12 +227,14 @@ function CompleteDialog(puzzle, leaders) {
 
 Puzz.Utils.inherit(CompleteDialog, Dialog);
 
-CompleteDialog.prototype.hide = function() {
+var CompleteDialogProto = CompleteDialog.prototype;
+
+CompleteDialogProto.hide = function() {
     CompleteDialog.superproto.hide.call(this);
 	this.closed = true;
 };
 
-CompleteDialog.prototype.updateLeadersBoard = function() {
+CompleteDialogProto.updateLeadersBoard = function() {
     var leadersBoard = this.element.find('.leaders').empty();
     var leadersData = this.leaders.getSortedBy(this.leadersShow);
 

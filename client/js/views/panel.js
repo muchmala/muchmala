@@ -5,19 +5,15 @@ var Panel = Backbone.View.extend({
     el: $('nav'),
 
     initialize: function(stngs) {        
-        var user = stngs.user, menu = stngs.menu
+        var userView = new UserView({model: stngs.user});
         var leadersView = new LeadersView({collection: stngs.leaders});
         var statisticsView = new StatisticsView({model: stngs.puzzle});
-        var userNameDialog = new Puzz.Views.UserNameDialog(user);
-        
-        var self = this;
         
         this.el.find('.openMenu').click(function() {
-            if (!menu.shown) { menu.show(); }
+            if (!stngs.menu.shown) stngs.menu.show();
         });
-        this.el.find('.user .name').click(function() {
-            if(!userNameDialog.shown) { userNameDialog.show(); }
-        });
+        
+        var self = this;
         
         this.el.find('aside').toggle(function() {
             self.el.animate({right: -160}, {
@@ -42,23 +38,6 @@ var Panel = Backbone.View.extend({
                 }
             });
         });
-        
-        user.once('change', function() {
-            self.el.find('.user').show();
-        });
-        user.bind('change', function() {
-            self.el.find('.expcol').show();
-            self.el.find('.user .num').text(user.get('score'));
-            self.el.find('.user .name').text(user.get('name'));
-            self.el.addClass('filled');
-        });
-        user.bind('change:score', function() {
-            self.el.find('.user .num').text(user.get('score'));
-        });
-    },
-
-    show: function() {
-        this.el.show();
     },
 
     loading: function(percent) {
@@ -70,11 +49,43 @@ var Panel = Backbone.View.extend({
         setTimeout(_.bind(function() {
             this.el.find('.progressbar').fadeOut();
         }, this), 500)
-    }
+    },
+    
+    show: function() { this.el.show(); },
+    hide: function() { this.el.hide(); }
     
 });
 
 Puzz.Views.Panel = Panel;
+
+var UserView = Backbone.View.extend({
+    
+    el: $('nav .user'),
+    
+    initialize: function() {
+        var userNameDialog = new Puzz.Views.UserNameDialog(this.model);
+        
+        this.el.find('.name').click(function() {
+            if(!userNameDialog.shown) userNameDialog.show();
+        });
+        
+        var self = this;
+        
+        this.model.once('change', function() {
+            self.el.show();
+        });
+        
+        this.model.bind('change', function() {
+            self.el.find('.num').text(self.model.get('score'));
+            self.el.find('.name').text(self.model.get('name'));
+        });
+        
+        this.model.bind('change:score', function() {
+            self.el.find('.num').text(self.model.get('score'));
+        });
+    }
+    
+});
 
 var StatisticsView = Backbone.View.extend({
     

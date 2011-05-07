@@ -4,7 +4,9 @@ function Loader() {
     this.cache = {};
 }
 
-Loader.prototype.images = function(sources, callback) {
+var Proto = Loader.prototype;
+
+Proto.images = function(sources, callback) {
     var self = this;
     
     flow.serialForEach(_.toArray(sources), function(src) {
@@ -19,7 +21,7 @@ Loader.prototype.images = function(sources, callback) {
     });
 };
 
-Loader.prototype.covers = function(puzzleId, callback) {
+Proto.covers = function(puzzleId, callback) {
     var sources = {
         defaultCoverSrc: '/img/puzzles/' + puzzleId + '/default_covers.png',
         selectCoverSrc: '/img/puzzles/' + puzzleId + '/select_covers.png',
@@ -35,7 +37,7 @@ Loader.prototype.covers = function(puzzleId, callback) {
     }, this));
 };
 
-Loader.prototype.sprites = function(puzzleId, rows, cols, callbackSprite, callbackFinish) {
+Proto.sprites = function(puzzleId, rows, cols, callbackSprite, callbackFinish) {
     var self = this;
     var sprites = [];
     

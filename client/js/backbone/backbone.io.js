@@ -7,7 +7,7 @@
         
         if (this.messages) {
             _.each(this.messages, function(method, message){
-                this.socket.on(message, _.bind(this[method], this));
+                this.socket.bind(message, _.bind(this[method], this));
             }, this);
         }
         
@@ -23,7 +23,7 @@
         
         if (this.messages) {
             _.each(this.messages, function(method, message){
-                this.socket.on(message, _.bind(this[method], this));
+                this.socket.bind(message, _.bind(this[method], this));
             }, this);
         }
         

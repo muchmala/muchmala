@@ -1,52 +1,54 @@
 (function() {
 
 function Server() {
-    Server.superproto.constructor.call(this);
-        
     this.socket = new io.Socket(window.IO_HOST, {
         port: window.IO_PORT,
         transports: ['websocket', 'flashsocket', 'xhr-multipart', 'xhr-polling'],
         rememberTransport: false
     });
     
-    this.socket.on('message', _.bind(function(data) {
+    var self = this;
+    
+    this.socket.on('message', function(data) {
         var parsed = JSON.parse(data);
-        this.fire(parsed.event, parsed.data);
+        self.trigger(parsed.event, parsed.data);
         log('Received: ' + parsed.event);
-    }, this));
+    });
     
-    this.socket.on('disconnect', _.bind(function() {
+    this.socket.on('disconnect', function() {
         log('Disconnected');
-    }, this));
+    });
     
-    this.socket.on('connect', _.bind(function() {
-        this.fire('connected');
+    this.socket.on('connect', function() {
+        self.trigger('connected');
         log('Connected');
-    }, this));
+    });
 }
 
-Puzz.Utils.inherit(Server, Puzz.Observer);
+_.extend(Server.prototype, Backbone.Events);
 
-Server.prototype.sendMessage = function(message) {
+var Proto = Server.prototype;
+
+Proto.sendMessage = function(message) {
     if(this.socket.connected) {
         this.socket.send(message);
         log('sent ' + message);
     }
 };
 
-Server.prototype.createMessage = function(action, data) {
+Proto.createMessage = function(action, data) {
     return JSON.stringify({action: action, data: data});
 };
 
-Server.prototype.connect = function() {
+Proto.connect = function() {
     this.socket.connect();
 };
 
-Server.prototype.disconnect = function() {
+Proto.disconnect = function() {
     this.socket.disconnect();
 };
 
-Server.prototype.initialize = function(userId, puzzleId) {
+Proto.initialize = function(userId, puzzleId) {
     var data = {};
     if (!_.isNull(userId)) { data.userId = userId; }
     if (!_.isNull(puzzleId)) { data.puzzleId = puzzleId; }
@@ -54,31 +56,31 @@ Server.prototype.initialize = function(userId, puzzleId) {
     this.sendMessage(this.createMessage(MESSAGES.initialize, data));
 };
 
-Server.prototype.getPiecesData = function(puzzleId) {
+Proto.getPiecesData = function(puzzleId) {
     this.sendMessage(this.createMessage(MESSAGES.piecesData, puzzleId));
 };
 
-Server.prototype.getUserData = function(userId) {
+Proto.getUserData = function(userId) {
     this.sendMessage(this.createMessage(MESSAGES.userData, userId));
 };
 
-Server.prototype.setUserName = function(userName) {
+Proto.setUserName = function(userName) {
     this.sendMessage(this.createMessage(MESSAGES.setUserName, userName));
 };
 
-Server.prototype.lockPiece = function(x, y) {
+Proto.lockPiece = function(x, y) {
     this.sendMessage(this.createMessage(MESSAGES.lockPiece, [x, y]));
 };
 
-Server.prototype.unlockPiece = function(x, y) {
+Proto.unlockPiece = function(x, y) {
     this.sendMessage(this.createMessage(MESSAGES.unlockPiece, [x, y]));
 };
 
-Server.prototype.swapPieces = function(x1, y1, x2, y2) {
+Proto.swapPieces = function(x1, y1, x2, y2) {
     this.sendMessage(this.createMessage(MESSAGES.swapPieces, [[x1, y1], [x2, y2]]));
 };
 
-Server.prototype.getTopTwenty = function() {
+Proto.getTopTwenty = function() {
     this.sendMessage(this.createMessage(MESSAGES.topTwenty));
 };
 

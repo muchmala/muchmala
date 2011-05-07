@@ -6,28 +6,29 @@ $(function() {
         return;
     }
 
-    var server       = new Puzz.Server();
-    var puzzleModel  = new Puzz.Models.Puzzle(server);
-    var userModel    = new Puzz.Models.User(server);
-    var piecesModel  = new Puzz.Collections.Pieces(server);
-    var leadersModel = new Puzz.Collections.Leaders(server);
-    var twentyModel  = new Puzz.Collections.Twenty(server);
+    var server      = new Puzz.Server();
+    var userModel   = new Puzz.Models.User(server);
+    var puzzleModel = new Puzz.Models.Puzzle(server);
+    var piecesCollection  = new Puzz.Collections.Pieces(server);
+    var twentyCollection  = new Puzz.Collections.Twenty(server);
+    var leadersCollection = new Puzz.Collections.Leaders(server);
     
-    var viewport = new Puzz.Views.Viewport(puzzleModel, userModel, leadersModel, twentyModel)
+    var viewport = new Puzz.Views.Viewport(puzzleModel, userModel, leadersCollection, twentyCollection)
     var puzzleView = new Puzz.Views.Puzzle(puzzleModel, viewport.content);
     var selected;
     
-    server.on('connected', function() {
-        var puzzleId = puzzleModel.get('id');
-        if (window.location.hash.length) {
-            puzzleId = window.location.hash.replace('#', '');
-        }
-        server.initialize(Puzz.Storage.user.id(), puzzleId);
+    // TEMPORARY SOLUTION, SHOULD BE REMOVED IN JUNE
+    if (!$.cookie('user_id') && Puzz.Storage.user.id()) {
+        $.cookie('user_id', Puzz.Storage.user.id());
+    }
+
+    server.bind('connected', function() {
+        server.initialize(userModel.id, puzzleModel.id);
     });
 
     puzzleModel.once('change', function() {
-        piecesModel.once('refresh', loadPuzzle);
-        piecesModel.fetch();
+        piecesCollection.once('refresh', loadPuzzle);
+        piecesCollection.fetch();
     });
     
     var loadPuzzle = (function() {
@@ -62,7 +63,7 @@ $(function() {
                 viewport.loading(calcLoading(1));
                 Puzz.Views.Piece.setSprite(row, col, sprite);
 
-                var piecesToShow = _.select(piecesModel.toJSON(), function(piece) {
+                var piecesToShow = _.select(piecesCollection.toJSON(), function(piece) {
                     return piece.realX >= col * spriteSize && piece.realY >= row * spriteSize
                                 && piece.realX <= (col * spriteSize) + spriteSize - 1
                                 && piece.realY <= (row * spriteSize) + spriteSize - 1;
@@ -83,7 +84,7 @@ $(function() {
         }, function() {
             enablePuzzle();
             puzzleView.buildIndex();
-            piecesModel.fetch();
+            piecesCollection.fetch();
         });
     })();
 
@@ -91,10 +92,10 @@ $(function() {
         $(document.body).removeClass('fallback')
         
         viewport.loadingComplete();
-        puzzleView.on('leftClick', processClickedPiece);
-        puzzleView.on('rightClick', releaseSelectedPiece);
+        puzzleView.bind('leftClick', processClickedPiece);
+        puzzleView.bind('rightClick', releaseSelectedPiece);
 
-        server.on(MESSAGES.lockPiece, function(locked) {
+        server.bind(MESSAGES.lockPiece, function(locked) {
             var x = locked.coords[0];
             var y = locked.coords[1];
             var piece = puzzleView.getPiece(x, y);
@@ -108,7 +109,7 @@ $(function() {
             }
         });
         
-        server.on(MESSAGES.unlockPiece, function(unlocked) {
+        server.bind(MESSAGES.unlockPiece, function(unlocked) {
             var x = unlocked.coords[0];
             var y = unlocked.coords[1];
             var piece = puzzleView.getPiece(x, y);
@@ -126,18 +127,18 @@ $(function() {
             }
         });
         
-        server.on(MESSAGES.swapPieces, function(coords) {
+        server.bind(MESSAGES.swapPieces, function(coords) {
             puzzleView.swapPiecesByCoords(coords);
         });
         
-        server.on(MESSAGES.initialized, function() {
-            piecesModel.fetch();
+        server.bind(MESSAGES.initialized, function() {
+            piecesCollection.fetch();
         });
         
-        piecesModel.bind('refresh', function() {
+        piecesCollection.bind('refresh', function() {
             viewport.removeTooltips();
             
-            _.each(piecesModel.toJSON(), function(pieceData) {
+            _.each(piecesCollection.toJSON(), function(pieceData) {
                 var x = pieceData.x;
                 var y = pieceData.y;
                 var piece = puzzleView.getPiece(x, y);

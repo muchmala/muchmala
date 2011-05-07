@@ -1,8 +1,6 @@
 (function() {
 
 function Puzzle(model, viewport) {
-    Puzzle.superproto.constructor.call(this);
-    
     this.index = {};
     this.pieces = {};
     this.model = model;
@@ -16,12 +14,12 @@ function Puzzle(model, viewport) {
     this.viewport.click(_.bind(function(event) {
         var found = this.findPieces(event.clientX, event.clientY);
         _.each(found, function(piece) {
-            this.fire(this.EVENTS.leftClick, piece);
+            this.trigger(this.EVENTS.leftClick, piece);
         }, this);
     }, this));
 
     this.viewport.bind('contextmenu', _.bind(function(event) {
-        this.fire(this.EVENTS.rightClick);
+        this.trigger(this.EVENTS.rightClick);
         event.preventDefault();
         event.stopPropagation();
     }, this));
@@ -36,7 +34,7 @@ function Puzzle(model, viewport) {
     }, this));
 }
 
-Puzz.Utils.inherit(Puzzle, Puzz.Observer);
+_.extend(Puzzle.prototype, Backbone.Events);
 
 var Proto = Puzzle.prototype;
 
