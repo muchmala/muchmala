@@ -22,3 +22,6 @@
 [submodule "node_modules/socket.io-cluster"]
 	path = node_modules/socket.io-cluster
 	url = https://github.com/muchmala/socket.io-cluster.git
+[submodule "chef/cookbooks/muchmala/redis"]
+	path = chef/cookbooks/muchmala/redis
+	url = https://github.com/papercavalier/redis-cookbook
