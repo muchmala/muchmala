@@ -2,7 +2,7 @@
 , "description" : "Just a multiplayer puzzle in a browser"
 , "author" : "Serge Borbit <serge.borbit@gmail.com>"
 , "version" : "0.0.1"
-, "main" : "bin/muchmala"
+, "main" : "bin/muchmala-app"
 , "engines" :
   { "node" : "~0.4"
   , "npm" : "~1"
