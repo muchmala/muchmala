@@ -27,4 +27,13 @@ server.get('/', function(req, res) {
 });
 
 server.listen(config.HTTP_PORT, config.HTTP_HOST);
-iocluster.listen(server, config);
+var ioNode = iocluster.listen(server, config);
+
+ioNode.on('sync', function(client) {
+    console.log(JSON.stringify({userId: client.userId, puzzleId: client.channels[0]}));
+    ioNode.sendMessage('sync', client, JSON.stringify({userId: client.userId, puzzleId: client.channels[0]}));
+});
+
+ioNode.on('setUserId', function(client, userId) {
+    client.userId = userId;
+});
