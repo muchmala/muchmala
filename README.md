@@ -43,9 +43,6 @@ Installation (Vagrant)
 
         sudo jake install
 
-9. Update supervisor config.
-
-        sudo supervisorctl update
 
 9. Put some big image into project directory. Call it something like `puzzle.jpg`.
 10. Generate the first puzzle using that image.

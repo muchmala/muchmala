@@ -11,18 +11,37 @@ var db = loadDb();
 //console.log('Database:', db);
 
 desc('install project');
-task('install', ['config'], function() {
-    if (config.DEV) {
-        console.log('Restarting nginx...');
-        exec('service nginx restart', function(err, stdout, stderr) {
-            if (err) {
-                throw err;
-            }
+var deps = ['config', 'restart-supervisor'];
+if (config.DEV) {
+    deps.push('restart-nginx');
+}
+task('install', deps, function() {
+});
 
-            console.log('DONE');
-            complete();
-        });
-    }
+desc('restart nginx');
+task('restart-nginx', [], function() {
+    console.log('Restarting nginx...');
+    exec('service nginx restart', function(err, stdout, stderr) {
+        if (err) {
+            throw err;
+        }
+
+        console.log('DONE');
+        complete();
+    });
+}, true);
+
+desc('restart (update) supervisor');
+task('restart-supervisor', [], function() {
+    console.log('Restarting supervisor...');
+    exec('supervisorctl update', function(err, stdout, stderr) {
+        if (err) {
+            throw err;
+        }
+
+        console.log('DONE');
+        complete();
+    });
 }, true);
 
 desc('generate configs');
