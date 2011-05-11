@@ -33,12 +33,10 @@
                 <file name="backbone/backbone.js"/>
                 <file name="backbone/backbone.io.js"/>
 
-                <file name="observer.js"/>
                 <file name="loader.js"/>
                 <file name="storage.js"/>
                 <file name="server.js"/>
 
-                <file name="model.js"/>
                 <file name="models/user.js"/>
                 <file name="models/puzzle.js"/>
 

@@ -1,13 +1,11 @@
 (function() {
-    
-var strg = window.Puzz.Storage.user;
 
 Puzz.Models.User = Backbone.IO.Model.extend({
     
     defaults: {
-        'score': 0,
-        'id': strg.id(),
-        'name': 'anonymous'
+        'id': $.cookie('user_id'),
+        'name': 'anonymous',
+        'score': 0
     },
     
     messages: {
@@ -17,7 +15,7 @@ Puzz.Models.User = Backbone.IO.Model.extend({
     },
     
     refresh: function(data) {
-        strg.id(data.id); 
+        $.cookie('user_id', data.id); 
         this.set(data);
     },
     

@@ -16,12 +16,6 @@ window.Puzz.Storage = (function() {
             },
             setHowToPlayShown: function() {
                 storage.menuHowToPlayShown = 1;
-            },
-            lastViewedPage: function(pageName) {
-                if (_.isUndefined(pageName)) {
-                    return storage.menuLastViewedPage;
-                }
-                storage.menuLastViewedPage = pageName;
             }
         }
     };
