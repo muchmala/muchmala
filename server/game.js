@@ -6,7 +6,7 @@ var Channel = require('./channel');
 var Player = require('./player');
 
 function Game(puzzle) {
-    this.channel = new Channel();
+    this.channel = new Channel(puzzle);
     this.puzzle = puzzle;
     
     var self = this;
@@ -24,6 +24,8 @@ Game.prototype.addPlayer = function(client, userId) {
     var self = this;
     
     getUser(userId, function(user) {
+        client.setUserId(userId);
+
         var player = new Player(client, self.puzzle, user);
     
         player.on('userNameChanged', function() {
@@ -49,6 +51,7 @@ Game.prototype.addPlayer = function(client, userId) {
         self.channel.add(client);
     
         client.onDisconnect(function() {
+            //@Todo: remove
             self.channel.remove(client);
             player.unlockSelectedPiece();
             user.online = false;
@@ -67,6 +70,7 @@ Game.prototype.addPlayer = function(client, userId) {
 };
 
 Game.prototype.broadcastLeadersBoard = function() {
+    console.log('broadcastLeadersBoard')
     this.getLeadersBoardData((function(data) {
         this.channel.broadcast(MESSAGES.leadersBoard, data);
     }).bind(this));
@@ -115,7 +119,7 @@ Game.prototype.getLeadersBoardData = function(callback) {
     flow.exec(function() {
         db.Users.allLinkedWith(self.puzzle._id, this);
     }, function(users) {
-        
+
         flow.serialForEach(users, function(user) {
             this.user = user;
             this.user.getPuzzleData(self.puzzle._id, this);
@@ -128,7 +132,6 @@ Game.prototype.getLeadersBoardData = function(callback) {
                 swaps: puzzleData.swaps,
                 found: puzzleData.found
             };
-            
         }, function() {
             callback(_.select(result, function(user) {
                 return user.score && user.found;

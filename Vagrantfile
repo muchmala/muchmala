@@ -9,6 +9,5 @@ Vagrant::Config.run do |config|
   config.vm.provision :chef_solo do |chef|
     chef.cookbooks_path = ["chef/cookbooks/muchmala", "chef/cookbooks/opscode", "chef/cookbooks/mdxp"]
     chef.add_recipe "muchmala"
-    chef.add_recipe "fix-permissions-and-ownership"
   end
 end

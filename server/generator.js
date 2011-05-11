@@ -1,4 +1,5 @@
 var Canvas = require('canvas'),
+    path = require('path'),
     cutter = require('./cutter'),
     random = require('./random'),
     opts = require('opts'),
@@ -18,14 +19,12 @@ var options = [
         'short': 'n',
         'long': 'name',
         'description': 'Puzzle name',
-        'value': true,
-        'required': true
+        'value': true
     }, {
         'short': 'ps',
         'long': 'piecesize',
         'description': 'Piece size',
-        'value': true,
-        'required': true
+        'value': true
     }, {
         'short': 'ss',
         'long': 'spritesize',
@@ -51,9 +50,13 @@ image.onload = function() {
     var settings = {
         name: opts.get('name'),
         invisible: opts.get('invisible') || false,
-        pieceSize: parseInt(opts.get('piecesize')),
+        pieceSize: parseInt(opts.get('piecesize')) || 120,
         spriteSize: parseInt(opts.get('spritesize')) || 5
     };
+
+    if (!settings.name) {
+        settings.name = path.basename(image.src, path.extname(image.src));
+    }
 
     var puzzle = random.puzzle(image.width, image.height, settings.pieceSize);
 

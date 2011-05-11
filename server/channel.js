@@ -1,53 +1,38 @@
 var _ = require('../shared/underscore')._;
+var MESSAGES = require('../shared/messages');
 var util = require('util');
 
-function Channel() {
-    this.sessions = [];
-
-	/*setInterval(_.bind(function() {
-		_.each(this.sessions, function(session) {
-			var length = session.client.connection._writeQueue.length;
-			if (length > 0) {
-				util.log('Queue length: ' + length + ' id: ' + session.userId);
-			}
-		});
-	}, this), 10000);*/
+function Channel(channel) {
+    console.log(channel.id);
+    this.listener = undefined;
+    this.channelId = channel.id;
+    this.clientsCount = 0;
 }
 
-Channel.prototype.add = function(session) {
-    if (_.include(this.sessions, session)) {
-        console.log('Trying to add already added session');
-        return;
+Channel.prototype.add = function(client) {
+    if (this.listener === undefined) {
+        this.listener = client.client.listener;
     }
-    this.sessions.push(session);
+
+    ++this.clientsCount;
+    client.subscribeToChannel(this.channelId);
 };
 
-Channel.prototype.remove = function(session) {
-    if (!_.include(this.sessions, session)) {
-        console.log('Trying to remove not added session');
-        return;
-    }
-    this.sessions.splice(this.sessions.indexOf(session), 1);
-};
-
-Channel.prototype.includes = function(session) {
-    if (_.include(this.sessions, session)) {
-        return true;
-    }
-    return false;
+Channel.prototype.remove = function(client) {
+    --this.clientsCount;
+    client.unsubscribeFromChannel(this.channelId);
 };
 
 Channel.prototype.broadcast = function(event, data, except) {
-    except = except || [];
-    _.each(this.sessions, function(session) {
-        if (!_.include(except, session)) {
-            session.send(event, data);
-        }
-    });
+    if (this.listener === undefined) {
+        console.log('No listeners in channel %s', this.channelId);
+    }
+
+    this.listener.broadcastToChannel(this.channelId, MESSAGES.create(event, data), except);
 };
 
 Channel.prototype.length = function() {
-    return this.sessions.length;
+    return this.clientsCount;
 };
 
 module.exports = Channel;
