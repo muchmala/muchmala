@@ -7,9 +7,6 @@
 [submodule "client/js/jquery/jquery.scrolla"]
 	path = client/js/jquery/jquery.scrolla
 	url = git@github.com:borbit/jquery.scrolla.git
-[submodule "node_modules/socket.io"]
-	path = node_modules/socket.io
-	url = https://github.com/muchmala/Socket.IO-node.git
 [submodule "client/js/socket.io"]
 	path = client/js/socket.io
 	url = git@github.com:borbit/Socket.IO.git
