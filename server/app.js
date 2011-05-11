@@ -7,7 +7,11 @@ var Client = require('./client');
 
 var config = require('../config');
 
-db.connect(function() {
+db.connect(function(err) {
+    if (err) {
+        throw err;
+    }
+
     var games = new Games(db);
     var socket = io.getClient(config);
 
