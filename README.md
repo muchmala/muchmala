@@ -46,7 +46,7 @@ Installation (Vagrant)
 9. Put some big image into project directory. Call it something like `puzzle.jpg`.
 10. Generate the first puzzle using that image.
 
-        bin/muchmala-generator -i puzzle.jpg -n puzzle -ps 150
+        bin/muchmala-generator -i puzzle.jpg
 
 11. Run the actual application server.
 
@@ -72,7 +72,7 @@ TODO: automate all this stuff.
 
 5. Install chef.
 
-        sudo gem install chef --no-rdoc --no-ri
+        sudo gem install --version 0.9.16 chef --no-rdoc --no-ri
 
 6. Create project directory and change it's owner/group to the current user.
 
@@ -116,18 +116,14 @@ TODO: automate all this stuff.
 12. Put some big image into project directory. Call it something like `puzzle.jpg`.
 13. Generate the first puzzle using that image.
 
-        bin/muchmala-generator -i puzzle.jpg -n puzzle -ps 150
+        bin/muchmala-generator -i puzzle.jpg
 
-14. Create the `static_version` file with initial version set to `1`.
-
-        echo 1 > static_version
-
-15. Generate production CSS/JS and upload them to S3, together with puzzle images.
+14. Generate production CSS/JS and upload them to S3, together with puzzle images.
 
         ant
         jake static-upload
 
-16. Run the actual application server.
+15. Run the actual application server.
 
         sudo bin/muchmala
 
