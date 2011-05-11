@@ -3,9 +3,8 @@ var MESSAGES = require('../shared/messages');
 var util = require('util');
 
 function Channel(channel) {
-    console.log(channel.id);
     this.listener = undefined;
-    this.channelId = channel.id;
+    this.channelId = channel._id;
     this.clientsCount = 0;
 }
 
