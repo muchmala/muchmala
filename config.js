@@ -21,6 +21,11 @@ config.S3_BUCKET_STATIC = 'static.dev.muchmala.com';
 
 config.UTILS_DB = __dirname + '/utils.db';
 
+config.TWITTER_KEY = '';
+config.TWITTER_SECRET = '';
+config.FACEBOOK_ID = '';
+config.FACEBOOK_SECRET = '';
+
 try {
     var config_local = require('./config.local.js');
     for (var key in config_local) {
