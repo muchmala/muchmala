@@ -4,11 +4,38 @@ var fs = require('fs');
 var path = require('path');
 var knox = require('knox');
 var flow = require('flow');
+var ejs = require('ejs');
+var exec = require('child_process').exec;
 
 var db = loadDb();
 //console.log('Database:', db);
 
+desc('install project');
+task('install', ['config'], function() {
+    console.log('Removing default nginx config...');
+    var defaultNginxSiteConfig = '/etc/nginx/sites-enabled/default';
+    if (path.existsSync(defaultNginxSiteConfig)) {
+        fs.unlinkSync(defaultNginxSiteConfig);
+    }
+    console.log('DONE');
 
+    console.log('Restarting nginx...');
+    exec('service nginx restart', function(err, stdout, stderr) {
+        if (err) {
+            throw err;
+        }
+
+        console.log('DONE');
+        complete();
+    })
+}, true);
+
+desc('generate configs')
+task('config', [], function() {
+    console.log('Generating nginx.conf...');
+    render('config/nginx.conf.in', '/etc/nginx/sites-enabled/muchmala.dev', {config: config});
+    console.log('DONE');
+});
 
 desc('upload static files to S3');
 task('static-upload', [], function() {
@@ -164,6 +191,21 @@ function loadDb() {
 
 function saveDb(db) {
     return fs.writeFileSync(config.UTILS_DB, JSON.stringify(db));
+}
+
+function render(src, dst, options) {
+    if (typeof(options) == 'function') {
+        callback = options;
+        options = {};
+    }
+
+    if (!options.root) {
+        options.root = __dirname;
+    }
+
+    var template = fs.readFileSync(src).toString();
+    var result = ejs.render(template, {locals: options});
+    fs.writeFileSync(dst, result);
 }
 
 function createS3Client(bucket) {

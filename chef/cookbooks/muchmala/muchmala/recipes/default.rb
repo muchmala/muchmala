@@ -25,6 +25,6 @@ include_recipe "nodejs"
 include_recipe "nodejs::npm"
 include_recipe "mongodb-debs"
 include_recipe "nginx"
+include_recipe "redis"
 
-#include_recipe "fix-permissions-and-ownership"
 include_recipe "node-canvas-deps"

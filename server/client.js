@@ -17,6 +17,20 @@ Client.prototype.stopCountDown = function() {
     clearTimeout(this.countDown);
 };
 
+Client.prototype.setUserId = function(userId) {
+    if (userId != null) {
+        this.client.exec('setUserId', [userId]);
+    }
+};
+
+Client.prototype.subscribeToChannel = function(channel) {
+    this.client.subscribeToChannel(channel);
+};
+
+Client.prototype.unsubscribeFromChannel = function(channel) {
+    this.client.unsubscribeFromChannel(channel);
+};
+
 Client.prototype.send = function(event, data) {
     this.client.send(MESSAGES.create(event, data));
 };
