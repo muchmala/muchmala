@@ -12,29 +12,46 @@ var db = loadDb();
 
 desc('install project');
 task('install', ['config'], function() {
-    console.log('Removing default nginx config...');
-    var defaultNginxSiteConfig = '/etc/nginx/sites-enabled/default';
-    if (path.existsSync(defaultNginxSiteConfig)) {
-        fs.unlinkSync(defaultNginxSiteConfig);
+    if (config.DEV) {
+        console.log('Restarting nginx...');
+        exec('service nginx restart', function(err, stdout, stderr) {
+            if (err) {
+                throw err;
+            }
+
+            console.log('DONE');
+            complete();
+        });
     }
-    console.log('DONE');
-
-    console.log('Restarting nginx...');
-    exec('service nginx restart', function(err, stdout, stderr) {
-        if (err) {
-            throw err;
-        }
-
-        console.log('DONE');
-        complete();
-    })
 }, true);
 
-desc('generate configs')
-task('config', [], function() {
+desc('generate configs');
+var deps = ['config-supervisor'];
+if (config.DEV) {
+    deps.push('config-nginx');
+}
+task('config', deps, function() {
+});
+
+desc('generate supervisor config');
+task('config-supervisor', [], function() {
+    console.log('Generating supervisor.conf...');
+    render('config/supervisor.conf.in', '/etc/supervisor/conf.d/muchmala.conf', {config: config});
+    console.log('DONE');
+});
+
+desc('generate nginx config');
+task('config-nginx', [], function() {
     console.log('Generating nginx.conf...');
     render('config/nginx.conf.in', '/etc/nginx/sites-enabled/muchmala.dev', {config: config});
     console.log('DONE');
+
+    var defaultNginxSiteConfig = '/etc/nginx/sites-enabled/default';
+    if (path.existsSync(defaultNginxSiteConfig)) {
+        console.log('Removing default nginx config...');
+        fs.unlinkSync(defaultNginxSiteConfig);
+        console.log('DONE');
+    }
 });
 
 desc('upload static files to S3');
@@ -181,8 +198,8 @@ function loadDb() {
     }
 
     if (!db.lastStaticUpload || db.lastStaticUpload < 0) {
-        console.log('db.lastStaticUpload is not set or invalid - set to current time.');
-        db.lastStaticUpload = Date.now();
+        console.log('db.lastStaticUpload is not set or invalid - set to "very long time ago".');
+        db.lastStaticUpload = 0;
         saveDb(db);
     }
 

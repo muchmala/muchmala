@@ -1,0 +1,24 @@
+[group:muchmala]
+programs=muchmala-io,muchmala-app
+
+[program:muchmala-io]
+command=<%= root %>/bin/muchmala-io
+directory=<%= root %>
+<% if (config.DEV) { %>
+autostart=false
+autorestart=false
+<% } else { %>
+autostart=true
+autorestart=true
+<% } %>
+
+[program:muchmala-app]
+command=<%= root %>/bin/muchmala-app
+directory=<%= root %>
+<% if (config.DEV) { %>
+autostart=false
+autorestart=false
+<% } else { %>
+autostart=true
+autorestart=true
+<% } %>

@@ -43,14 +43,18 @@ Installation (Vagrant)
 
         sudo jake install
 
+9. Update supervisor config.
+
+        sudo supervisorctl update
+
 9. Put some big image into project directory. Call it something like `puzzle.jpg`.
 10. Generate the first puzzle using that image.
 
         bin/muchmala-generator -i puzzle.jpg
 
-11. Run the actual application server.
+11. Start io and app servers using (don't forget the colon at the end).
 
-        sudo bin/muchmala
+        sudo supervisorctl start muchmala:
 
 Vagrant is pre-configured to give your VM an IP address of 33.33.33.15.
 This way you can now check if Muchmala is running by opening `http://33.33.33.15/` in your browser.

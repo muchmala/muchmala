@@ -28,3 +28,5 @@ include_recipe "nginx"
 include_recipe "redis"
 
 include_recipe "node-canvas-deps"
+
+package "supervisor"
