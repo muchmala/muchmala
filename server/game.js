@@ -70,7 +70,6 @@ Game.prototype.addPlayer = function(client, userId) {
 };
 
 Game.prototype.broadcastLeadersBoard = function() {
-    console.log('broadcastLeadersBoard')
     this.getLeadersBoardData((function(data) {
         this.channel.broadcast(MESSAGES.leadersBoard, data);
     }).bind(this));
