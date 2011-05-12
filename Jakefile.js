@@ -25,6 +25,51 @@ if (path.existsSync('config.local.js')) {
 // tasks
 //
 
+desc('start all services');
+task('start', ['install'], function() {
+    console.log('Starting all services...');
+    exec('supervisorctl start muchmala:', function(err, stdout, stderr) {
+        if (err) {
+            throw err;
+        }
+
+        console.log('DONE');
+        complete();
+    });
+}, true);
+
+
+
+desc('stop all services');
+task('stop', [], function() {
+    console.log('Stopping all services...');
+    exec('supervisorctl stop muchmala:', function(err, stdout, stderr) {
+        if (err) {
+            throw err;
+        }
+
+        console.log('DONE');
+        complete();
+    });
+}, true);
+
+
+
+desc('restart all services');
+task('restart', ['install'], function() {
+    console.log('Restarting all services...');
+    exec('supervisorctl restart muchmala:', function(err, stdout, stderr) {
+        if (err) {
+            throw err;
+        }
+
+        console.log('DONE');
+        complete();
+    });
+}, true);
+
+
+
 desc('install project');
 var deps = ['config', 'restart-supervisor'];
 if (config.DEV) {
