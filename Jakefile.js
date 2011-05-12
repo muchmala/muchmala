@@ -154,46 +154,6 @@ task('static-upload', [], function() {
 
 
 
-desc('save index.html file');
-task('save-index', [], function() {
-    console.log('Saving index.html');
-    var options = {
-        host: '127.0.0.1',
-        path: '/'
-    };
-    http.get(options, function(res) {
-        var body = '';
-        res.on('data', function(chunk) {
-            body += chunk;
-        });
-        res.on('end', function() {
-            fs.writeFileSync('index.html', body);
-            console.log('DONE');
-            complete();
-        });
-    });
-}, true);
-
-
-
-desc('upload index.html file to S3');
-task('upload-index', ['save-index'], function() {
-    var src, dst;
-    src = dst = 'index.html';
-
-    var s3client = createS3Client(config.S3_BUCKET_MAIN);
-    console.log('Uploading ' + src + ' to S3 http://s3.amazonaws.com/' + config.S3_BUCKET_MAIN + '/' + dst);
-    s3client.upload('index.html', 'index.html', function(err) {
-        if (err) {
-            throw err;
-        }
-        console.log('DONE');
-        complete();
-    });
-}, true);
-
-
-
 //
 // helpers
 //
