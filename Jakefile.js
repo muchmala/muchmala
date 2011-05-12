@@ -7,8 +7,23 @@ var flow = require('flow');
 var ejs = require('ejs');
 var exec = require('child_process').exec;
 
+
+//
+// setup
+//
 var db = loadDb();
 //console.log('Database:', db);
+
+var configFiles = ['Jakefile.js', 'config.js'];
+if (path.existsSync('config.local.js')) {
+    configFiles.push('config.local.js');
+}
+
+
+
+//
+// tasks
+//
 
 desc('install project');
 var deps = ['config', 'restart-supervisor'];
@@ -18,8 +33,10 @@ if (config.DEV) {
 task('install', deps, function() {
 });
 
+
+
 desc('restart nginx');
-task('restart-nginx', [], function() {
+task('restart-nginx', ['/etc/nginx/sites-enabled/muchmala.dev'], function() {
     console.log('Restarting nginx...');
     exec('service nginx restart', function(err, stdout, stderr) {
         if (err) {
@@ -31,8 +48,10 @@ task('restart-nginx', [], function() {
     });
 }, true);
 
+
+
 desc('restart (update) supervisor');
-task('restart-supervisor', [], function() {
+task('restart-supervisor', ['/etc/nginx/sites-enabled/muchmala.dev'], function() {
     console.log('Restarting supervisor...');
     exec('supervisorctl update', function(err, stdout, stderr) {
         if (err) {
@@ -44,24 +63,30 @@ task('restart-supervisor', [], function() {
     });
 }, true);
 
+
+
 desc('generate configs');
-var deps = ['config-supervisor'];
+var deps = ['/etc/supervisor/conf.d/muchmala.conf'];
 if (config.DEV) {
-    deps.push('config-nginx');
+    deps.push('/etc/nginx/sites-enabled/muchmala.dev');
 }
 task('config', deps, function() {
 });
 
+
+
 desc('generate supervisor config');
-task('config-supervisor', [], function() {
-    console.log('Generating supervisor.conf...');
+file('/etc/supervisor/conf.d/muchmala.conf', ['config/supervisor.conf.in'].concat(configFiles), function() {
+    console.log('Generating supervisor config...');
     render('config/supervisor.conf.in', '/etc/supervisor/conf.d/muchmala.conf', {config: config});
     console.log('DONE');
 });
 
+
+
 desc('generate nginx config');
-task('config-nginx', [], function() {
-    console.log('Generating nginx.conf...');
+file('/etc/nginx/sites-enabled/muchmala.dev', configFiles, function() {
+    console.log('Generating nginx config...');
     render('config/nginx.conf.in', '/etc/nginx/sites-enabled/muchmala.dev', {config: config});
     console.log('DONE');
 
@@ -72,6 +97,8 @@ task('config-nginx', [], function() {
         console.log('DONE');
     }
 });
+
+
 
 desc('upload static files to S3');
 task('static-upload', [], function() {
@@ -125,6 +152,8 @@ task('static-upload', [], function() {
     );
 }, true);
 
+
+
 desc('save index.html file');
 task('save-index', [], function() {
     console.log('Saving index.html');
@@ -145,6 +174,8 @@ task('save-index', [], function() {
     });
 }, true);
 
+
+
 desc('upload index.html file to S3');
 task('upload-index', ['save-index'], function() {
     var src, dst;
@@ -160,6 +191,8 @@ task('upload-index', ['save-index'], function() {
         complete();
     });
 }, true);
+
+
 
 //
 // helpers
