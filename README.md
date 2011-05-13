@@ -39,17 +39,12 @@ Installation (Vagrant)
 
         sudo npm install jake -g
 
-8. Perform final installation steps using jake.
-
-        sudo jake install
-
-
-9. Put some big image into project directory. Call it something like `puzzle.jpg`.
-10. Generate the first puzzle using that image.
+8. Put some big image into project directory. Call it something like `puzzle.jpg`.
+9. Generate the first puzzle using that image.
 
         bin/muchmala-generator -i puzzle.jpg
 
-11. Start io and app servers using (don't forget the colon at the end).
+10. Start all services using (don't forget the colon at the end).
 
         sudo supervisorctl start muchmala:
 
@@ -78,20 +73,16 @@ TODO: automate all this stuff.
 6. Create project directory and change it's owner/group to the current user.
 
         sudo mkdir /opt/muchmala
-        sudo chown ubuntu:ubuntu /opt/muchmala
+        sudo chown $USER:$USER /opt/muchmala
 
 7. Clone the project repository into project directory.
 
         git clone --recursive https://github.com/muchmala/muchmala.git /opt/muchmala
 
-7. Go into project directory and run chef-solo.
+8. Go into project directory and run chef-solo.
 
         cd /opt/muchmala
         sudo /var/lib/gems/1.8/bin/chef-solo -c chef/solo.rb -j chef/node.json
-
-8. Fix some permissions. TODO: automate this!
-
-        sudo chown -R ubuntu:ubuntu /home/ubuntu/.npm
 
 9. Install required node modules.
 
@@ -106,13 +97,28 @@ TODO: automate all this stuff.
         config.AWS_KEY      = '<YOUR AWS KEY>';
         config.AWS_SECRET   = '<YOUR AWS SECRET>';
 
-        config.IO_HOST = 'io.muchmala.com'; // your ec2 instance hostname
+        config.MAIN_DOMAIN = 'muchmala.com'; // hostname of your EC2 instance
+
+        config.IO_HOST = 'io.muchmala.com'; // for now it's just an alias for muchmala.com
         config.IO_PORT = 80; // don't forget the port - it's important
 
         config.STATIC_HOST = 'static.muchmala.com.s3.amazonaws.com'; // your S3 bucket hostname (or it's CNAME alias) for static files
         config.STATIC_PORT = 80; // don't forget the port - it's important
 
         config.S3_BUCKET_STATIC = 'static.muchmala.com'; // your S3 bucket name for static files
+
+        config.TWITTER_KEY = '<YOUR TWITTER KEY>';
+        config.TWITTER_SECRET = '<YOUR TWITTER SECRET>';
+
+        config.FACEBOOK_ID = '<YOUR FACEBOOK ID>';
+        config.FACEBOOK_SECRET = '<YOUR FACEBOOK SECRET>';
+
+        config.YAHOO_KEY = '<YOUR YAHOO KEY>';
+        config.YAHOO_SECRET = '<YOUR YAHOO SECRET>';
+
+        config.GOOGLE_KEY = '<YOUR GOOGLE KEY>';
+        config.GOOGLE_SECRET = '<YOUR GOOGLE SECRET>';
+
 
 12. Put some big image into project directory. Call it something like `puzzle.jpg`.
 13. Generate the first puzzle using that image.
@@ -124,8 +130,8 @@ TODO: automate all this stuff.
         ant
         jake static-upload
 
-15. Run the actual application server.
+15. Start all services using (don't forget the colon at the end).
 
-        sudo bin/muchmala
+        sudo supervisorctl start muchmala:
 
 You can now check if Muchmala is running by navigating to EC2's hostname in your browser.
