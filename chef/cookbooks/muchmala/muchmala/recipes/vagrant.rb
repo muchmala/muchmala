@@ -18,14 +18,4 @@
 # limitations under the License.
 #
 
-include_recipe "apt"
-include_recipe "build-essential"
-include_recipe "ant"
-include_recipe "nodejs"
-include_recipe "nodejs::npm"
-include_recipe "mongodb-debs"
-include_recipe "redis"
-
-include_recipe "node-canvas-deps"
-
-package "supervisor"
+include_recipe "nginx"
