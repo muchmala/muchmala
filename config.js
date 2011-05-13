@@ -10,6 +10,8 @@ config.IO_PORT = 80;
 config.STATIC_HOST = '33.33.33.15';
 config.STATIC_PORT = 8080;
 
+config.MAIN_DOMAIN = 'muchmala.com';
+
 config.MONGODB_HOST     = '127.0.0.1';
 config.MONGODB_USER     = 'mongodb';
 config.MONGODB_DATABASE = 'muchmala';
@@ -29,6 +31,10 @@ config.TWITTER_KEY = '';
 config.TWITTER_SECRET = '';
 config.FACEBOOK_ID = '';
 config.FACEBOOK_SECRET = '';
+config.GOOGLE_ID = '';
+config.GOOGLE_SECRET = '';
+config.YAHOO_ID = '';
+config.YAHOO_SECRET = '';
 
 try {
     var config_local = require('./config.local.js');

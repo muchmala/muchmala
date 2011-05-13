@@ -16,7 +16,11 @@
         <span class="num">0</span>
         <span class="pts">pts.</span><br/>
         <span class="button name">anonymous</span><br/>
-        <a href="#">Sign In/Up</a>
+        <% if(loggedin) { %>
+        <a href="/logout" class="auth">Log out</a>
+        <% } else { %>
+        <a href="javascript:void(0);" class="auth">Sign Up / Log in</a>
+        <% } %>
     </div>
     
     <div class="statistics">

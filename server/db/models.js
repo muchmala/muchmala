@@ -37,6 +37,7 @@ var UsersSchema = new Schema({
     created : {type: Date, 'default': Date.now, index: true},
     score   : {type: Number, 'default': 0},
     online  : {type: Boolean, 'default': false},
+    googleId   : {type: String, index: true},
     twitterId  : {type: String, index: true},
     facebookId : {type: String, index: true}
 });
