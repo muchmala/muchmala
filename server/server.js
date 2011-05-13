@@ -74,7 +74,7 @@ server.get('/auth/twitter', function(req, res, params) {
         if (!authenticated) {return;}
 
         var userId = req.cookies.user_id;
-        var twitterId = req.getAuthDetails().user;
+        var twitterId = req.getAuthDetails().user.user_id;
         
         getLinkedUser('twitterId', twitterId, userId, function(user) {
             if (!user) {
