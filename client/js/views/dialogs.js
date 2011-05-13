@@ -250,6 +250,15 @@ CompleteDialogProto.updateLeadersBoard = function() {
     }
 };
 
+function AuthDialog() {
+    AuthDialog.superproto.constructor.call(this);
+    this.element.append($('#auth').show());
+}
+
+Puzz.Utils.inherit(AuthDialog, Dialog);
+
+var AuthDialogProto = AuthDialog.prototype;
+
 Puzz.TimeHelper = {
     MONTH: 60*60*24*30,
     DAY: 60*60*24,
@@ -313,5 +322,6 @@ Puzz.TimeHelper = {
 Puzz.Views.MenuDialog = MenuDialog;
 Puzz.Views.UserNameDialog = UserNameDialog;
 Puzz.Views.CompleteDialog = CompleteDialog;
+Puzz.Views.AuthDialog = AuthDialog;
 
 })();

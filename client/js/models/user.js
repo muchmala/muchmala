@@ -15,7 +15,7 @@ Puzz.Models.User = Backbone.IO.Model.extend({
     },
     
     refresh: function(data) {
-        $.cookie('user_id', data.id); 
+        $.cookie('user_id', data.id);
         this.set(data);
     },
     

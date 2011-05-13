@@ -8,8 +8,8 @@ Puzz.Collections.Twenty = Backbone.IO.Collection.extend({
     },
     
     getSortedBy: function(sortBy) {
-    	return this.sortBy(function(model) {
-        	return model.get(sortBy);
-    	});
+        return this.sortBy(function(model) {
+            return model.get(sortBy);
+        });
     }
 });

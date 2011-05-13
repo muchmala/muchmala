@@ -70,6 +70,10 @@ nav a {
     color:#fff;
 }
 
+nav a:hover {
+    text-decoration:none;
+}
+
 nav .progressbar {
     position:relative;
     margin:5px 10px 0 0;
@@ -113,12 +117,9 @@ nav header {
 nav header h1 {
     display:inline-block;
     margin:3px 0;
-    font-size:24px;
+    font-size:26px;
     font-weight:bold;
     color:#fff;
-    text-shadow: 2px 1px 0 #898989,
-                 3px 2px 0 #898989,
-                 4px 3px 0 #898989;
 }
 
 nav header h2 {

@@ -89,8 +89,6 @@ $(function() {
     })();
 
     function enablePuzzle() {
-        $(document.body).removeClass('fallback')
-        
         viewport.loadingComplete();
         puzzleView.bind('leftClick', processClickedPiece);
         puzzleView.bind('rightClick', releaseSelectedPiece);
