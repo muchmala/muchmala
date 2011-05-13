@@ -76,6 +76,7 @@
                 <file name="menu.css"/>
                 <file name="complete.css"/>
                 <file name="browser.css"/>
+                <file name="auth.css"/>
             </filelist>
         </concat>
         <echo message="${MINIFIED_CSS} concatinated." />

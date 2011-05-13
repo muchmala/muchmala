@@ -64,9 +64,15 @@ var UserView = Backbone.View.extend({
     
     initialize: function() {
         var userNameDialog = new Puzz.Views.UserNameDialog(this.model);
+        var authDialog = new Puzz.Views.AuthDialog();
         
         this.el.find('.name').click(function() {
             if(!userNameDialog.shown) userNameDialog.show();
+        });
+        this.el.find('.auth').click(function() {
+            if(!authDialog.shown && $(this).attr('href') != '/logout') {
+                authDialog.show();
+            } 
         });
         
         var self = this;

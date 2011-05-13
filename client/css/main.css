@@ -4,10 +4,6 @@ body {
     font-family:'Helvetica Neue', Helvetica, sans-serif;
 }
 
-body.fallback {
-    background:url('/img/bg.gif') repeat;
-}
-
 input {
     font-family:'Helvetica Neue', Helvetica, sans-serif;
 }
