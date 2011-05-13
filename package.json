@@ -14,7 +14,7 @@
 , "dependencies" :
   { "canvas" : "~0"
   , "mongoose" : "1.3.0"
-  , "express" : "2.3.3"
+  , "express" : "2.3.2"
   , "connect-auth" : "~0"
   , "connect" : "~1"
   , "oauth" : "~0"
