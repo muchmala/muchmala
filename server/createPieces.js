@@ -1,12 +1,11 @@
-var Canvas = require('canvas'),
-    path = require('path'),
+var path = require('path'),
+    opts = require('opts'),
     cutter = require('./cutter'),
     random = require('./random'),
-    opts = require('opts'),
     db = require('./db'),
-    Image = Canvas.Image;
+    Image = require('canvas').Image;
 
-var IMAGES_DIR = __dirname + '/../client/img/puzzles/';
+var PUZZLES_DIR = __dirname + '/../client/img/puzzles/';
 
 var options = [
     {
@@ -71,14 +70,14 @@ image.onload = function() {
             console.log('Puzzle is created. Id: ' + puzzleId + '.');
             console.log('Creating sprites images...');
 
-            cutter.cut({
+            cutter.createPieces({
                 image: image,
                 hLength: puzzle.hLength,
                 vLength: puzzle.vLength,
                 piecesMap: puzzle.pieces,
                 pieceSize: settings.pieceSize,
                 spriteSize: settings.spriteSize,
-                resultDir: IMAGES_DIR + puzzleId,
+                resultDir: PUZZLES_DIR + puzzleId,
                 onFinish: function() {
                     console.log('Sprites images are created.');
                     process.exit();

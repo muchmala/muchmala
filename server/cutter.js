@@ -31,184 +31,170 @@ var COVERS_MAP = [
     {x: 3, y: 3, ears: {left: 1, top: 0, right: 1, bottom: 0}}
 ];
 
-function Cutter(settings) {
-    var image = settings.image,
-        piecesMap = settings.piecesMap,
-        piceSize = settings.pieceSize,
-        spriteSize = settings.spriteSize,
-        step = Math.floor(piceSize / 6),
-        width = piceSize * settings.hLength,
-        height = piceSize * settings.vLength;
-
-    cut(settings.onFinish);
-
-    function leftInnerCurve(ctx) {
-        ctx.lineTo(step, step*2.5-1);
-        ctx.quadraticCurveTo(step*2, step*2-1, step*2, step*3-1);
-        ctx.quadraticCurveTo(step*2, step*4+1, step, step*3.5+1);
-    }
-
-    function leftOuterCurve(ctx) {
-        ctx.lineTo(step, step*2.5+1);
-        ctx.quadraticCurveTo(0, step*2+1, 0, step*3+1);
-        ctx.quadraticCurveTo(0, step*4-1, step, step*3.5-1);
-    }
-
-    function bottomInnerCurve(ctx) {
-        ctx.lineTo(step*2.5-1, step*5);
-        ctx.quadraticCurveTo(step*2-1, step*4, step*3-1, step*4);
-        ctx.quadraticCurveTo(step*4+1, step*4, step*3.5+1, step*5);
-    }
-
-    function bottomOuterCurve(ctx) {
-        ctx.lineTo(step*2.5+1, step*5);
-        ctx.quadraticCurveTo(step*2+1, step*6, step*3+1, step*6);
-        ctx.quadraticCurveTo(step*4-1, step*6, step*3.5-1, step*5);
-    }
-
-    function rightInnerCurve(ctx) {
-        ctx.lineTo(step*5, step*3.5+1);
-        ctx.quadraticCurveTo(step*4, step*4+1, step*4, step*3+1);
-        ctx.quadraticCurveTo(step*4, step*2-1, step*5, step*2.5-1);
-    }
-
-    function rightOuterCurve(ctx) {
-        ctx.lineTo(step*5, step*3.5-1);
-        ctx.quadraticCurveTo(step*6, step*4-1, step*6, step*3-1);
-        ctx.quadraticCurveTo(step*6, step*2+1, step*5, step*2.5+1);
-    }
-
-    function topInnerCurve(ctx) {
-        ctx.lineTo(step*3.5+1, step);
-        ctx.quadraticCurveTo(step*4+1, step*2, step*3+1, step*2);
-        ctx.quadraticCurveTo(step*2-1, step*2, step*2.5-1, step);
-    }
-
-    function topOuterCurve(ctx) {
-        ctx.lineTo(step*3.5-1, step);
-        ctx.quadraticCurveTo(step*4-1, 0, step*3-1, 0);
-        ctx.quadraticCurveTo(step*2+1, 0, step*2.5+1, step);
-    }
-
-    function drawPiecePath(ctx, ears) {
-        ctx.beginPath();
-
-        ctx.moveTo(step, step);
-        if(ears.left) leftOuterCurve(ctx); else leftInnerCurve(ctx);
-
-        ctx.lineTo(step, step*5);
-        if(ears.bottom) bottomOuterCurve(ctx); else bottomInnerCurve(ctx);
-
-        ctx.lineTo(step*5, step*5);
-        if(ears.right) rightOuterCurve(ctx); else rightInnerCurve(ctx);
-
-        ctx.lineTo(step*5, step);
-        if(ears.top) topOuterCurve(ctx); else topInnerCurve(ctx);
-
-        ctx.lineTo(step, step);
-    }
-
-    function cut(callback) {
-        flow.exec(
-            function() {
-                fs.mkdir(settings.resultDir, 0777, this.MULTI());
-
-                createCovers(DEFAULT_COVER_COLOR, DEFAULT_COVERS_FILENAME, this.MULTI());
-                createCovers(SELECT_COVER_COLOR, SELECT_COVERS_FILENAME, this.MULTI());
-                createCovers(LOCK_COVER_COLOR, LOCK_COVERS_FILENAME, this.MULTI());
-                
-                createPieces(this.MULTI());
-            },
-            function() {
-                callback.call(null);
-            }
-        );
-    }
-
-    function createPieces(callback) {
-        var mapCanvas = new Canvas(width, height),
-            mapCtx = mapCanvas.getContext('2d'),
-            sprites = [];
-        
-        piecesMap.forEach(function(piece) {
-            var imageX = piece.x * (piceSize - step*2);
-            var imageY = piece.y * (piceSize - step*2);
-            var destnX = piece.x * piceSize;
-            var destnY = piece.y * piceSize;
-
-            var pieceCanvas = new Canvas(piceSize, piceSize);
-            var pieceCtx = pieceCanvas.getContext('2d');
-
-            drawPiecePath(pieceCtx, {
-                top: piece.top,
-                left: piece.left,
-                right: piece.right,
-                bottom: piece.bottom
-            });
-
-            pieceCtx.clip();
-            pieceCtx.drawImage(image, imageX, imageY, piceSize, piceSize, 0, 0, piceSize, piceSize);
-            mapCtx.drawImage(pieceCanvas, 0, 0, piceSize, piceSize, destnX, destnY, piceSize, piceSize);
-        });
-
-        for (var i = 0, row = 0; i < settings.vLength; i += spriteSize, row++) {
-            for (var j = 0, col = 0; j < settings.hLength; j += spriteSize, col++) {
-                var hPiecesCountLeft = settings.hLength - j;
-                var vPiecesCountLeft = settings.vLength - i;
-                var spriteWidth = (hPiecesCountLeft >= spriteSize ? spriteSize : hPiecesCountLeft) * piceSize;
-                var spriteHeight = (vPiecesCountLeft >= spriteSize ? spriteSize : vPiecesCountLeft) * piceSize;
-
-                var spriteCanvas = new Canvas(spriteWidth, spriteHeight);
-                var spriteCtx = spriteCanvas.getContext('2d');
-
-                spriteCtx.drawImage(mapCanvas, j*piceSize, i*piceSize, spriteWidth,
-                                    spriteHeight, 0, 0, spriteWidth, spriteHeight);
-
-                sprites.push({
-                    canvas: spriteCanvas,
-                    row: row, col: col
-                });
-            }
-        }
-
-        flow.serialForEach(sprites, function(sprite) {
-            var fileName = sprite.row + '_' + sprite.col + '_' + PIECES_MAP_FILENAME;
-
-            flow.exec(function() {
-                sprite.canvas.toBuffer(this);
-            }, function(err, buffer) {
-                fs.writeFile(settings.resultDir + '/' + fileName, buffer, this);
-            }, this);
-
-            this.fileName = fileName;
-        }, function() {
-            console.log('Created ' + this.fileName + '...');
-        }, function() {
-            callback();
-        });
-    }
-
-    function createCovers(color, resultFilename, callback) {
-        var coversCanvas = new Canvas(piceSize * 4, piceSize * 4);
-        var coversCtx = coversCanvas.getContext('2d');
-            
-        COVERS_MAP.forEach(function(cover) {
-            var coverCanvas = new Canvas(piceSize, piceSize);
-            var coverCtx = coverCanvas.getContext('2d');
-            var destnX = cover.x * piceSize;
-            var destnY = cover.y * piceSize;
-            
-            drawPiecePath(coverCtx, cover.ears);
-            coverCtx.fillStyle = color;
-            coverCtx.fill();
-
-            coversCtx.drawImage(coverCanvas, 0, 0, piceSize, piceSize, destnX, destnY, piceSize, piceSize);
-        });
-
-        coversCanvas.toBuffer(function(err, buffer){
-            fs.writeFile(settings.resultDir + '/' + resultFilename, buffer, callback);
-        });
-    }
+function leftInnerCurve(ctx, step) {
+    ctx.lineTo(step, step*2.5-1);
+    ctx.quadraticCurveTo(step*2, step*2-1, step*2, step*3-1);
+    ctx.quadraticCurveTo(step*2, step*4+1, step, step*3.5+1);
 }
 
-exports.cut = Cutter;
+function leftOuterCurve(ctx, step) {
+    ctx.lineTo(step, step*2.5+1);
+    ctx.quadraticCurveTo(0, step*2+1, 0, step*3+1);
+    ctx.quadraticCurveTo(0, step*4-1, step, step*3.5-1);
+}
+
+function bottomInnerCurve(ctx, step) {
+    ctx.lineTo(step*2.5-1, step*5);
+    ctx.quadraticCurveTo(step*2-1, step*4, step*3-1, step*4);
+    ctx.quadraticCurveTo(step*4+1, step*4, step*3.5+1, step*5);
+}
+
+function bottomOuterCurve(ctx, step) {
+    ctx.lineTo(step*2.5+1, step*5);
+    ctx.quadraticCurveTo(step*2+1, step*6, step*3+1, step*6);
+    ctx.quadraticCurveTo(step*4-1, step*6, step*3.5-1, step*5);
+}
+
+function rightInnerCurve(ctx, step) {
+    ctx.lineTo(step*5, step*3.5+1);
+    ctx.quadraticCurveTo(step*4, step*4+1, step*4, step*3+1);
+    ctx.quadraticCurveTo(step*4, step*2-1, step*5, step*2.5-1);
+}
+
+function rightOuterCurve(ctx, step) {
+    ctx.lineTo(step*5, step*3.5-1);
+    ctx.quadraticCurveTo(step*6, step*4-1, step*6, step*3-1);
+    ctx.quadraticCurveTo(step*6, step*2+1, step*5, step*2.5+1);
+}
+
+function topInnerCurve(ctx, step) {
+    ctx.lineTo(step*3.5+1, step);
+    ctx.quadraticCurveTo(step*4+1, step*2, step*3+1, step*2);
+    ctx.quadraticCurveTo(step*2-1, step*2, step*2.5-1, step);
+}
+
+function topOuterCurve(ctx, step) {
+    ctx.lineTo(step*3.5-1, step);
+    ctx.quadraticCurveTo(step*4-1, 0, step*3-1, 0);
+    ctx.quadraticCurveTo(step*2+1, 0, step*2.5+1, step);
+}
+
+function drawPiecePath(ctx, step, ears) {
+    ctx.beginPath();
+
+    ctx.moveTo(step, step);
+    if(ears.left) leftOuterCurve(ctx, step); else leftInnerCurve(ctx, step);
+
+    ctx.lineTo(step, step*5);
+    if(ears.bottom) bottomOuterCurve(ctx, step); else bottomInnerCurve(ctx, step);
+
+    ctx.lineTo(step*5, step*5);
+    if(ears.right) rightOuterCurve(ctx, step); else rightInnerCurve(ctx, step);
+
+    ctx.lineTo(step*5, step);
+    if(ears.top) topOuterCurve(ctx, step); else topInnerCurve(ctx, step);
+
+    ctx.lineTo(step, step);
+}
+
+
+function createPieces(settings) {
+    var image = settings.image,
+        piceSize   = settings.pieceSize,
+        spriteSize = settings.spriteSize,
+        piecesMap  = settings.piecesMap;
+    
+    var step = Math.floor(piceSize / 6);
+        
+    fs.mkdir(settings.resultDir, 0777, function() {
+        var mapCanvas = new Canvas(piceSize * settings.hLength, 
+                                   piceSize * settings.vLength);
+        var mapCtx = mapCanvas.getContext('2d');
+        
+        var rows = Math.ceil(settings.vLength / spriteSize);
+        var cols = Math.ceil(settings.hLength / spriteSize);
+    
+        flow.serialForEach(_.range(rows), function(row) {
+        flow.serialForEach(_.range(cols), function(col) {
+            
+            var hPiecesCountLeft = settings.hLength - col * spriteSize;
+            var vPiecesCountLeft = settings.vLength - row * spriteSize;
+            var spriteWidth = (hPiecesCountLeft >= spriteSize ? spriteSize : hPiecesCountLeft) * piceSize;
+            var spriteHeight = (vPiecesCountLeft >= spriteSize ? spriteSize : vPiecesCountLeft) * piceSize;
+
+            var spriteCanvas = new Canvas(spriteWidth, spriteHeight);
+            var spriteCtx = spriteCanvas.getContext('2d');
+            
+            var pieces = _.select(piecesMap, function(piece) {
+                return piece.x >= spriteSize * col && piece.x <= spriteSize * col + spriteSize &&
+                       piece.y >= spriteSize * row && piece.y <= spriteSize * row + spriteSize;
+            });
+            
+            _.each(pieces, function(piece) {
+                var imageX = piece.x * (piceSize - step*2);
+                var imageY = piece.y * (piceSize - step*2);
+                var destnX = (piece.x - col * spriteSize) * piceSize;
+                var destnY = (piece.y - row * spriteSize) * piceSize;
+
+                var pieceCanvas = new Canvas(piceSize, piceSize);
+                var pieceCtx = pieceCanvas.getContext('2d');
+
+                drawPiecePath(pieceCtx, step, {
+                    top: piece.top,
+                    left: piece.left,
+                    right: piece.right,
+                    bottom: piece.bottom
+                });
+
+                pieceCtx.clip();
+                pieceCtx.drawImage(image, imageX, imageY, piceSize, piceSize, 0, 0, piceSize, piceSize);
+                spriteCtx.drawImage(pieceCanvas, 0, 0, piceSize, piceSize, destnX, destnY, piceSize, piceSize);
+            });
+                            
+            var fileName = row + '_' + col + '_' + PIECES_MAP_FILENAME;
+
+            flow.exec(function() {
+                spriteCanvas.toBuffer(this);
+            }, function(err, buffer) {
+                fs.writeFile(settings.resultDir + '/' + fileName, buffer, this);
+                console.log('Created ' + fileName + '...');
+            }, this);
+
+        }, function() {}, this);
+        }, function() {}, settings.onFinish);
+    });
+}
+
+function createCovers(color, filepath, size, callback) {
+    var coversCanvas = new Canvas(size * 4, size * 4);
+    var coversCtx = coversCanvas.getContext('2d');
+    var step = Math.floor(size / 6);
+        
+    COVERS_MAP.forEach(function(cover) {
+        var coverCanvas = new Canvas(size, size);
+        var coverCtx = coverCanvas.getContext('2d');
+        var destnX = cover.x * size;
+        var destnY = cover.y * size;
+        
+        drawPiecePath(coverCtx, step, cover.ears);
+        coverCtx.fillStyle = color;
+        coverCtx.fill();
+
+        coversCtx.drawImage(coverCanvas, 0, 0, size, size, destnX, destnY, size, size);
+    });
+
+    coversCanvas.toBuffer(function(err, buffer){
+        fs.writeFile(filepath, buffer, callback);
+    });
+}
+
+exports.createPieces = createPieces;
+exports.createCovers = function(size, dirpath, callback) {
+    flow.exec(function() {
+        fs.mkdir(dirpath, 0777, this);
+    }, function() {
+        createCovers(DEFAULT_COVER_COLOR, dirpath + '/' + DEFAULT_COVERS_FILENAME, size, this.MULTI());
+        createCovers(SELECT_COVER_COLOR, dirpath + '/' + SELECT_COVERS_FILENAME, size, this.MULTI());
+        createCovers(LOCK_COVER_COLOR, dirpath + '/' + LOCK_COVERS_FILENAME, size, this.MULTI());
+    }, callback);
+};

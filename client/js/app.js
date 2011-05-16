@@ -48,7 +48,7 @@ $(function() {
             cols = Math.ceil(puzzleModel.get('hLength') / spriteSize);
             
             viewport.loading(calcLoading(1));
-            load.covers(puzzleId, this);
+            load.covers(puzzleModel.get('pieceSize'), this);
         }, function(covers) {
             
             Puzz.Views.Piece.setImages({

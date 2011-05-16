@@ -21,11 +21,11 @@ Proto.images = function(sources, callback) {
     });
 };
 
-Proto.covers = function(puzzleId, callback) {
+Proto.covers = function(pieceSize, callback) {
     var sources = {
-        defaultCoverSrc: '/img/puzzles/' + puzzleId + '/default_covers.png',
-        selectCoverSrc: '/img/puzzles/' + puzzleId + '/select_covers.png',
-        lockCoverSrc: '/img/puzzles/' + puzzleId + '/lock_covers.png'
+        defaultCoverSrc: '/img/covers/' + pieceSize + '/default_covers.png',
+        selectCoverSrc: '/img/covers/' + pieceSize + '/select_covers.png',
+        lockCoverSrc: '/img/covers/' + pieceSize + '/lock_covers.png'
     };
 
     this.images(sources, _.bind(function() {
@@ -38,25 +38,21 @@ Proto.covers = function(puzzleId, callback) {
 };
 
 Proto.sprites = function(puzzleId, rows, cols, callbackSprite, callbackFinish) {
+    var dir = '/img/puzzles/' + puzzleId + '/';
+    var count = rows * cols;
     var self = this;
-    var sprites = [];
     
     for (var i = 0; i < rows; i++) {
-        for (var j = 0; j < cols; j++)  {
-            sprites.push({src: '/img/puzzles/' + puzzleId + '/' + i + '_' + j + '_pieces.png', row: i, col: j});
-        }
-    }
-
-    flow.serialForEach(sprites, function(sprite) {
-        this.src = sprite.src;
-        this.row = sprite.row;
-        this.col = sprite.col;
-        self.images([sprite.src], this);
-    }, function() {
-        callbackSprite(this.row, this.col, self.cache[this.src]);
-    }, function() {
-        callbackFinish();
-    });
+    for (var j = 0; j < cols; j++) {
+        (function(src, row, col) {
+            self.images([src], function() {
+                callbackSprite(row, col, self.cache[src]);
+                if (!--count) {
+                    callbackFinish();
+                }
+            });
+        })(dir + i + '_' + j + '_pieces.png', i, j);
+    }}
 };
 
 window.Puzz.Loader = Loader;

@@ -117,14 +117,18 @@ TODO: automate all this stuff.
 12. Put some big image into project directory. Call it something like `puzzle.jpg`.
 13. Generate the first puzzle using that image.
 
-        bin/muchmala-generator -i puzzle.jpg
+        bin/muchmala-puzzle -i puzzle.jpg
 
-14. Generate production CSS/JS and upload them to S3, together with puzzle images.
+14. Generate covers for pieces of the puzzle
+
+        bin/muchmala-covers
+
+15. Generate production CSS/JS and upload them to S3, together with puzzle images.
 
         ant
         jake static-upload
 
-15. Run the actual application server.
+16. Run the actual application server.
 
         sudo bin/muchmala
 

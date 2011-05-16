@@ -159,6 +159,14 @@ task('static-upload', [], function() {
         var url = parts.join('/');
         uploadFiles.push([puzzleFile, url]);
     });
+    
+    var coversFiles = getCoversFiles('client/img/covers');
+    coversFiles.forEach(function(coverFile) {
+        var parts = coverFile.split('/');
+        parts.shift();
+        var url = parts.join('/');
+        uploadFiles.push([coverFile, url]);
+    });
 
     // remember the filtration time
     var thisStaticUpload = Date.now();
@@ -218,6 +226,18 @@ function getPuzzlesFiles(puzzlesDir) {
         }
     });
     return puzzlesFiles;
+}
+
+function getCoversFiles(coversDir) {
+    var coversFiles = [];
+    var files = fs.readdirSync(coversDir);
+    files.forEach(function(file) {
+        var fullpath = path.join(coversDir, file);
+        if (fs.statSync(fullpath).isDirectory()) {
+            coversFiles = coversFiles.concat(scanFiles(fullpath));
+        }
+    });
+    return coversFiles;
 }
 
 function scanFiles(dir) {
