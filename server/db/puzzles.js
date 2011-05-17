@@ -45,14 +45,14 @@ Puzzles.add = function(piecesData, settings, callback) {
 };
 
 Puzzles.get = function(id, callback) {
-	try {
-    	Puzzles.findById(id, function(error, puzzle) {
-	        if(error) { throw error; }
-	        callback(puzzle);
-	    });
-	} catch (error) {
-		callback(null);
-	}
+    try {
+        Puzzles.findById(id, function(error, puzzle) {
+            if(error) { throw error; }
+            callback(puzzle);
+        });
+    } catch (error) {
+        callback(null);
+    }
 };
 
 Puzzles.last = function(callback) {
@@ -122,9 +122,9 @@ Puzzles.prototype.compactPieces = function(callback) {
                 r: pieceData.ears.right,
                 realX: pieceData.realX,
                 realY: pieceData.realY,
-				d: piece.locked,
+                d: piece.locked,
                 x: pieceData.x, 
-				y: pieceData.y
+                y: pieceData.y
             };
         });
 
@@ -133,131 +133,131 @@ Puzzles.prototype.compactPieces = function(callback) {
 };
 
 Puzzles.prototype.lockPiece = function(x, y, userName, callback) {
-	var query = new Query()
-		.where('x', x).where('y', y)
-		.where('locked', null)
-		.where('puzzleId', this._id);
-	
-	var data = {
-	    locked: userName,
-	    lockedAt: Date.now()
-	};
-	
-	Pieces.update(query, data, {safe: true}, function(error, piece) {
-		if (error || _.isNull(piece)) {
-			callback(false);
-			return;
-		}
-		callback(true);
-	});
+    var query = new Query()
+        .where('x', x).where('y', y)
+        .where('locked', null)
+        .where('puzzleId', this._id);
+    
+    var data = {
+        locked: userName,
+        lockedAt: Date.now()
+    };
+    
+    Pieces.update(query, data, {safe: true}, function(error, piece) {
+        if (error || _.isNull(piece)) {
+            callback(false);
+            return;
+        }
+        callback(true);
+    });
 };
 
 Puzzles.prototype.unlockPiece = function(x, y, userName, callback) {
     var query = new Query()
-		.where('x', x).where('y', y)
-		.where('puzzleId', this._id)
-		.where('locked', userName);
-	
-	var data = {
-	    locked: null, 
-	    lockedAt: null
-	};
-	
-	Pieces.update(query, data, {safe: true}, function(error, piece) {
-		if (error || _.isNull(piece)) {
-			callback(false);
-			return;
-		}
-		callback(true);
-	});	
+        .where('x', x).where('y', y)
+        .where('puzzleId', this._id)
+        .where('locked', userName);
+    
+    var data = {
+        locked: null, 
+        lockedAt: null
+    };
+    
+    Pieces.update(query, data, {safe: true}, function(error, piece) {
+        if (error || _.isNull(piece)) {
+            callback(false);
+            return;
+        }
+        callback(true);
+    }); 
 };
 
 Puzzles.prototype.unlockOldPieces = function(callback) {
     var past = parseInt(Date.now() - 60000);
     var query = new Query()
-		.lte('lockedAt', past)
-		.where('puzzleId', this._id)
-		.where('locked').ne(null);
-		
-	Pieces.find(query, function(error, pieces) {
-	    if (error) { callback(false); return; }
-	    
-	    var locked = _.map(pieces, function(piece) {
-	        piece = piece.toObject();
-	        return [piece.x, piece.y];
-	    });
-	    
-	    Pieces.update(query, {locked: null}, {multy: true}, function(error) {
-    		if (error) { callback(false); return; }
-    		callback(locked);
-    	});
-	});
+        .lte('lockedAt', past)
+        .where('puzzleId', this._id)
+        .where('locked').ne(null);
+        
+    Pieces.find(query, function(error, pieces) {
+        if (error) { callback(false); return; }
+        
+        var locked = _.map(pieces, function(piece) {
+            piece = piece.toObject();
+            return [piece.x, piece.y];
+        });
+        
+        Pieces.update(query, {locked: null}, {multy: true}, function(error) {
+            if (error) { callback(false); return; }
+            callback(locked);
+        });
+    });
 };
 
 Puzzles.prototype.isPieceLockedBy = function(x, y, userName, callback) {
-	var query = new Query()
-		.where('x', x).where('y', y)
-		.where('puzzleId', this._id);
-		
-	Pieces.findOne(query, function(error, piece) {
-		if (error || piece.locked != userName) {
-			callback(false);
-			return;
-		}
-		callback(true);
-	});
+    var query = new Query()
+        .where('x', x).where('y', y)
+        .where('puzzleId', this._id);
+        
+    Pieces.findOne(query, function(error, piece) {
+        if (error || piece.locked != userName) {
+            callback(false);
+            return;
+        }
+        callback(true);
+    });
 };
 
 Puzzles.prototype.swap = function(x1, y1, x2, y2, userName, callback) {
-	var self = this;
-	
-	flow.exec(
-		function() {
-			self.isPieceLockedBy(x1, y1, userName, this);
-		},
-		function(locked) {
-			if (!locked) {callback(false); return;}
-			self.lockPiece(x2, y2, userName, this);
-		},
-		function(locked) {
-			if (!locked) {callback(false); return;}
-			self.getPiece(x1, y1, this);
-		},
-		function(piece) {
-			if (_.isNull(piece)) {callback(false); return;}
-			this.first = piece;
-			self.getPiece(x2, y2, this);
-		},
-		function(piece) {
-			if (_.isNull(piece)) {callback(false); return;}
-			this.second = piece;
-			
-			var tmpX = this.first.realX;
+    var self = this;
+    
+    flow.exec(
+        function() {
+            self.isPieceLockedBy(x1, y1, userName, this);
+        },
+        function(locked) {
+            if (!locked) {callback(false); return;}
+            self.lockPiece(x2, y2, userName, this);
+        },
+        function(locked) {
+            if (!locked) {callback(false); return;}
+            self.getPiece(x1, y1, this);
+        },
+        function(piece) {
+            if (_.isNull(piece)) {callback(false); return;}
+            this.first = piece;
+            self.getPiece(x2, y2, this);
+        },
+        function(piece) {
+            if (_.isNull(piece)) {callback(false); return;}
+            this.second = piece;
+            
+            var tmpX = this.first.realX;
             var tmpY = this.first.realY;
             this.first.realX = this.second.realX;
             this.first.realY = this.second.realY;
             this.second.realX = tmpX;
             this.second.realY = tmpY;
             
-			this.first.locked = null;
-			this.second.locked = null;
+            this.first.locked = null;
+            this.second.locked = null;
 
-			this.first.save(this.MULTI());
-			this.second.save(this.MULTI());
-		}, function() {
-			var result = { found: [], completion: 0 };
-        	if (this.first.isCollected()) { result.found.push([x1, y1]); }
-        	if (this.second.isCollected()) { result.found.push([x2, y2]); }
+            this.first.save(this.MULTI());
+            this.second.save(this.MULTI());
+        }, function() {
+            var result = { found: [], completion: 0 };
+            if (this.first.isCollected()) { result.found.push([x1, y1]); }
+            if (this.second.isCollected()) { result.found.push([x2, y2]); }
 
-        	self.getCompletionPercentage(function(completion) {
-            	if (completion == 100) {
-                	self.completed = Date.now();
-                	self.save();
-            	}
-            	result.completion = completion;
-            	callback(result);
-        	});
-		});
+            self.getCompletionPercentage(function(completion) {
+                if (completion == 100) {
+                    self.completed = Date.now();
+                    self.save();
+                }
+                result.completion = completion;
+                callback(result);
+            });
+        });
 };
 
 Puzzles.prototype.getCompletionPercentage = function(callback) {
@@ -271,7 +271,7 @@ Puzzles.prototype.getCompletionPercentage = function(callback) {
             }
         });
 
-        callback(Math.floor(100 / found.length * collected));
+        callback(Math.ceil(100 / found.length * collected));
     });
 };
 
