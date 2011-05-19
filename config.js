@@ -16,9 +16,10 @@ config.MONGODB_HOST     = '127.0.0.1';
 config.MONGODB_USER     = 'mongodb';
 config.MONGODB_DATABASE = 'muchmala';
 
-config.REDIS_HOST = '33.33.33.15';
+config.REDIS_HOST = '127.0.0.1';
 config.REDIS_PORT = 6379;
 config.REDIS_PASSWORD = undefined;
+config.REDIS_DATABASE = 0;
 
 config.AWS_KEY      = null;
 config.AWS_SECRET   = null;
