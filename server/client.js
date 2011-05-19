@@ -19,7 +19,11 @@ Client.prototype.stopCountDown = function() {
 
 Client.prototype.setUserId = function(userId) {
     if (userId != null) {
-        this.client.exec('setUserId', [userId]);
+        this.client.listener.server
+            .createMessage({userId: userId})
+            .setType('setUserId')
+            .forClient(this.client.sessionId)
+            .send();
     }
 };
 

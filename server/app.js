@@ -13,12 +13,12 @@ db.connect(function(err) {
     }
 
     var games = new Games(db);
-    var socket = io.getClient(config);
+    var socket = io.makeListener(config);
 
     socket.on('no-client', function(client) {
-        client.exec('sync');
-        client.on('sync', function(data) {
-            addPlayer(client, JSON.parse(data));
+        addPlayer(client, {
+            userId: client.userId,
+            puzzleId: client.puzzleId
         });
     });
 

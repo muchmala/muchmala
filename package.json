@@ -23,6 +23,6 @@
   , "knox" : "~0"
   , "jake" : "~0"
   , "flow" : "~0"
-  , "socket.io-cluster" : "https://github.com/muchmala/socket.io-cluster/tarball/master"
+  , "socket.io-cluster" : "https://github.com/muchmala/socket.io-cluster/tarball/experemental"
   }
 }
