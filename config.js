@@ -4,9 +4,6 @@ config.DEV = true;
 config.HTTP_HOST = '0.0.0.0';
 config.HTTP_PORT = 80;
 
-config.IO_HOST = '33.33.33.15';
-config.IO_PORT = 80;
-
 config.STATIC_HOST = '33.33.33.15';
 config.STATIC_PORT = 8080;
 
@@ -36,6 +33,12 @@ config.GOOGLE_ID = '';
 config.GOOGLE_SECRET = '';
 config.YAHOO_ID = '';
 config.YAHOO_SECRET = '';
+
+config.CLIENT_CONFIG_URL = '/config.js';
+config.IO_SERVERS = [
+    {internal: '0.0.0.0', external: '33.33.33.15', port: 8081},
+    {internal: '0.0.0.0', external: '33.33.33.15', port: 8082}
+];
 
 try {
     var config_local = require('./config.local.js');

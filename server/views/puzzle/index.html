@@ -11,8 +11,9 @@
 <script>
 	window.Puzz = {Utils: {}, Models: {}, Collections: {}, Views: {}};
 	window.STATIC_HOST = 'http://<%=config.STATIC_HOST%>';
-	window.IO_HOST = '<%=config.IO_HOST%>';
-	window.IO_PORT = <%=config.IO_PORT%>;
+	window.SOCKET_SERVERS = <%-socketIoServers%>;
+	window.IO_HOST = window.SOCKET_SERVERS[0].host;
+	window.IO_PORT = window.SOCKET_SERVERS[0].port;
 </script>
 
 <% if (config.production) { %>

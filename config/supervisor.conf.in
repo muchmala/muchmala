@@ -1,8 +1,17 @@
 [group:muchmala]
-programs=muchmala-io,muchmala-app
+<%
+var io_programs = '';
+for (var i = config.IO_SERVERS.length; i--; ) {
+    io_programs += 'muchmala-io' + config.IO_SERVERS[i].port + ',';
+}
+%>programs=<%=io_programs%>muchmala-app,muchmala-frontend
 
-[program:muchmala-io]
-command=<%= root %>/bin/muchmala-io
+<%
+for (var i = config.IO_SERVERS.length; i--; ) {
+%>
+
+[program:muchmala-io<%=config.IO_SERVERS[i].port%>]
+command=<%= root %>/bin/muchmala-io -p <%=config.IO_SERVERS[i].port%>
 directory=<%= root %>
 <% if (config.DEV) { %>
 autostart=false
@@ -12,8 +21,23 @@ autostart=true
 autorestart=true
 <% } %>
 
+<%
+}
+%>
+
 [program:muchmala-app]
 command=<%= root %>/bin/muchmala-app
+directory=<%= root %>
+<% if (config.DEV) { %>
+autostart=false
+autorestart=false
+<% } else { %>
+autostart=true
+autorestart=true
+<% } %>
+
+[program:muchmala-frontend]
+command=<%= root %>/bin/muchmala-frontend
 directory=<%= root %>
 <% if (config.DEV) { %>
 autostart=false

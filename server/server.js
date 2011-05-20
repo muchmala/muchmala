@@ -7,6 +7,7 @@ var config = require('../config');
 var express = require('express');
 var _ = require('../shared/underscore')._;
 var child = require("child_process");
+var ioCluster = require('socket.io-cluster');
 
 var UPLOADED_IMAGES_DIR = __dirname + '/../uploaded';
 
@@ -61,7 +62,8 @@ var viewСonfig = {
 server.get('/', function(req, res) {
     res.render('puzzle', {
         loggedin: req.isAuthenticated(),
-        config: viewСonfig
+        config: viewСonfig,
+        socketIoServers: JSON.stringify(frontendServer.getIoServersList())
     });
 });
 
@@ -267,5 +269,6 @@ server.get('/auth/yahoo', function(req, res, params) {
 });
 
 server.listen(config.HTTP_PORT, config.HTTP_HOST);
+var frontendServer = ioCluster.makeFrontendServer(server, config);
 
 module.exports = server;
