@@ -1,11 +1,16 @@
-var path = require('path'),
+var db = require('./db'),
+    path = require('path'),
     opts = require('opts'),
+    Image = require('canvas').Image,
     cutter = require('./cutter'),
-    random = require('./random'),
-    db = require('./db'),
-    Image = require('canvas').Image;
+    random = require('./random');
 
 var PUZZLES_DIR = __dirname + '/../client/img/puzzles/';
+
+var SUCCESS = 1;
+var ERROR_IMAGE_SIZE = 101;
+var MAX_IMAGE_HEIGHT = 2500;
+var MAX_IMAGE_WIDTH = 2500;
 
 var options = [
     {
@@ -30,9 +35,24 @@ var options = [
         'description': 'Sprite size',
         'value': true
     }, {
+        'short': 'p',
+        'long': 'private',
+        'description': 'Is puzzle private',
+        'value': false
+    }, {
+        'short': 'u',
+        'long': 'userid',
+        'description': 'User Id',
+        'value': true
+    }, {
         'short': 'v',
-        'long': 'invisible',
-        'description': 'Is puzzle invisible',
+        'long': 'validate',
+        'description': 'Use image validation',
+        'value': false
+    }, {
+        'short': 'vr',
+        'long': 'verbose',
+        'description': 'Verbose output',
         'value': false
     }
 ];
@@ -46,45 +66,83 @@ image.onerror = function(err) {
 };
 
 image.onload = function() {
-    var settings = {
+    
+    if (opts.get('validate')) {
+        if (image.width > MAX_IMAGE_WIDTH || 
+            image.height > MAX_IMAGE_HEIGHT) {
+            log('Image is too big :(');
+            process.exit(ERROR_IMAGE_SIZE);
+        }
+    }
+    
+    var options = {
         name: opts.get('name'),
-        invisible: opts.get('invisible') || false,
-        pieceSize: parseInt(opts.get('piecesize')) || 120,
-        spriteSize: parseInt(opts.get('spritesize')) || 5
+        userId: opts.get('userid'),
+        invisible: opts.get('private'),
+        pieceSize: parseInt(opts.get('piecesize')),
+        spriteSize: parseInt(opts.get('spritesize'))
     };
 
-    if (!settings.name) {
-        settings.name = path.basename(image.src, path.extname(image.src));
+    if (!options.name) {
+        options.name = path.basename(image.src, path.extname(image.src));
     }
 
-    var puzzle = random.puzzle(image.width, image.height, settings.pieceSize);
-
-    settings.hLength = puzzle.hLength;
-    settings.vLength = puzzle.vLength;
-
     db.connect(function() {
-        console.log('Creating puzzle...');
-        db.Puzzles.add(puzzle.pieces, settings, function(added) {
-            var puzzleId = added._id.toHexString();
-
-            console.log('Puzzle is created. Id: ' + puzzleId + '.');
-            console.log('Creating sprites images...');
-
-            cutter.createPieces({
-                image: image,
-                hLength: puzzle.hLength,
-                vLength: puzzle.vLength,
-                piecesMap: puzzle.pieces,
-                pieceSize: settings.pieceSize,
-                spriteSize: settings.spriteSize,
-                resultDir: PUZZLES_DIR + puzzleId,
-                onFinish: function() {
-                    console.log('Sprites images are created.');
-                    process.exit();
-                }
-            });
+        log('Creating puzzle...');
+        generate(image, options, function(puzzleId, queueIndex) {
+            var result = {
+                puzzleId: puzzleId,
+                queueIndex: queueIndex
+            };
+            
+            log('Sprites images are created.');
+            log('Queue index: ' + queueIndex);
+            
+            if (!opts.get('verbose')) {
+                process.stdout.write(JSON.stringify(result));
+            }
+            
+            process.exit(SUCCESS);
         });
     });
 };
 
 image.src = opts.get('image');
+
+function generate(image, options, callback) {
+    options.pieceSize || (options.pieceSize = 120);
+    options.invisible || (options.invisible = false);
+    options.spriteSize || (options.spriteSize = 5);
+    
+    var puzzle = random.puzzle(image.width, image.height, options.pieceSize);
+
+    options.hLength = puzzle.hLength;
+    options.vLength = puzzle.vLength;
+
+    db.Puzzles.add(puzzle.pieces, options, function(added, queueIndex) {
+        var puzzleId = added._id.toHexString();
+
+        log('Puzzle is created. Id: ' + puzzleId + '.');
+        log('Creating sprites images...');
+
+        cutter.createPieces({
+            image: image,
+            hLength: puzzle.hLength,
+            vLength: puzzle.vLength,
+            piecesMap: puzzle.pieces,
+            pieceSize: options.pieceSize,
+            spriteSize: options.spriteSize,
+            resultDir: PUZZLES_DIR + puzzleId,
+            verbose: opts.get('verbose'),
+            onFinish: function() {
+                callback(puzzleId, queueIndex);
+            }
+        });
+    });
+}
+
+function log(message) {
+    if (opts.get('verbose')) {
+        console.log(message);
+    }
+}

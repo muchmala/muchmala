@@ -257,7 +257,101 @@ function AuthDialog() {
 
 Puzz.Utils.inherit(AuthDialog, Dialog);
 
-var AuthDialogProto = AuthDialog.prototype;
+function CreatePuzzleDialog() {
+    CreatePuzzleDialog.superproto.constructor.call(this);
+    this.element.append($('#createPuzzle').show());
+    this.element.addClass('white');
+    
+    _.bindAll(this, 'submit', 'reset');
+
+    this.fatal = this.element.find('.fatal');
+    this.fatal.find('.button').click(this.reset);
+    
+    this.success = this.element.find('.success');
+    
+    this.form = this.element.find('form');
+    this.form.find('.button.big').click(this.submit);
+    this.form.find('.uploading').hide();
+    this.form.find('.error').hide();
+}
+
+Puzz.Utils.inherit(CreatePuzzleDialog, Dialog);
+
+var CreatePuzzleDialogProto = CreatePuzzleDialog.prototype;
+
+CreatePuzzleDialogProto.show = function() {
+    CreatePuzzleDialog.superproto.show.call(this);
+    this.reset();
+};
+
+CreatePuzzleDialogProto.reset = function() {
+    this.form.find('.error').hide();
+    this.form.show().get(0).reset();
+    this.fatal.hide();
+    this.success.hide();
+};
+
+CreatePuzzleDialogProto.submit = function() {
+    var file = this.form.find('input[name="image"]');
+    var name = this.form.find('input[name="name"]');
+    var correct = true;
+    
+    this.form.find('.error').hide();
+    
+    if (!name.val()) {
+        this.form.find('.error.nameAbsent').show();
+        correct = false;
+    }
+    if (!file.val()) {
+        this.form.find('.error.imageAbsent').show();
+        correct = false;
+    }
+    if (file.get(0).files[0] &&
+        file.get(0).files[0].type != 'image/jpeg' &&
+        file.get(0).files[0].type != 'image/png') {
+        this.form.find('.error.imageFormat').show();
+        correct = false;
+    }
+    
+    if (!correct) {
+        this.shake();
+        return;
+    }
+    
+    var self = this;
+    
+    AIM.submit(this.form.get(0), {
+        onStart: function() {
+            self.form.find('.button.big').hide();
+            self.form.find('.uploading').show();
+        },
+        onComplete: function(response) {
+            console.log(response);
+            if (!_.isUndefined(response.errors)) {
+                if (_.include(response.errors, 'fatal')) {
+                    self.form.hide();
+                    self.fatal.show();
+                }
+                _.each(response.errors, function(error) {
+                    self.form.find('.error.' + error).show();
+                });
+                
+                self.form.find('.button.big').show();
+                self.form.find('.uploading').hide();
+            } else {
+                self.form.hide();
+                self.success.show();
+                self.success.find('.index').html(response.queueIndex);
+                self.success.find('a').attr('href', '#' + response.puzzleId);
+                self.success.find('a').click(function() {
+                    document.location.href = '#' + response.puzzleId;
+                    document.location.reload();
+                    return;
+                });
+            }
+        }
+    });
+};
 
 Puzz.TimeHelper = {
     MONTH: 60*60*24*30,
@@ -322,6 +416,7 @@ Puzz.TimeHelper = {
 Puzz.Views.MenuDialog = MenuDialog;
 Puzz.Views.UserNameDialog = UserNameDialog;
 Puzz.Views.CompleteDialog = CompleteDialog;
+Puzz.Views.CreatePuzzleDialog = CreatePuzzleDialog;
 Puzz.Views.AuthDialog = AuthDialog;
 
 })();

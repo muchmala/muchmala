@@ -1,8 +1,14 @@
 var fs = require('fs');
 var db = require('./db');
+var util = require('util');
 var auth = require('connect-auth');
+var form = require('connect-form');
 var config = require('../config');
 var express = require('express');
+var _ = require('../shared/underscore')._;
+var child = require("child_process");
+
+var UPLOADED_IMAGES_DIR = __dirname + '/../uploaded';
 
 var utilsDb = JSON.parse(fs.readFileSync(config.UTILS_DB).toString());
 
@@ -18,6 +24,7 @@ server.configure(function() {
     server.use(express.cookieParser());
     server.use(express.session({secret: 'secret'}));
     
+    server.use(form());
     server.use(auth([
         auth.Twitter({
             consumerKey: config.TWITTER_KEY,
@@ -132,6 +139,85 @@ server.get('/auth/google', function(req, res, params) {
         });
     });
 });
+
+server.post('/create', function(req, res) {
+    req.form.complete(function(err, fields, files){
+        var userId = req.cookies.user_id;
+        var errors = [];
+        
+        fields.size = parseInt(fields.size);
+        
+        if (!_.include([90, 120, 150], fields.size)) {
+            errors.push('piecesSize');
+        }
+        
+        if (_.isUndefined(files.image)) {
+            errors.push('imageAbsent');
+        }
+        
+        if (!_.isUndefined(files.image) && 
+            files.image.type != 'image/jpeg' && 
+            files.image.type != 'image/png') {
+            errors.push('imageFormat');
+        }
+        
+        if (_.isUndefined(files.image) && errors.length) {
+            res.end(JSON.stringify({errors: errors}));
+            return;
+        }
+        
+        var dirPath = UPLOADED_IMAGES_DIR + '/' + userId;
+        var imgHash = Math.random().toString().substr(2);
+        var imgPath = dirPath + '/' + imgHash + '_' + files.image.name;
+        
+        fs.mkdir(dirPath, '0777', function() {
+            copyFile(files.image.path, imgPath, function() {
+                var options = {
+                    name: fields.name,
+                    pieceSize: fields.size,
+                    imagePath: imgPath,
+                    userId: userId
+                };
+                var onSuccess = function(data) {
+                    res.end(JSON.stringify(data));
+                };
+                var onError = function(code) {
+                    if (code == 101) {
+                        res.end(JSON.stringify({errors: ['imageSize']}));
+                    } else {
+                        res.end(JSON.stringify({errors: ['fatal']}));
+                    }
+                };
+                buildPuzzle(options, onSuccess, onError);
+            })
+        });
+    });    
+});
+
+function buildPuzzle(options, onSuccess, onError) {
+    //var builder = child.spawn('/home/borbit/repositories/nave/installed/0.4.7/bin/node', [
+    var builder = child.spawn('node', [
+        __dirname + '/createPieces.js',
+        '-i', options.imagePath, 
+        '-n', options.puzzleName,
+        '-ps', options.pieceSize,
+        '-u', options.userId,
+        '-v'
+    ]);
+    builder.stdout.on('data', function (data) {
+        onSuccess(JSON.parse(data));
+    });
+    builder.stderr.on('data', function (data) {
+        onError();
+    });
+    builder.on("exit", function(code) {
+        if (code != 1) { onError(code); }
+    });
+}
+
+function copyFile(source, dest, callback) {
+    child.spawn("cp", [source, dest]).on("exit", callback);
+}
 
 function getLinkedUser(field, id, userId, callback) {
     var query = {};

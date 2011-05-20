@@ -17,6 +17,10 @@ Puzzles.add = function(piecesData, settings, callback) {
     puzzle.spriteSize = settings.spriteSize;
     puzzle.invisible = settings.invisible;
     puzzle.piecesCount = piecesData.length;
+    
+    if (_.isString(settings.userId)) {
+        puzzle.userId = settings.userId;
+    }
 
     flow.exec(
         function() {
@@ -40,7 +44,13 @@ Puzzles.add = function(piecesData, settings, callback) {
                 piece.save(this.MULTI());
             }, this);
         }, function() {
-            callback(puzzle);
+            var query = new Query()
+                .where('invisible', false)
+                .where('completed', null);
+                
+            Puzzles.count(query, function(error, queueIndex) {
+                callback(puzzle, queueIndex);
+            });
         });
 };
 

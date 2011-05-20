@@ -1,0 +1,56 @@
+<div id="createPuzzle">
+<form action="/create" method="post" enctype="multipart/form-data">
+    <div>
+        * Select an image file on your computer (image should<br/>
+        be JPEG/PNG format and 2500x2500 pixels maximum).
+        <div class="error imageAbsent"><span>You have not selected a file.</span></div>
+        <div class="error imageFormat"><span>Your file has wrong format, should be JPEG or PNG.</span></div>
+        <div class="error imageSize"><span>Image size is bigger than allowed (2500x2500 pixels maximum).</span></div>
+    </div>
+    <div>
+        <input type="file" name="image" />
+    </div>
+    <div>
+        Enter a name for your puzzle (filename by default).
+        <div class="error nameAbsent"><span>You have not entered puzzle name.</span></div>
+    </div>
+    <div>
+        <input type="text" name="name" />
+    </div>
+    <div>
+        * Choose pieces size.
+    </div>
+    <div>
+        <ul>
+            <li>
+                <label for="size90">90px</label><br/>
+                <input type="radio" value="90" name="size" id="size90" />
+            </li>
+            <li>
+                <label for="size120">120px</label><br/>
+                <input type="radio" value="120" name="size" id="size120" checked="checked" />
+            </li>
+            <li>
+                <label for="size150">150px</label><br/>
+                <input type="radio" value="150" name="size" id="size150" />
+            </li>
+        </ul>
+    </div>
+    <div>
+        <span class="button big">Create Puzzle</span>
+        <span class="uploading">Uploading</span>
+    </div>
+</form>
+<section class="success">
+    <strong>Your puzzle is successfully created!</strong><br/>
+    Thank you for your interest! 
+    Your puzzle is <strong class="index">7</strong>th in the queue and it will be shown<br/> on the main page when
+    another puzzles in the queue were complete.<br/>
+    <a href="#" class="button big">Go to Puzzle</a>
+</section>
+<section class="fatal">
+    <strong>Failed to create puzzle :(</strong><br/>
+    There was a problem with the image file.<br/>
+    <span class="button big">Try again</span>
+</section>
+</div>

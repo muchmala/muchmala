@@ -1,4 +1,4 @@
-.dialog {    
+.dialog {
     position:absolute;
     left:-1000px;
     z-index:1002;
@@ -10,6 +10,15 @@
     -webkit-box-shadow:0 0 5px #fff;
     -moz-box-shadow:0 0 5px #fff;
     box-shadow:0 0 5px #fff;
+}
+
+.dialog.white {
+    color:#000;
+    background:rgba(255,255,255,0.9);
+    
+    -webkit-box-shadow:0 0 5px #000;
+    -moz-box-shadow:0 0 5px #000;
+    box-shadow:0 0 5px #000;
 }
 
 .dialog .close {

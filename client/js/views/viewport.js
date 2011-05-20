@@ -9,10 +9,13 @@ function Viewport(puzzle, user, leaders, twenty) {
             .attr('id', 'selected');
     
     this.menu = new Puzz.Views.MenuDialog(twenty);
+    this.create = new Puzz.Views.CreatePuzzleDialog();
+    
     this.complete = new Puzz.Views.CompleteDialog(puzzle, leaders);
     this.panel = new Puzz.Views.Panel({
         leaders: leaders, user: user,
-        menu: this.menu, puzzle: puzzle
+        menu: this.menu, puzzle: puzzle,
+        create: this.create
     });
 
     this.pieceSize = 150;

@@ -157,7 +157,9 @@ function createPieces(settings) {
                 spriteCanvas.toBuffer(this);
             }, function(err, buffer) {
                 fs.writeFile(settings.resultDir + '/' + fileName, buffer, this);
-                console.log('Created ' + fileName + '...');
+                if (settings.verbose) {
+                    console.log('Created ' + fileName + '...');
+                }
             }, this);
 
         }, function() {}, this);

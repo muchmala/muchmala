@@ -108,7 +108,8 @@ input {
     padding:0 15px;
     height:30px;
     line-height:30px;
-    font-size:18px;
+    font-size:14px;
+    font-weight:bold;
     
     -webkit-border-radius:15px;
     -moz-border-radius:15px;

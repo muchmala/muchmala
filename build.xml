@@ -30,6 +30,7 @@
                 <file name="../../shared/flow.js"/>
                 
                 <file name="utils.js"/>
+                <file name="third/aim.js"/>
 
                 <file name="backbone/backbone.js"/>
                 <file name="backbone/backbone.io.js"/>

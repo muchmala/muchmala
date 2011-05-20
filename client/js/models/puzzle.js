@@ -16,6 +16,11 @@ Puzz.Models.Puzzle = Backbone.IO.Model.extend({
         'puzzleData': 'refresh'
     },
     
+    initialize: function() {
+        this.id = document.location.hash.replace('#', '') || null;
+        console.log(this.id);
+    },
+    
     refresh: function(data) {
         if (!_.isUndefined(data.completed)) {data.completed = new Date(data.completed);}
         if (!_.isUndefined(data.created)) {data.created = new Date(data.created);}

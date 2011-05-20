@@ -12,6 +12,9 @@ var Panel = Backbone.View.extend({
         this.el.find('.openMenu').click(function() {
             if (!stngs.menu.shown) stngs.menu.show();
         });
+        this.el.find('.createPuzzle').click(function() {
+            if (!stngs.create.shown) stngs.create.show();
+        });
         
         var self = this;
         
