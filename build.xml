@@ -77,6 +77,7 @@
                 <file name="menu.css"/>
                 <file name="complete.css"/>
                 <file name="browser.css"/>
+                <file name="create.css"/>
                 <file name="auth.css"/>
             </filelist>
         </concat>
