@@ -211,7 +211,11 @@ function buildPuzzle(options, onSuccess, onError) {
         onError();
     });
     builder.on("exit", function(code) {
-        if (code != 1) { onError(code); }
+        if (code == 1) {
+            child.spawn('jake', ['static-upload']);
+        } else {
+            onError(code);
+        }
     });
 }
 
