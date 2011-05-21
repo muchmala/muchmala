@@ -1,0 +1,20 @@
+<% var i;
+%>{
+    "silent": false,
+    "hostnameOnly": true,
+    "router": {
+<%
+for (i = config.FRONTEND_SERVERS.length; i--; ) {
+%>
+        "<%=config.FRONTEND_SERVERS[i].externalHost%>" : "127.0.0.1:<%=config.FRONTEND_SERVERS[i].internalPort%>",
+<%
+}
+for (i = config.IO_SERVERS.length; --i; ) {
+%>
+        "<%=config.IO_SERVERS[i].externalHost%>" : "127.0.0.1:<%=config.IO_SERVERS[i].internalPort%>",
+<%
+}
+%>
+        "<%=config.IO_SERVERS[0].externalHost%>" : "127.0.0.1:<%=config.IO_SERVERS[0].internalPort%>"
+    }
+}

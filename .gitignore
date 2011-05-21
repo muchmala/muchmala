@@ -6,3 +6,4 @@ client/img/puzzles/
 utils.db
 index.html
 node_modules
+proxy.json

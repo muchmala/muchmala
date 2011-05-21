@@ -25,5 +25,6 @@
   , "jake" : "~0"
   , "flow" : "~0"
   , "socket.io-cluster" : "~0"
+  , "http-proxy" : "~0"
   }
 }

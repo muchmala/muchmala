@@ -96,7 +96,7 @@ task('restart-nginx', ['/etc/nginx/sites-enabled/muchmala.dev'], function() {
 
 
 desc('restart (update) supervisor');
-task('restart-supervisor', ['/etc/nginx/sites-enabled/muchmala.dev'], function() {
+task('restart-supervisor', ['/etc/supervisor/conf.d/muchmala.conf', 'proxy.json'], function() {
     console.log('Restarting supervisor...');
     exec('supervisorctl update', function(err, stdout, stderr) {
         if (err) {
@@ -111,7 +111,7 @@ task('restart-supervisor', ['/etc/nginx/sites-enabled/muchmala.dev'], function()
 
 
 desc('generate configs');
-var deps = ['/etc/supervisor/conf.d/muchmala.conf'];
+var deps = ['/etc/supervisor/conf.d/muchmala.conf', 'proxy.json'];
 if (config.DEV) {
     deps.push('/etc/nginx/sites-enabled/muchmala.dev');
 }
@@ -141,6 +141,15 @@ file('/etc/nginx/sites-enabled/muchmala.dev', configFiles, function() {
         fs.unlinkSync(defaultNginxSiteConfig);
         console.log('DONE');
     }
+});
+
+
+
+desc('generate proxy config');
+file('proxy.json', ['config/proxy.json.in'].concat(configFiles), function() {
+    console.log('Generating proxy config...');
+    render('config/proxy.json.in', 'proxy.json', {config: config});
+    console.log('DONE');
 });
 
 

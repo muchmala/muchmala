@@ -16,7 +16,7 @@ opts.parse([
 var port = opts.get('port') || config.HTTP_PORT;
 
 var server = http.createServer();
-    server.listen(port);
+    server.listen(port, config.HTTP_HOST);
 var ioNode = ioCluster.makeIoListener(server, config);
 
 ioNode.getClientInfo = function(client) {

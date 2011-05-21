@@ -1,10 +1,26 @@
-var db = require('./db');
-var auth = require('connect-auth');
-var form = require('connect-form');
-var config = require('../config');
-var express = require('express');
-var controllers = require('./controllers');
+var express = require('express'),
+    auth = require('connect-auth'),
+    form = require('connect-form'),
+    opts = require('opts'),
+
+    db = require('./db'),
+    controllers = require('./controllers'),
+
+    config = require('../config');
+
 var server = express.createServer();
+
+opts.parse([
+{
+    'short': 'p',
+    'long': 'port',
+    'description': 'HTTP port',
+    'value': true,
+    'required': false
+}
+], true);
+
+var port = opts.get('port') || config.HTTP_PORT;
 
 db.connect(function() {});
 
@@ -39,6 +55,6 @@ server.use(auth([
     })    
 ]));
 
-server.listen(config.HTTP_PORT, config.HTTP_HOST);
+server.listen(port, config.HTTP_HOST);
 
 controllers(server);

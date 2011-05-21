@@ -34,11 +34,16 @@ config.GOOGLE_SECRET = '';
 config.YAHOO_ID = '';
 config.YAHOO_SECRET = '';
 
-config.CLIENT_CONFIG_URL = '/config.js';
-config.IO_SERVERS = [
-    {internal: '0.0.0.0', external: '33.33.33.15', port: 8081},
-    {internal: '0.0.0.0', external: '33.33.33.15', port: 8082}
+config.FRONTEND_SERVERS = [
+    {externalHost: 'muchmala.com', externalPort: 80, internalPort: 8081} //can be only one for now
 ];
+
+config.IO_SERVERS = [
+    {externalHost: 'io1.muchmala.com', externalPort: 80, internalPort: 8082},
+    {externalHost: 'io2.muchmala.com', externalPort: 80, internalPort: 8083}
+];
+
+config.APP_SERVERS_COUNT = 1; //can be only one for now
 
 try {
     var config_local = require('./config.local.js');
