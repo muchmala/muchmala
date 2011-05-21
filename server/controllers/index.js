@@ -1,7 +1,7 @@
 var controllers = [
-    require('.indexController'),
-    require('.createController'),
-    require('.authController')
+    require('./indexController'),
+    require('./createController'),
+    require('./authController')
 ];
 
 module.exports = function(server) {

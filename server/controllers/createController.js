@@ -1,5 +1,8 @@
-var _ = require('../shared/underscore')._;
+var _ = require('../../shared/underscore')._;
 var child = require('child_process');
+var fs = require('fs');
+
+var UPLOADED_IMAGES_DIR = __dirname + '/../../uploaded';
 
 module.exports = function(server) {
     server.post('/create', function(req, res) {
@@ -58,9 +61,9 @@ module.exports = function(server) {
 };
 
 function buildPuzzle(options, onSuccess, onError) {
-    //var builder = child.spawn('/home/borbit/repositories/nave/installed/0.4.7/bin/node', [
-    var builder = child.spawn('node', [
-        __dirname + '/createPieces.js',
+    var builder = child.spawn('/home/borbit/repositories/nave/installed/0.4.8/bin/node', [
+    //var builder = child.spawn('node', [
+        __dirname + '/../createPieces.js',
         '-i', options.imagePath, 
         '-n', options.puzzleName,
         '-ps', options.pieceSize,
@@ -83,5 +86,5 @@ function buildPuzzle(options, onSuccess, onError) {
 }
 
 function copyFile(source, dest, callback) {
-    child.spawn("cp", [source, dest]).on("exit", callback);
+    child.spawn("cp", ['-r', source, dest]).on("exit", callback);
 }

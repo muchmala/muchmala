@@ -1,15 +1,9 @@
-var fs = require('fs');
 var db = require('./db');
 var auth = require('connect-auth');
 var form = require('connect-form');
 var config = require('../config');
 var express = require('express');
 var controllers = require('./controllers');
-
-var UPLOADED_IMAGES_DIR = __dirname + '/../uploaded';
-
-var utilsDb = JSON.parse(fs.readFileSync(config.UTILS_DB).toString());
-
 var server = express.createServer();
 
 db.connect(function() {});
