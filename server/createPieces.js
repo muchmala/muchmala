@@ -8,9 +8,14 @@ var db = require('./db'),
 var PUZZLES_DIR = __dirname + '/../client/img/puzzles/';
 
 var SUCCESS = 1;
-var ERROR_IMAGE_SIZE = 101;
+
+var ERROR_IMAGE_BIG = 101;
+var ERROR_IMAGE_SMALL = 102;
+
 var MAX_IMAGE_HEIGHT = 2500;
 var MAX_IMAGE_WIDTH = 2500;
+var MIN_IMAGE_HEIGHT = 500;
+var MIN_IMAGE_WIDTH = 500;
 
 var options = [
     {
@@ -71,7 +76,12 @@ image.onload = function() {
         if (image.width > MAX_IMAGE_WIDTH || 
             image.height > MAX_IMAGE_HEIGHT) {
             log('Image is too big :(');
-            process.exit(ERROR_IMAGE_SIZE);
+            process.exit(ERROR_IMAGE_BIG);
+        }
+        if (image.width < MIN_IMAGE_WIDTH || 
+            image.height < MIN_IMAGE_HEIGHT) {
+            log('Image is too small :(');
+            process.exit(ERROR_IMAGE_SMALL);
         }
     }
     

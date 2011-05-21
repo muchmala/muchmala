@@ -1,17 +1,18 @@
 <div id="createPuzzle">
 <form action="/create" method="post" enctype="multipart/form-data">
     <div>
-        * Select an image file on your computer (image should<br/>
-        be JPEG/PNG format and 2500x2500 pixels maximum).
+        * Select an image file on your computer (image should be JPEG/PNG<br/>
+        format, 2500x2500 pixels maximum and 500x500 pixels minimum).
         <div class="error imageAbsent"><span>You have not selected a file.</span></div>
         <div class="error imageFormat"><span>Your file has wrong format, should be JPEG or PNG.</span></div>
-        <div class="error imageSize"><span>Image size is bigger than allowed (2500x2500 pixels maximum).</span></div>
+        <div class="error imageSizeBig"><span>Image size is bigger than allowed (2500x2500 pixels maximum).</span></div>
+        <div class="error imageSizeSmall"><span>Image size is smaller than allowed (500x500 pixels minimum).</span></div>
     </div>
     <div>
         <input type="file" name="image" />
     </div>
     <div>
-        Enter a name for your puzzle (filename by default).
+        * Enter a name for your puzzle.
         <div class="error nameAbsent"><span>You have not entered puzzle name.</span></div>
     </div>
     <div>

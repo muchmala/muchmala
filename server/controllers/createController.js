@@ -48,7 +48,9 @@ module.exports = function(server) {
                     };
                     var onError = function(code) {
                         if (code == 101) {
-                            res.end(JSON.stringify({errors: ['imageSize']}));
+                            res.end(JSON.stringify({errors: ['imageSizeBig']}));
+                        } else if (code == 102) {
+                            res.end(JSON.stringify({errors: ['imageSizeSmall']}));
                         } else {
                             res.end(JSON.stringify({errors: ['fatal']}));
                         }
@@ -61,8 +63,8 @@ module.exports = function(server) {
 };
 
 function buildPuzzle(options, onSuccess, onError) {
-    var builder = child.spawn('/home/borbit/repositories/nave/installed/0.4.8/bin/node', [
-    //var builder = child.spawn('node', [
+    //var builder = child.spawn('/home/borbit/repositories/nave/installed/0.4.8/bin/node', [
+    var builder = child.spawn('node', [
         __dirname + '/../createPieces.js',
         '-i', options.imagePath, 
         '-n', options.puzzleName,
