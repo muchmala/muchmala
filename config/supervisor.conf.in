@@ -73,7 +73,7 @@ autorestart=true
 %>
 
 [program:proxy]
-command=<%= root %>/node_modules/.bin/node-http-proxy --config proxy.json
+command=<%= root %>/bin/muchmala-proxy --config proxy.json
 directory=<%= root %>
 <% if (config.DEV) { %>
 autostart=false
