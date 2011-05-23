@@ -118,27 +118,31 @@ Puzzles.prototype.compactInfo = function(callback) {
 
 Puzzles.prototype.compactPieces = function(callback) {
     var self = this;
+    var time = Date.now();
     
-    Pieces.find({puzzleId: this._id}, function(error, found) {
+    Pieces.collection.find({puzzleId: this._id}, {}, function(error, cursor) {
         if(error) {throw error;}
         
-        var pieces = _.map(found, function(piece) {
-            pieceData = piece.toObject();
+        var result = []
+        
+        cursor.each(function(err, piece) {
+            if (piece == null) {
+                callback(result);
+                return;
+            }
             
-            return {
-                t: pieceData.ears.top,
-                l: pieceData.ears.left,
-                b: pieceData.ears.bottom,
-                r: pieceData.ears.right,
-                realX: pieceData.realX,
-                realY: pieceData.realY,
+            result.push({
+                t: piece.ears.top,
+                l: piece.ears.left,
+                b: piece.ears.bottom,
+                r: piece.ears.right,
+                realX: piece.realX,
+                realY: piece.realY,
                 d: piece.locked,
-                x: pieceData.x, 
-                y: pieceData.y
-            };
+                x: piece.x, 
+                y: piece.y
+            });
         });
-
-        callback(pieces);
     });
 };
 
@@ -258,7 +262,7 @@ Puzzles.prototype.swap = function(x1, y1, x2, y2, userName, callback) {
             var result = { found: [], completion: 0 };
             if (this.first.isCollected()) { result.found.push([x1, y1]); }
             if (this.second.isCollected()) { result.found.push([x2, y2]); }
-
+            
             self.getCompletionPercentage(function(completion) {
                 if (completion == 100) {
                     self.completed = Date.now();
@@ -271,17 +275,24 @@ Puzzles.prototype.swap = function(x1, y1, x2, y2, userName, callback) {
 };
 
 Puzzles.prototype.getCompletionPercentage = function(callback) {
-    Pieces.find({puzzleId: this._id}, function(error, found) {
+    Pieces.collection.find({puzzleId: this._id}, {}, function(error, cursor) {
         if(error) {throw error;}
 
         var collected = 0;
-        _.each(found, function(piece) {
-            if(piece.isCollected()) {
+        var length = 0;
+        
+        cursor.each(function(err, piece) {
+            if (piece == null) {
+                callback(Math.ceil(100 / length * collected));
+                return;
+            }
+            
+            if(piece.x == piece.realX &&
+               piece.y == piece.realY) {
                 collected++;
             }
+            length++;
         });
-
-        callback(Math.ceil(100 / found.length * collected));
     });
 };
 

@@ -18,7 +18,6 @@ Puzz.Models.Puzzle = Backbone.IO.Model.extend({
     
     initialize: function() {
         this.id = document.location.hash.replace('#', '') || null;
-        console.log(this.id);
     },
     
     refresh: function(data) {
