@@ -39,12 +39,16 @@ Installation (Vagrant)
 
         sudo npm install jake -g
 
-8. Put some big image into project directory. Call it something like `puzzle.jpg`.
-9. Generate the first puzzle using that image.
+8. Generate and install nginx and supervisor configs.
+
+        sudo jake install
+
+9. Put some big image into project directory. Call it something like `puzzle.jpg`.
+10. Generate the first puzzle using that image.
 
         bin/muchmala-generator -i puzzle.jpg
 
-10. Start all services using (don't forget the colon at the end).
+11. Start all services using (don't forget the colon at the end).
 
         sudo supervisorctl start muchmala:
 

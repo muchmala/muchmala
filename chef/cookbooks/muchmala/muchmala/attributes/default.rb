@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-default.nodejs[:version] = "0.4.7"
+default.nodejs[:version] = "0.4.8"
 default.nodejs[:npm] = "1.0.6"
 
 default['java']['install_flavor'] = "sun"
