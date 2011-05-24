@@ -9,8 +9,8 @@ $(function() {
     var server      = new Puzz.Server();
     var userModel   = new Puzz.Models.User(server);
     var puzzleModel = new Puzz.Models.Puzzle(server);
+    var twentyCollection  = new Puzz.Collections.Twenty();
     var piecesCollection  = new Puzz.Collections.Pieces(server);
-    var twentyCollection  = new Puzz.Collections.Twenty(server);
     var leadersCollection = new Puzz.Collections.Leaders(server);
     
     // TEMPORARY SOLUTION, SHOULD BE REMOVED IN JUNE

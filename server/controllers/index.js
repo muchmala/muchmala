@@ -1,6 +1,7 @@
 var controllers = [
     require('./indexController'),
     require('./createController'),
+    require('./usersController'),
     require('./authController')
 ];
 

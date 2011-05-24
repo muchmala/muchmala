@@ -1,10 +1,8 @@
-Puzz.Collections.Twenty = Backbone.IO.Collection.extend({
+Puzz.Collections.Twenty = Backbone.Collection.extend({
+    url: '/users/toptwenty',
+    
     messages: {
         'topTwenty': 'refresh'
-    },
-    
-    fetch: function() {
-        this.socket.getTopTwenty();
     },
     
     getSortedBy: function(sortBy) {

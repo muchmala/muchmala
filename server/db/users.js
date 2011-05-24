@@ -6,8 +6,16 @@ var Query = mongoose.Query;
 var Users = models.Users;
 var UsersToPuzzles = models.UsersToPuzzles;
 
-Users.all = function(callback) {
-    Users.find({}, [], {sort: {'score': -1}}, function(error, users) {
+Users.all = function(count, callback) {
+    var options = {
+        sort: {'score': -1}
+    };
+    
+    if (count) {
+        options.limit = count;
+    }
+    
+    Users.find({}, [], options, function(error, users) {
         if(error) {throw error;}
         callback(users);
     });

@@ -115,12 +115,6 @@ Player.prototype.swapPiecesAction = function(coords) {
     });
 };
 
-Player.prototype.topTwentyAction = function() {
-    this.getTopTwentyData((function(data) {
-        this.client.send(MESSAGES.topTwenty, data);
-    }).bind(this));
-};
-
 Player.prototype.addScore = function(found, completion) {
     var self = this;
     var points = 1000;
@@ -169,23 +163,5 @@ Player.prototype.unlockSelectedPiece = function(callback) {
         
     }).bind(this));
 };
-
-Player.prototype.getTopTwentyData = function(callback) {
-    flow.exec(
-        function() {
-            db.Users.all(this);
-        },
-        function(users) {
-            var result = _.map(users, function(user) {
-                return {
-                    name: user.name,
-                    score: user.score,
-                    created: user.created.getTime()
-                };
-            });
-            callback(result.slice(0, 20));
-        });
-};
-
 
 module.exports = Player;
