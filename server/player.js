@@ -120,7 +120,7 @@ Player.prototype.addScore = function(found) {
     var points = 1000;
     var foundCount = found.length;
 
-    if (completion < 100) {
+    if (this.puzzle.completion < 100) {
         points = Math.ceil((100 - this.puzzle.completion) / 4);
     }
 
