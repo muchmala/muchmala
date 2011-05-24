@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require('../server/createPieces')
+require('../server/scripts/createPieces')

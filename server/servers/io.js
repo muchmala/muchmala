@@ -1,7 +1,7 @@
-var ioCluster = require('socket.io-cluster'),
-    http = require('http'),
-    opts = require('opts'),
-    config = require('../config');
+var ioCluster = require('socket.io-cluster');
+var config = require('../../config');
+var http = require('http');
+var opts = require('opts');
 
 opts.parse([
     {
@@ -13,11 +13,11 @@ opts.parse([
     }
 ], true);
 
+var server = http.createServer();
+var ioNode = ioCluster.makeIoListener(server, config);
 var port = opts.get('port') || config.HTTP_PORT;
 
-var server = http.createServer();
-    server.listen(port, config.HTTP_HOST);
-var ioNode = ioCluster.makeIoListener(server, config);
+server.listen(port, config.HTTP_HOST);
 
 ioNode.getClientInfo = function(client) {
     return {

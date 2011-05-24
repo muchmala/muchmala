@@ -1,6 +1,6 @@
 var fs = require('fs');
-var flow = require('../shared/flow');
-var _ = require('../shared/underscore')._;
+var flow = require('../../shared/flow');
+var _ = require('../../shared/underscore')._;
 var Canvas = require('canvas');
 
 var PIECES_MAP_FILENAME = 'pieces.png';

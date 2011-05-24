@@ -1,11 +1,10 @@
-var db = require('./db');
+var db = require('../db');
 var io = require('socket.io-cluster');
-var _ = require('../shared/underscore')._;
+var _ = require('../../shared/underscore')._;
 
-var Games = require('./games');
-var Client = require('./client');
-
-var config = require('../config');
+var Games = require('../games');
+var Client = require('../client');
+var config = require('../../config');
 
 db.connect(function(err) {
     if (err) {

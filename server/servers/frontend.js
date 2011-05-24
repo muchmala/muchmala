@@ -1,12 +1,12 @@
-var express = require('express'),
-    auth = require('connect-auth'),
-    form = require('connect-form'),
-    opts = require('opts'),
+var express = require('express');
+var auth = require('connect-auth');
+var form = require('connect-form');
+var opts = require('opts');
 
-    db = require('./db'),
-    controllers = require('./controllers'),
+var db = require('../db');
+var controllers = require('../controllers');
 
-    config = require('../config');
+var config = require('../../config');
 
 var server = express.createServer();
 
@@ -25,7 +25,7 @@ var port = opts.get('port') || config.HTTP_PORT;
 db.connect(function() {});
 
 server.set('view engine', 'html');
-server.set('views', __dirname + '/views');
+server.set('views', __dirname + '/../views');
 server.register('.html', require('ejs'));
 
 server.use(form());
