@@ -95,10 +95,10 @@ task('restart-nginx', ['/etc/nginx/sites-enabled/muchmala.dev'], function() {
 
 
 
-desc('restart (update) supervisor');
+desc('restart supervisor');
 task('restart-supervisor', ['/etc/supervisor/conf.d/muchmala.conf', 'proxy.json'], function() {
     console.log('Restarting supervisor...');
-    exec('supervisorctl update', function(err, stdout, stderr) {
+    exec('/etc/init.d/supervisor restart', function(err, stdout, stderr) {
         if (err) {
             throw err;
         }
@@ -168,7 +168,7 @@ task('static-upload', [], function() {
         var url = parts.join('/');
         uploadFiles.push([puzzleFile, url]);
     });
-    
+
     var coversFiles = getCoversFiles('client/img/covers');
     coversFiles.forEach(function(coverFile) {
         var parts = coverFile.split('/');
