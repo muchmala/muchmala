@@ -39,8 +39,8 @@ module.exports = function(server) {
                 copyFile(files.image.path, imgPath, function() {
                     var options = {
                         name: fields.name,
-                        pieceSize: fields.size,
-                        imagePath: imgPath,
+                        size: fields.size,
+                        imgPath: imgPath,
                         userId: userId
                     };
                     var onSuccess = function(data) {
@@ -65,9 +65,9 @@ module.exports = function(server) {
 function buildPuzzle(options, onSuccess, onError) {
     var builder = child.spawn('node', [
         __dirname + '/../scripts/createPieces.js',
-        '-i', options.imagePath, 
-        '-n', options.puzzleName,
-        '-ps', options.pieceSize,
+        '-i', options.imgPath, 
+        '-n', options.name,
+        '-ps', options.size,
         '-u', options.userId,
         '-v'
     ]);
