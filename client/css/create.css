@@ -10,6 +10,10 @@
     text-align:center;
 }
 
+#createPuzzle div a {
+    color:#00b;
+}
+
 #createPuzzle div:first-child {
     margin-top:0;
 }
