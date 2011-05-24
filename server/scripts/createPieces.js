@@ -1,4 +1,4 @@
-var db = require('./db'),
+var db = require('../db'),
     path = require('path'),
     opts = require('opts'),
     Image = require('canvas').Image,
@@ -71,20 +71,20 @@ image.onerror = function(err) {
 };
 
 image.onload = function() {
-    
+
     if (opts.get('validate')) {
-        if (image.width > MAX_IMAGE_WIDTH || 
+        if (image.width > MAX_IMAGE_WIDTH ||
             image.height > MAX_IMAGE_HEIGHT) {
             log('Image is too big :(');
             process.exit(ERROR_IMAGE_BIG);
         }
-        if (image.width < MIN_IMAGE_WIDTH || 
+        if (image.width < MIN_IMAGE_WIDTH ||
             image.height < MIN_IMAGE_HEIGHT) {
             log('Image is too small :(');
             process.exit(ERROR_IMAGE_SMALL);
         }
     }
-    
+
     var options = {
         name: opts.get('name'),
         userId: opts.get('userid'),
@@ -104,14 +104,14 @@ image.onload = function() {
                 puzzleId: puzzleId,
                 queueIndex: queueIndex
             };
-            
+
             log('Sprites images are created.');
             log('Queue index: ' + queueIndex);
-            
+
             if (!opts.get('verbose')) {
                 process.stdout.write(JSON.stringify(result));
             }
-            
+
             process.exit(SUCCESS);
         });
     });
@@ -123,7 +123,7 @@ function generate(image, options, callback) {
     options.pieceSize || (options.pieceSize = 120);
     options.invisible || (options.invisible = false);
     options.spriteSize || (options.spriteSize = 5);
-    
+
     var puzzle = random.puzzle(image.width, image.height, options.pieceSize);
 
     options.hLength = puzzle.hLength;
