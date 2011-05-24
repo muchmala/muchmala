@@ -5,7 +5,7 @@ var db = require('../db'),
     cutter = require('./cutter'),
     random = require('./random');
 
-var PUZZLES_DIR = __dirname + '/../client/img/puzzles/';
+var PUZZLES_DIR = __dirname + '/../../client/img/puzzles/';
 
 var SUCCESS = 1;
 

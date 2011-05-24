@@ -44,6 +44,8 @@ Puzzles.add = function(piecesData, settings, callback) {
                 piece.save(this.MULTI());
             }, this);
         }, function() {
+            puzzle.updateCompletionPercentage(this);
+        }, function() {
             var query = new Query()
                 .where('invisible', false)
                 .where('completed', null);
@@ -103,17 +105,15 @@ Puzzles.prototype.compactInfo = function(callback) {
         swaps: data.swapsCount,
         pieceSize: data.pieceSize,
         spriteSize: data.spriteSize,
+        completion: data.completion,
         created: data.created.getTime()
     };
 
     if (!_.isUndefined(data.completed)) {
         compact.completed = data.completed.getTime();
     }
-
-    this.getCompletionPercentage(function(percentage) {
-        compact.completion = percentage;
-        callback(compact);
-    });
+    
+    callback(compact);
 };
 
 Puzzles.prototype.compactPieces = function(callback) {
@@ -259,17 +259,17 @@ Puzzles.prototype.swap = function(x1, y1, x2, y2, userName, callback) {
             this.first.save(this.MULTI());
             this.second.save(this.MULTI());
         }, function() {
-            var result = { found: [], completion: 0 };
-            if (this.first.isCollected()) { result.found.push([x1, y1]); }
-            if (this.second.isCollected()) { result.found.push([x2, y2]); }
+            var found = [];
+            if (this.first.isCollected()) { found.push([x1, y1]); }
+            if (this.second.isCollected()) { found.push([x2, y2]); }
             
-            self.getCompletionPercentage(function(completion) {
-                if (completion == 100) {
-                    self.completed = Date.now();
-                    self.save();
-                }
-                result.completion = completion;
-                callback(result);
+            if (!found.length) {
+                callback(found);
+                return;
+            }
+            
+            self.updateCompletionPercentage(function() {
+                callback(found);
             });
         });
 };
@@ -294,6 +294,18 @@ Puzzles.prototype.getCompletionPercentage = function(callback) {
             length++;
         });
     });
+};
+
+Puzzles.prototype.updateCompletionPercentage = function(callback) {
+    this.getCompletionPercentage((function(completion) {
+        if (completion == 100) {
+            this.completed = Date.now();
+        }
+        this.completion = completion;
+        this.save(function() {
+            callback(completion);
+        });
+    }).bind(this));
 };
 
 Puzzles.prototype.addSwap = function(callback) {

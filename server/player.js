@@ -108,20 +108,20 @@ Player.prototype.swapPiecesAction = function(coords) {
         self.emit('piecesSwapped', coords);
         
         self.user.addSwap(self.puzzle._id, function() {
-            if(swaped.found.length > 0) {
-                self.addScore(swaped.found, swaped.completion);
+            if(swaped.length > 0) {
+                self.addScore(swaped);
             }
         });
     });
 };
 
-Player.prototype.addScore = function(found, completion) {
+Player.prototype.addScore = function(found) {
     var self = this;
     var points = 1000;
     var foundCount = found.length;
 
     if (completion < 100) {
-        points = Math.ceil((100 - completion) / 4);
+        points = Math.ceil((100 - this.puzzle.completion) / 4);
     }
 
     flow.exec(

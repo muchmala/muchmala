@@ -12,6 +12,7 @@ var PuzzlesSchema = new Schema({
     hLength     : Number,
     vLength     : Number,
     swapsCount  : {type: Number, 'default': 0},
+    completion  : {type: Number, 'default': 0},
     invisible   : {type: Boolean, 'default': false},
     created     : {type: Date, 'default': Date.now, index: true},
     completed   : {type: Date, index: true}
