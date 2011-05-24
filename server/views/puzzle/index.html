@@ -10,51 +10,51 @@
 
 <script>
 	window.Puzz = {Utils: {}, Models: {}, Collections: {}, Views: {}};
-	window.STATIC_HOST = 'http://<%=config.STATIC_HOST%>';
+	window.STATIC_HOST = '<%=config.STATIC_URL%>';
 	window.SOCKET_SERVERS = <%-socketIoServers%>;
 	window.IO_HOST = window.SOCKET_SERVERS[0].host;
 	window.IO_PORT = window.SOCKET_SERVERS[0].port;
 </script>
 
 <% if (config.production) { %>
-<script src="http://<%=config.STATIC_HOST%>/<%=config.version%>/js/minified.js"></script>
+<script src="<%=config.STATIC_URL%>/<%=config.version%>/js/minified.js"></script>
 <% } else { %>
-<script src="http://<%=config.STATIC_HOST%>/js/socket.io/socket.io.js"></script>
+<script src="<%=config.STATIC_URL%>/js/socket.io/socket.io.js"></script>
 
-<script src="http://<%=config.STATIC_HOST%>/js/jquery/jquery.min.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/js/jquery/jquery-ui.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/js/jquery/jquery.cookie.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/js/jquery/jquery.scraggable/jquery.scraggable.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/js/jquery/jquery.viewport/jquery.viewport.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/js/jquery/jquery.scrolla/jquery.scrolla.js"></script>
+<script src="<%=config.STATIC_URL%>/js/jquery/jquery.min.js"></script>
+<script src="<%=config.STATIC_URL%>/js/jquery/jquery-ui.js"></script>
+<script src="<%=config.STATIC_URL%>/js/jquery/jquery.cookie.js"></script>
+<script src="<%=config.STATIC_URL%>/js/jquery/jquery.scraggable/jquery.scraggable.js"></script>
+<script src="<%=config.STATIC_URL%>/js/jquery/jquery.viewport/jquery.viewport.js"></script>
+<script src="<%=config.STATIC_URL%>/js/jquery/jquery.scrolla/jquery.scrolla.js"></script>
 
-<script src="http://<%=config.STATIC_HOST%>/shared/flow.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/shared/underscore.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/shared/messages.js"></script>
+<script src="<%=config.STATIC_URL%>/shared/flow.js"></script>
+<script src="<%=config.STATIC_URL%>/shared/underscore.js"></script>
+<script src="<%=config.STATIC_URL%>/shared/messages.js"></script>
 
-<script src="http://<%=config.STATIC_HOST%>/js/utils.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/js/third/aim.js"></script>
+<script src="<%=config.STATIC_URL%>/js/utils.js"></script>
+<script src="<%=config.STATIC_URL%>/js/third/aim.js"></script>
 
-<script src="http://<%=config.STATIC_HOST%>/js/backbone/backbone.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/js/backbone/backbone.io.js"></script>
+<script src="<%=config.STATIC_URL%>/js/backbone/backbone.js"></script>
+<script src="<%=config.STATIC_URL%>/js/backbone/backbone.io.js"></script>
 
-<script src="http://<%=config.STATIC_HOST%>/js/loader.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/js/storage.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/js/server.js"></script>
+<script src="<%=config.STATIC_URL%>/js/loader.js"></script>
+<script src="<%=config.STATIC_URL%>/js/storage.js"></script>
+<script src="<%=config.STATIC_URL%>/js/server.js"></script>
 
-<script src="http://<%=config.STATIC_HOST%>/js/models/user.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/js/models/puzzle.js"></script>
+<script src="<%=config.STATIC_URL%>/js/models/user.js"></script>
+<script src="<%=config.STATIC_URL%>/js/models/puzzle.js"></script>
 
-<script src="http://<%=config.STATIC_HOST%>/js/collections/pieces.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/js/collections/leaders.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/js/collections/twenty.js"></script>
+<script src="<%=config.STATIC_URL%>/js/collections/pieces.js"></script>
+<script src="<%=config.STATIC_URL%>/js/collections/leaders.js"></script>
+<script src="<%=config.STATIC_URL%>/js/collections/twenty.js"></script>
 
-<script src="http://<%=config.STATIC_HOST%>/js/views/puzzle.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/js/views/piece.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/js/views/viewport.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/js/views/dialogs.js"></script>
-<script src="http://<%=config.STATIC_HOST%>/js/views/panel.js"></script>
+<script src="<%=config.STATIC_URL%>/js/views/puzzle.js"></script>
+<script src="<%=config.STATIC_URL%>/js/views/piece.js"></script>
+<script src="<%=config.STATIC_URL%>/js/views/viewport.js"></script>
+<script src="<%=config.STATIC_URL%>/js/views/dialogs.js"></script>
+<script src="<%=config.STATIC_URL%>/js/views/panel.js"></script>
 
-<script src="http://<%=config.STATIC_HOST%>/js/app.js"></script>
+<script src="<%=config.STATIC_URL%>/js/app.js"></script>
 <% } %>
 <script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script>

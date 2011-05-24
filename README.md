@@ -22,8 +22,11 @@ Installation (Vagrant)
         cd puzzle
         vagrant up
 
-3. Wait for the instance to finish provisioning.
-4. SSH into it.
+3. While you're waiting for the instance to finish provisioning, add a line to your `/etc/hosts`:
+
+        33.33.33.15 muchmala.dev io1.muchmala.dev io2.muchmala.dev static.muchmala.dev
+
+4. Once the provisioning is complete, SSH into your guest box.
 
         vagrant ssh
 

@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Massively Multiplayer Online Puzzle.</title> 
+    <title>Massively Multiplayer Online Puzzle.</title>
     <% if (config.production) { %>
-    <link rel="stylesheet" href="http://<%=config.STATIC_HOST%>/<%=config.version%>/css/minified.css" />
+    <link rel="stylesheet" href="<%=config.STATIC_URL%>/<%=config.version%>/css/minified.css" />
     <% } else { %>
-    <link rel="stylesheet" href="http://<%=config.STATIC_HOST%>/css/reset.css" />
-    <link rel="stylesheet" href="http://<%=config.STATIC_HOST%>/css/main.css" />
-    <link rel="stylesheet" href="http://<%=config.STATIC_HOST%>/css/panel.css" />
-    <link rel="stylesheet" href="http://<%=config.STATIC_HOST%>/css/dialog.css" />
-    <link rel="stylesheet" href="http://<%=config.STATIC_HOST%>/css/menu.css" />
-    <link rel="stylesheet" href="http://<%=config.STATIC_HOST%>/css/complete.css" />
-    <link rel="stylesheet" href="http://<%=config.STATIC_HOST%>/css/browser.css" />
-    <link rel="stylesheet" href="http://<%=config.STATIC_HOST%>/css/create.css" />
-    <link rel="stylesheet" href="http://<%=config.STATIC_HOST%>/css/auth.css" />
+    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/reset.css" />
+    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/main.css" />
+    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/panel.css" />
+    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/dialog.css" />
+    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/menu.css" />
+    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/complete.css" />
+    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/browser.css" />
+    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/create.css" />
+    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/auth.css" />
     <% } %>
     <!--[if lte IE 8]>
     <script>
@@ -30,7 +30,7 @@
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', 'UA-22398110-1']);
     _gaq.push(['_trackPageview']);
-    
+
     (function() {
         var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
         ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';

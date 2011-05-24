@@ -98,13 +98,19 @@ task('restart-nginx', ['/etc/nginx/sites-enabled/muchmala.dev'], function() {
 desc('restart supervisor');
 task('restart-supervisor', ['/etc/supervisor/conf.d/muchmala.conf', 'proxy.json'], function() {
     console.log('Restarting supervisor...');
-    exec('/etc/init.d/supervisor restart', function(err, stdout, stderr) {
+    exec('/etc/init.d/supervisor stop', function(err, stdout, stderr) {
         if (err) {
             throw err;
         }
 
-        console.log('DONE');
-        complete();
+        exec('/etc/init.d/supervisor start', function(err, stdout, stderr) {
+            if (err) {
+                throw err;
+            }
+
+            console.log('DONE');
+            complete();
+        });
     });
 }, true);
 
