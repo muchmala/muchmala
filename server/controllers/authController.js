@@ -1,3 +1,5 @@
+var db = require('../db');
+
 module.exports = function(server) {
     server.get('/auth/logout', function(req, res) {
         req.logout();
