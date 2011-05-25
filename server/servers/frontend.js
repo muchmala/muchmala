@@ -39,18 +39,18 @@ server.use(auth([
     auth.Facebook({
         appId: config.FACEBOOK_ID,
         appSecret: config.FACEBOOK_SECRET,
-        callback: 'http://' + config.MAIN_DOMAIN + '/auth/facebook',
+        callback: config.MAIN_URL + '/auth/facebook',
         scope: 'email'
     }),
     auth.Yahoo({
         consumerKey: config.YAHOO_KEY,
         consumerSecret: config.YAHOO_SECRET,
-        callback: 'http://' + config.MAIN_DOMAIN + '/auth/yahoo'
+        callback: config.MAIN_URL + '/auth/yahoo'
     }),
     auth.Google({
         consumerKey: config.GOOGLE_KEY,
         consumerSecret: config.GOOGLE_SECRET,
-        callback: 'http://' + config.MAIN_DOMAIN + '/auth/google',
+        callback: config.MAIN_URL + '/auth/google',
         scope: ""
     })    
 ]));
