@@ -1,6 +1,6 @@
 #
 # Author:: George Miroshnykov (george.miroshnykov@gmail.com)
-# Cookbook Name:: muchmala
+# Cookbook Name:: private-npm-registry
 # Recipe:: default
 #
 # Copyright 2011, George Miroshnykov
@@ -17,16 +17,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-include_recipe "apt"
-include_recipe "build-essential"
-include_recipe "ant"
-include_recipe "nodejs"
-include_recipe "nodejs::npm"
-include_recipe "mongodb-debs"
-include_recipe "redis"
-
-include_recipe "node-canvas-deps"
-include_recipe "private-npm-registry"
-
-package "supervisor"
+template "#{ENV['HOME']}/.npmrc" do
+  source "npmrc"
+  owner "#{ENV['USER']}"
+  group "#{ENV['USER']}"
+  mode 0644
+end
