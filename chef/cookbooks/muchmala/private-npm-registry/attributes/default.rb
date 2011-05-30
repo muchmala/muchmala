@@ -19,9 +19,6 @@
 #
 include_recipe "nodejs::npm"
 
-execute "set private npm registry" do
-  user "#{node['private-npm-registry'][:user]}"
-  group "#{node['private-npm-registry'][:group]}"
-  command "npm config set registry #{node['private-npm-registry'][:registry]}"
-  #returns [0, 1]
-end
+default['private-npm-registry'][:user]      = ENV['SUDO_USER']
+default['private-npm-registry'][:group]     = ENV['SUDO_USER']
+default['private-npm-registry'][:registry]  = "http://registry.npm.muchmala.com"
