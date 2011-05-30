@@ -1,5 +1,7 @@
+var models = require('./models');
 var mongoose = require('mongoose');
 var config = require('../../config');
+var Sessions = require('./sessions');
 var Puzzles = require('./puzzles');
 var Users = require('./users');
 
@@ -18,6 +20,7 @@ module.exports = {
         });
     },
 
+    Sessions: Sessions,
     Puzzles: Puzzles,
     Users: Users
 };

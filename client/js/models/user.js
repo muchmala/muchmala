@@ -3,7 +3,8 @@
 Puzz.Models.User = Backbone.IO.Model.extend({
     
     defaults: {
-        'id': $.cookie('user_id'),
+        'sid': $.cookie('connect.sid'),
+        'aid': $.cookie('anonymous'),
         'name': 'anonymous',
         'score': 0
     },
@@ -15,7 +16,11 @@ Puzz.Models.User = Backbone.IO.Model.extend({
     },
     
     refresh: function(data) {
-        $.cookie('user_id', data.id);
+        if (data.anonymous) {
+            $.cookie('anonymous', data.anonymous);
+        } else {
+            this.unset('anonymous');
+        }
         this.set(data);
     },
     
@@ -41,6 +46,10 @@ Puzz.Models.User = Backbone.IO.Model.extend({
         if (!/^[A-Za-z0-9_]{3,20}$/.test(attrs['name'])) {
             return 'incorrect';
         }
+    },
+    
+    login: function() {
+        this.socket.reconnect();
     },
     
     sync: function(method, model) {

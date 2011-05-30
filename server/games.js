@@ -22,9 +22,9 @@ Games.prototype.getGame = function(puzzleId, callback) {
     }).bind(this));
 };
 
-Games.prototype.addPlayer = function(client, userId, puzzleId) {
+Games.prototype.addPlayer = function(client, anonymousId, sessionId, puzzleId) {
     this.getGame(puzzleId, function(game) {
-        game.addPlayer(client, userId);
+        game.addPlayer(client, anonymousId, sessionId);
     });
 };
 

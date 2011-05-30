@@ -6,25 +6,19 @@ $(function() {
         return;
     }
     
-    var server      = new Puzz.Server();
-    var userModel   = new Puzz.Models.User(server);
+    var server = new Puzz.Server();
+    var userModel = new Puzz.Models.User(server);
     var puzzleModel = new Puzz.Models.Puzzle(server);
-    var twentyCollection  = new Puzz.Collections.Twenty();
-    var piecesCollection  = new Puzz.Collections.Pieces(server);
+    var twentyCollection = new Puzz.Collections.Twenty();
+    var piecesCollection = new Puzz.Collections.Pieces(server);
     var leadersCollection = new Puzz.Collections.Leaders(server);
-    
-    // TEMPORARY SOLUTION, SHOULD BE REMOVED IN JUNE
-    if (!$.cookie('user_id') && Puzz.Storage.user.id()) {
-        $.cookie('user_id', Puzz.Storage.user.id());
-        userModel.id = Puzz.Storage.user.id();
-    }
-    
+        
     var viewport = new Puzz.Views.Viewport(puzzleModel, userModel, leadersCollection, twentyCollection)
     var puzzleView = new Puzz.Views.Puzzle(puzzleModel, viewport.content);
     var selected;
 
     server.bind('connected', function() {
-        server.initialize(userModel.id, puzzleModel.id);
+        server.initialize(userModel.get('aid'), userModel.get('sid'), puzzleModel.get('id'));
     });
 
     puzzleModel.once('change', function() {

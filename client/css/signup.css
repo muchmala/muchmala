@@ -1,0 +1,59 @@
+#signup {
+    display:none;
+    width:440px;
+    line-height:16px;
+    text-align:center;
+}
+
+#signup input[type="text"],
+#signup input[type="password"] {
+    height:30px;
+    margin:7px 0 10px 0;
+    padding:0 5px;
+    font-size:20px;
+    width:238px;
+}
+
+#signup .goback {
+    text-decoration:underline;
+    cursor:pointer;
+}
+
+#signup .error {
+    display:none;
+    padding:1px 5px;
+    background:#a00;
+    color:#fff;
+}
+
+#signup .buttons,
+#signup .loading {
+    height:20px;
+}
+
+#signup .loading {
+    display:none;
+}
+
+#signup .loading span {
+    display:inline-block;
+    padding:0 0 0 22px;
+    height:20px;
+    line-height:20px;
+    font-size:11px;
+    background:url('/img/loader.gif') no-repeat left center;
+}
+
+#signup .finish {
+    display:none;
+    padding:30px;
+    line-height:18px;
+}
+
+#signup .finish strong {
+    font-size:14px;
+}
+
+#signup .finish .button {
+    margin-top:5px;
+}

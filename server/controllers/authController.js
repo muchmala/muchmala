@@ -1,10 +1,51 @@
 var db = require('../db');
 
 module.exports = function(server) {
-    server.get('/auth/logout', function(req, res) {
-        req.logout();
-        res.cookie('user_id', null);
-        res.redirect('/');
+    server.post('/auth/signup', function(req, res) {
+        req.form.complete(function(err, fields, files) {
+            var errors = [];
+            
+            if (!fields.username) {
+                errors.push('usernameEmpty');
+            } else if (!/^[A-Za-z0-9_]{3,20}$/.test(fields.username)) {
+                errors.push('usernameIncorrect');
+            }
+            
+            if (!fields.email) {
+                errors.push('emailEmpty');
+            } else if (!/^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/.test(fields.email)) {
+                errors.push('emailIncorrect');
+            }
+
+            if (!fields.password) {
+                errors.push('passwordEmpty');
+            }
+            
+            if (errors.length && !fields.username) {
+                res.end(JSON.stringify({errors: errors}));
+                return;
+            }
+            
+            db.Users.checkName(fields.username, function(available) {
+                if (!available) {
+                    errors.push('usernameDuplicate');
+                }
+                
+                if (errors.length) {
+                    res.end(JSON.stringify({errors: errors}));
+                    return;
+                }
+                
+                addPermanentUser(req.cookies.user_id, fields.username, fields.email, fields.password, function() {
+                    req.fields = fields;
+                    req.authenticate(['form'], function(error, authenticated) {
+                        if (authenticated) {
+                            res.end(JSON.stringify('success'));
+                        }
+                    });
+                });
+            });
+        });
     });
 
     server.get('/auth/twitter', function(req, res, params) {
@@ -16,16 +57,13 @@ module.exports = function(server) {
         req.authenticate(['twitter'], function(error, authenticated) { 
             if (!authenticated) {return;}
 
-            var userId = req.cookies.user_id;
+            var anonymousId = req.cookies.anonymous;
             var twitterId = req.getAuthDetails().user.user_id;
         
-            getLinkedUser('twitterId', twitterId, userId, function(user) {
-                if (!user) {
-                    res.redirect('/#not-authenticated');
-                } else {
-                    res.cookie('user_id', user._id, {path: '/'});
+            getLinkedUser('twitterId', twitterId, anonymousId, function(user) {
+                db.Sessions.add(user._id, req.sessionID, function() {
                     res.redirect('/');
-                }
+                });
             });
         });
     });
@@ -39,16 +77,13 @@ module.exports = function(server) {
         req.authenticate(['facebook'], function(error, authenticated) { 
             if (!authenticated) {return;}
 
-            var userId = req.cookies.user_id;
+            var anonymousId = req.cookies.anonymous;
             var facebookId = req.getAuthDetails().user.id;
 
-            getLinkedUser('facebookId', facebookId, userId, function(user) {
-                if (!user) {
-                    res.redirect('/#not-authenticated');
-                } else {
-                    res.cookie('user_id', user._id, {path: '/'});
+            getLinkedUser('facebookId', facebookId, anonymousId, function(user) {
+                db.Sessions.add(user._id, req.sessionID, function() {
                     res.redirect('/');
-                }
+                });
             });
         });
     });
@@ -62,28 +97,76 @@ module.exports = function(server) {
         req.authenticate(['google'], function(error, authenticated) {
             if (!authenticated) {return;}
         
-            var userId = req.cookies.user_id;
+            var anonymousId = req.cookies.anonymous;
             var googleId = req.getAuthDetails().user.username;
         
-            getLinkedUser('googleId', googleId, userId, function(user) {
-                if (!user) {
-                    res.redirect('/#not-authenticated');
-                } else {
-                    res.cookie('user_id', user._id, {path: '/'});
+            getLinkedUser('googleId', googleId, anonymousId, function(user) {
+                db.Sessions.add(user._id, req.sessionID, function() {
                     res.redirect('/');
+                });
+            });
+        });
+    });
+    
+    server.get('/auth/yahoo', function(req, res, params) {
+        if (req.isAuthenticated()) {
+            res.redirect('/');
+            return;
+        }
+    
+        req.authenticate(['yahoo'], function(error, authenticated) {
+            if (!authenticated) {return;}
+        
+            var anonymousId = req.cookies.anonymous;
+            var yahooId = req.getAuthDetails().user.guid;
+        
+            getLinkedUser('yahooId', yahooId, anonymousId, function(user) {
+                db.Sessions.add(user._id, req.sessionID, function() {
+                    res.redirect('/');
+                });
+            });
+        });
+    });
+    
+    server.post('/auth/form', function(req, res, params) {
+        req.form.complete(function(err, fields, files) {
+            var errors = [];
+            
+            if (!fields.username) {
+                errors.push('usernameEmpty');
+            } else if (!/^[A-Za-z0-9_]{3,20}$/.test(fields.username)) {
+                errors.push('usernameIncorrect');
+            }
+
+            if (!fields.password) {
+                errors.push('passwordEmpty');
+            }
+            
+            if (errors.length) {
+                res.end(JSON.stringify({errors: errors}));
+                return;
+            }
+            
+            req.fields = fields;
+            req.authenticate(['form'], function(error, authenticated) {
+                if (authenticated) {
+                    res.end(JSON.stringify('success'));
+                } else {
+                    res.end(JSON.stringify('failed'));
                 }
             });
         });
     });
-
-    server.get('/auth/yahoo', function(req, res, params) {
-        req.authenticate(['yahoo'], function(error, authenticated) {
-            console.log(error, authenticated, req.getAuthDetails());
+    
+    server.get('/auth/logout', function(req, res) {
+        db.Sessions.clear(req.sessionID, function() {
+            req.logout();
+            res.redirect('/');
         });
     });
 };
 
-function getLinkedUser(field, id, userId, callback) {
+function getLinkedUser(field, id, anonymousId, callback) {
     var query = {};
     query[field] = id;
     
@@ -91,12 +174,13 @@ function getLinkedUser(field, id, userId, callback) {
         if (error) { callback(true); return; }
                     
         if (!user) {
-            if (!userId) { callback(false); return; }
+            if (!anonymousId) { callback(false); return; }
             
-            db.Users.get(userId, function(user) {
+            db.Users.getAnonymous(anonymousId, function(user) {
                 if (!user) { callback(false); return; }
                 
                 user[field] = id;
+                user.anonymous = false;
                 user.save(function(error) {
                     if (error) {
                         callback(false);
@@ -109,4 +193,28 @@ function getLinkedUser(field, id, userId, callback) {
             callback(user);
         }
     });
+}
+
+function addPermanentUser(id, name, email, password, callback) {
+    if (id) {
+        db.Users.getAnonymous(id, function(user) {
+            if (user) {
+                saveData(user);
+            } else {
+                saveData(new db.Users());
+            }
+        });
+    } else {
+        saveData(new db.Users());
+    }
+    
+    function saveData(user) {
+        user.name = name;
+        user.email = email;
+        user.password = password;
+        user.anonymous = false;
+        user.save(function() {
+            callback();
+        });
+    }
 }

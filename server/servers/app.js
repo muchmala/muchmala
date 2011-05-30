@@ -24,7 +24,7 @@ db.connect(function(err) {
     socket.on('connection', function(client) {
         client.on('message', function(message) {
             message = JSON.parse(message);
-
+            
             if (!_.isUndefined(message.action) && message.action == 'initialize') {
                 addPlayer(client, message.data);
             }
@@ -32,13 +32,14 @@ db.connect(function(err) {
     });
 
     function addPlayer(client, data) {
-        var puzzleId = null, userId = null;
+        var puzzleId = null, anonymousId = null, sessionId = null;
 
         if (!_.isUndefined(data)) {
+            anonymousId = data.anonymousId || null;
+            sessionId = data.sessionId || null;
             puzzleId = data.puzzleId || null;
-            userId = data.userId || null;
         }
 
-        games.addPlayer(new Client(client), userId, puzzleId);
+        games.addPlayer(new Client(client), anonymousId, sessionId, puzzleId);
     }
 });

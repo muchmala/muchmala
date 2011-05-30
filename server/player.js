@@ -29,13 +29,18 @@ Player.prototype = new EventEmitter();
 Player.prototype.userDataAction = function() {
     this.user.getPuzzleData(this.puzzle._id, (function(puzzleData) {
         var userData = this.user.toObject();
-        this.client.send(MESSAGES.userData, {
-            id: userData._id,
+        var result = {
             name: userData.name,
             score: puzzleData.score,
             swaps: puzzleData.swaps,
             found: puzzleData.found
-        });
+        };
+        
+        if (userData.anonymous) {
+            result['anonymous'] = userData._id;
+        }
+        
+        this.client.send(MESSAGES.userData, result);
     }).bind(this));
 };
 

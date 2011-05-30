@@ -1,0 +1,51 @@
+<div id="signup">
+<form action="/auth/signup" method="post">
+    <section>
+        Username:<br/>
+        * Must be unique. Use only letters, numbers and underscores<br/>
+        with minimum of 3 and maximum of 20 characters.
+        <div>
+            <span class="error usernameEmpty">Username can't be empty</span>
+            <span class="error usernameIncorrect">Username is incorrect</span>
+            <span class="error usernameDuplicate">This username is already taken</span>
+        </div>
+        <input type="text" name="username" />
+    </section>
+    <section>
+        Email:<br/>
+        * Just in case you will forget your password.
+        <div>
+            <span class="error emailEmpty">Email can't be empty</span>
+            <span class="error emailIncorrect">Email is incorrect</span>
+        </div>
+        <input type="text" name="email" />
+    </section>
+    <section>
+        Password:<br/>
+        <div>
+            <span class="error passwordEmpty">Password can't be empty</span>
+        </div>
+        <input type="password" name="password" />
+    </section>
+    <section>
+        Repeat password:<br/>
+        <div>
+            <span class="error repeatEmpty">Forgot to repeat you password</span>
+            <span class="error repeatDoesntMatch">Doesn't match to the password above</span>
+        </div>
+        <input type="password" name="repeat" />
+    </section>
+    <section class="buttons">
+        <span class="button middle">Sign Up</span>
+        or <span class="goback">go back</span>
+    </section>
+    <section class="loading">
+        <span>Signing Up</span>
+    </section>
+</form>
+<section class="finish">
+    <strong>You are successfully signed up :)</strong><br/>
+    Thanks a lot for your interest to our game!<br/>
+    <span class="button big">Play Puzzle</span>
+</section>
+</div>

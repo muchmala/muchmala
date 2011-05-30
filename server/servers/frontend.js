@@ -1,10 +1,12 @@
+var opts = require('opts');
 var express = require('express');
 var auth = require('connect-auth');
 var form = require('connect-form');
-var opts = require('opts');
+var RedisStore = require('connect-redis');
 
 var db = require('../db');
 var controllers = require('../controllers');
+var formStrategy = require('../controllers/formAuthStrategy');
 
 var config = require('../../config');
 
@@ -30,7 +32,11 @@ server.register('.html', require('ejs'));
 
 server.use(form());
 server.use(express.cookieParser());
-server.use(express.session({secret: 'secret'}));
+server.use(express.session({
+    secret: 'secret',
+    store: new RedisStore(),
+    cookie: {httpOnly: false}
+}));
 server.use(auth([
     auth.Twitter({
         consumerKey: config.TWITTER_KEY,
@@ -52,8 +58,17 @@ server.use(auth([
         consumerSecret: config.GOOGLE_SECRET,
         callback: config.MAIN_URL + '/auth/google',
         scope: ""
-    })    
+    }),
+    formStrategy()
 ]));
+
+/*var validatePasswordFunction = function(username, password, successCallback, failureCallback){
+    if (username === 'foo' && password === "bar"){
+        successCallback();
+    } else {
+        failureCallback();
+    }
+};*/
 
 server.listen(port, config.HTTP_HOST);
 

@@ -69,21 +69,38 @@ Users.addAnonymous = function(callback) {
 };
 
 Users.checkName = function(name, callback) {
-    Users.findOne({name: name}, function(error, user) {
+    Users.findOne({name: name, anonymous: false}, function(error, user) {
         if (error) { throw error; }
         callback(_.isNull(user) ? true : false);
     });
 };
 
-Users.get = function(id, callback) {
-	try {
-    	Users.findById(id, function(error, user) {
-	        if(error) {throw error;}
-	        callback(user);
-	    });
-	} catch (error) {
-		callback(null);
-	}
+Users.getPermanent = function(id, callback) {
+    try {
+        var query = new Query();
+        query.where('_id', id);
+        query.where('anonymous', false);
+        Users.findOne(query, function(error, user) {
+            if(error) {throw error;}
+            callback(user);
+        });
+    } catch (error) {
+        callback(null);
+    }
+};
+
+Users.getAnonymous = function(id, callback) {
+    try {
+        var query = new Query();
+        query.where('_id', id);
+        query.where('anonymous', true);
+        Users.findOne(query, function(error, user) {
+            if(error) {throw error;}
+            callback(user);
+        });
+    } catch (error) {
+        callback(null);
+    }
 };
 
 Users.prototype.setName = function(name, callback) {

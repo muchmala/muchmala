@@ -20,10 +20,10 @@ function Game(puzzle) {
     }, 60000);
 }
 
-Game.prototype.addPlayer = function(client, userId) {
+Game.prototype.addPlayer = function(client, userId, sessionId) {
     var self = this;
     
-    getUser(userId, function(user) {
+    getUser(userId, sessionId, function(user) {
         client.setUserId(userId);
 
         var player = new Player(client, self.puzzle, user);
@@ -139,22 +139,42 @@ Game.prototype.getLeadersBoardData = function(callback) {
     });
 };
 
-function getUser(userId, callback) {
-    if (userId == null) {
+function getUser(userId, sessionId, callback) {
+    if (userId == null && sessionId == null) {
+        addAnonymous();
+        return;
+    }
+    
+    if (sessionId) {
+        db.Sessions.findUserId(sessionId, function(foundUserId) {
+            console.log('asdasd', foundUserId, userId);
+            if (foundUserId) {
+                db.Users.getPermanent(foundUserId, processUser);
+            } else if (userId) {
+                db.Users.getAnonymous(userId, processUser);
+            } else {
+                addAnonymous();
+            }
+        });
+    } else if (userId) {
+        db.Users.getAnonymous(userId, processUser);
+    } else {
+        addAnonymous();
+    }
+    
+    function addAnonymous() {
         db.Users.addAnonymous(function(user) {
             callback(user);
         });
-        return;
     }
-    db.Users.get(userId, function(user) {
+     
+    function processUser(user) {
         if (user) {
             callback(user);
             return;
         }
-        db.Users.addAnonymous(function(user) {
-            callback(user);
-        });
-    });
+        addAnonymous();
+    }
 }
 
 module.exports = Game;

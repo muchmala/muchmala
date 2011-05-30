@@ -30,9 +30,9 @@ config.TWITTER_KEY      = '';
 config.TWITTER_SECRET   = '';
 config.FACEBOOK_ID      = '';
 config.FACEBOOK_SECRET  = '';
-config.GOOGLE_ID        = '';
+config.GOOGLE_KEY       = '';
 config.GOOGLE_SECRET    = '';
-config.YAHOO_ID         = '';
+config.YAHOO_KEY        = '';
 config.YAHOO_SECRET     = '';
 
 config.FRONTEND_SERVERS = [

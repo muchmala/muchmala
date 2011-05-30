@@ -1,5 +1,8 @@
 (function() {
 
+var KEYCODE_ENTER = 13;
+var KEYCODE_ESC = 27;
+    
 function Dialog() {
     this.shown = false;
     this.shaking = false;
@@ -69,9 +72,6 @@ function UserNameDialog(model) {
     this.element.append($('#username').show());
     this.input = this.element.find('input');
     this.model = model;
-
-    var KEYCODE_ENTER = 13;
-    var KEYCODE_ESC = 27;
     
     this.input.keyup(_.bind(function(event) {
         if (event.keyCode == KEYCODE_ESC) {this.hide();return;}
@@ -136,6 +136,16 @@ function MenuDialog(twenty) {
     this.pages.leaders.viewport({position: 'top'});
     this.pages.leaders.viewport('content').scraggable({axis: 'y', containment: 'parent'});
     this.pages.leaders.scrolla({content: this.pages.leaders.viewport('content')});
+    
+    this.pages.about.viewport({position: 'top'});
+    this.pages.about.viewport('content').scraggable({axis: 'y', containment: 'parent'});
+    this.pages.about.scrolla({content: this.pages.about.viewport('content')});
+    
+    this.tabs.about.click(function() {
+        self.pages.about.viewport('width', 415);
+        self.pages.about.viewport('update');
+        self.pages.about.scrolla('update');
+    });
     
     this.tabs.leaders.click(function() {
         self.pages.leaders.addClass('loading');
@@ -250,12 +260,223 @@ CompleteDialogProto.updateLeadersBoard = function() {
     }
 };
 
-function AuthDialog() {
+function AuthDialog(user, signup) {
     AuthDialog.superproto.constructor.call(this);
     this.element.append($('#auth').show());
+    this.signup = signup;
+    this.user = user;
+    
+    var self = this;
+    
+    _.bindAll(this.signup, 'show');
+    _.bindAll(this, 'show', 'login');
+    
+    this.element.find('.button').click(this.login);
+    this.element.find('.create').click(function() {
+        self.once('hidden', self.signup.show);
+        self.hide();
+    });
+    
+    this.signup.bind('goback', function() {
+        self.signup.once('hidden', self.show);
+        self.signup.hide();
+    });
+    
+    this.element.find('input[name="username"]').keyup(onKeyUp);
+    this.element.find('input[name="password"]').keyup(onKeyUp);
+    
+    function onKeyUp(event) {
+        if (event.keyCode == KEYCODE_ESC) {self.hide();return;}
+        if (event.keyCode != KEYCODE_ENTER) {return;}
+        self.login();
+    }
 }
 
 Puzz.Utils.inherit(AuthDialog, Dialog);
+
+var AuthDialogProto = AuthDialog.prototype;
+
+AuthDialogProto.show = function() {
+    AuthDialog.superproto.show.call(this);
+    this.reset();
+};
+
+AuthDialogProto.reset = function() {
+    this.element.find('.error').hide();
+    this.element.find('form').get(0).reset();
+    this.element.find('input[name="username"]').focus();
+};
+
+AuthDialogProto.login = function() {
+    var username = this.element.find('input[name="username"]').val();
+    var password = this.element.find('input[name="password"]').val();
+    var correct = true;
+    
+    this.element.find('.error').hide();
+    
+    if (!username) {
+        this.element.find('.usernameEmpty').show();
+        correct = false;
+    } else if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) {
+        this.element.find('.usernameIncorrect').show();
+        correct = false;
+    }
+    
+    if (!password) {
+        this.element.find('.passwordEmpty').show();
+        correct = false;
+    }
+    
+    if (!correct) {
+        this.shake();
+        return;
+    }
+    
+    this.element.find('.button').hide();
+    this.element.find('.loading').show();
+    
+    var self = this;
+    
+    $.ajax({
+        type: 'POST',
+        dataType: 'json',
+        url: '/auth/form',
+        data: {
+            username: username,
+            password: password
+        },
+        success: function(response){
+            self.element.find('.button').show();
+            self.element.find('.loading').hide();
+            
+            if (!_.isUndefined(response.errors)) {
+                _.each(response.errors, function(error) {
+                    self.element.find('.error.' + error).show();
+                });
+            } else if (response == 'failed'){
+                self.element.find('.error.failed').show();
+            } else if (response == 'success') {
+                self.user.login();
+                self.hide();
+            }
+        }
+    });
+};
+
+function SignupDialog(user) {
+    SignupDialog.superproto.constructor.call(this);
+    this.element.append($('#signup').show());
+    this.user = user;
+    
+    var self = this;
+    
+    _.bindAll(this, 'signup', 'hide');
+    
+    this.element.find('.finish .button').click(this.hide);
+    this.element.find('form .button').click(this.signup);
+    this.element.find('form .goback').click(function() {
+        self.trigger('goback');
+    });
+    
+    this.element.find('input[name="username"]').keyup(onKeyUp);
+    this.element.find('input[name="password"]').keyup(onKeyUp);
+    this.element.find('input[name="repeat"]').keyup(onKeyUp);
+    this.element.find('input[name="email"]').keyup(onKeyUp);
+    
+    function onKeyUp(event) {
+        if (event.keyCode == KEYCODE_ESC) {self.hide();return;}
+        if (event.keyCode != KEYCODE_ENTER) {return;}
+        self.signup();
+    }
+}
+
+Puzz.Utils.inherit(SignupDialog, Dialog);
+
+var SignupDialogProto = SignupDialog.prototype;
+
+SignupDialogProto.show = function() {
+    SignupDialog.superproto.show.call(this);
+    this.reset();
+};
+
+SignupDialogProto.reset = function() {
+    this.element.find('.error').hide();
+    this.element.find('form').get(0).reset();
+    this.element.find('input[name="username"]').focus();
+    this.element.find('input[name="username"]').val(this.user.get('name'));
+};
+
+SignupDialogProto.signup = function() {
+    var username = this.element.find('input[name="username"]').val();
+    var password = this.element.find('input[name="password"]').val();
+    var repeat = this.element.find('input[name="repeat"]').val();
+    var email = this.element.find('input[name="email"]').val();
+    var correct = true;
+    
+    this.element.find('.error').hide();
+    
+    if (!username) {
+        this.element.find('.usernameEmpty').show();
+        correct = false;
+    } else if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) {
+        this.element.find('.usernameIncorrect').show();
+        correct = false;
+    }
+    
+    if (!email) {
+        this.element.find('.emailEmpty').show();
+        correct = false;
+    } else if (!/^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/.test(email)) {
+        this.element.find('.emailIncorrect').show();
+        correct = false;
+    }
+    
+    if (!password) {
+        this.element.find('.passwordEmpty').show();
+        correct = false;
+    }
+    
+    if (!repeat) {
+        this.element.find('.repeatEmpty').show();
+        correct = false;
+    } else if (password != repeat) {
+        this.element.find('.repeatDoesntMatch').show();
+        correct = false;
+    }
+    
+    if (!correct) {
+        this.shake();
+        return;
+    }
+    
+    this.element.find('.buttons').hide();
+    this.element.find('.loading').show();
+    
+    var self = this;
+    
+    $.ajax({
+        type: 'POST',
+        dataType: 'json',
+        url: '/auth/signup',
+        data: {
+            username: username,
+            password: password,
+            email: email
+        },
+        success: function(response){
+            if (!_.isUndefined(response.errors)) {
+                _.each(response.errors, function(error) {
+                    self.element.find('.error.' + error).show();
+                });
+                self.element.find('.buttons').show();
+                self.element.find('.loading').hide();
+            } else {
+                self.element.find('form').hide();
+                self.element.find('.finish').show();
+            }
+        }
+    });
+};
 
 function CreatePuzzleDialog() {
     CreatePuzzleDialog.superproto.constructor.call(this);
@@ -418,5 +639,6 @@ Puzz.Views.UserNameDialog = UserNameDialog;
 Puzz.Views.CompleteDialog = CompleteDialog;
 Puzz.Views.CreatePuzzleDialog = CreatePuzzleDialog;
 Puzz.Views.AuthDialog = AuthDialog;
+Puzz.Views.SignupDialog = SignupDialog;
 
 })();

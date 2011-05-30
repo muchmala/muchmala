@@ -1,14 +1,42 @@
 <div id="auth">
     <p>
-        Sing up or login using an existing account:
+        Sing up or login using an existing account:<br/>
+        * Note that if you didn't sign up yet, your current temporary profile<br/>
+        will be linked to the account you will choose.
     </p>
     <section>
         <a href="/auth/facebook" class="facebook">Facebook</a>
         <a href="/auth/twitter" class="twitter">Twitter</a>
         <a href="/auth/google" class="google">Google</a>
+        <a href="/auth/yahoo" class="yahoo">Yahoo</a>
     </section>
     <p>
-        If you didn't sign up yet, your current profile will be 
-        linked to the account you will choose.
+        Or login using your <strong>Muchmala</strong> account:<br/>
+        <span class="create">Create <strong>Muchmala</strong> Account</span> if you don't have it yet.
     </p>
+    <form action="/auth/basic" method="post">
+        <div>
+            Username:<br/>
+            <div>
+                <span class="error usernameEmpty">Username can't be empty</span>
+                <span class="error usernameIncorrect">Username is incorrect</span>
+                <span class="error failed">Login failed. Username or password is incorrect</span>
+            </div>
+            <input type="text" name="username" />
+        </div>
+        <div>
+            Password:<br/>
+            <div>
+                <span class="error passwordEmpty">Password can't be empty</span>
+            </div>
+            <input type="password" name="password" />
+        </div>
+        <div class="buttons">
+            <span class="button middle">Sign in</span>
+            <!--<span class="forgot">I forgot everything</span>-->
+        </div>
+        <div class="loading">
+            <span>Signing in</span>
+        </div>
+    </form>
 </div>

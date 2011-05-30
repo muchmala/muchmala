@@ -148,7 +148,7 @@
     text-align:right;
 }
 
-#menu .leaders .scrolla {
+#menu .scrolla {
     position:absolute;
     z-index:100;
     right:2px;
@@ -184,45 +184,45 @@
 }
 
 #menu .about {
-	padding:0 5px;
+    padding-right:20px;
 }
 
 #menu .about h1 {
-	padding-top:5px;
+    padding-top:5px;
     font-size:24px;
 }
 
 #menu .about span {
-	line-height:12px;
-	letter-spacing:1px;
-	font-size:12px;
+    line-height:12px;
+    letter-spacing:1px;
+    font-size:12px;
 }
 
 #menu .about h2 {
-	font-weight:bold;
-	font-size:16px;
+    font-weight:bold;
+    font-size:16px;
 }
 
 #menu .about h3 {
-	font-weight:normal;
-	font-size:14px;
+    font-weight:normal;
+    font-size:14px;
 }
 
 #menu .about p {
-	padding: 5px 0 10px 0;
-	font-size: 12px;
-	line-height: 16px;
+    padding: 5px 0 10px 0;
+    font-size: 12px;
+    line-height: 16px;
 }
 
 #menu .about ul {
-	margin-bottom:10px;
+    margin-bottom:10px;
 }
 
 #menu .about li {
-	line-height:16px;
+    line-height:16px;
 }
 
 #menu .about a {
-	color:#fff;
-	font-size:12px;
+    color:#fff;
+    font-size:12px;
 }

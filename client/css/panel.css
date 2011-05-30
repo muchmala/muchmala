@@ -285,6 +285,18 @@ nav .user .pts {
     color:#ddd;
 }
 
+nav .user .auth,
+nav .user .logout {
+    display:none;
+    text-decoration:underline;
+    cursor:pointer;
+}
+
+nav .user .auth:hover,
+nav .user .logout:hover {
+    text-decoration:none;
+}
+
 nav .openMenu {
     margin:10px 10px 0 0;
 }

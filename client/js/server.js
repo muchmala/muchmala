@@ -48,9 +48,17 @@ Proto.disconnect = function() {
     this.socket.disconnect();
 };
 
-Proto.initialize = function(userId, puzzleId) {
+Proto.reconnect = function() {
+    this.socket.disconnect();
+    setTimeout(_.bind(function() {
+        this.socket.connect();
+    }, this), 1000);
+};
+
+Proto.initialize = function(anonymousId, sessionId, puzzleId) {
     var data = {};
-    if (!_.isNull(userId)) { data.userId = userId; }
+    if (!_.isNull(anonymousId)) { data.anonymousId = anonymousId; }
+    if (!_.isNull(sessionId)) { data.sessionId = sessionId; }
     if (!_.isNull(puzzleId)) { data.puzzleId = puzzleId; }
 
     this.sendMessage(this.createMessage(MESSAGES.initialize, data));

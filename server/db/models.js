@@ -39,9 +39,21 @@ var UsersSchema = new Schema({
     created : {type: Date, 'default': Date.now, index: true},
     score   : {type: Number, 'default': 0},
     online  : {type: Boolean, 'default': false},
+    email   : {type: String, index: true},
+    anonymous  : {type: Boolean, 'default': true},
+    
     googleId   : {type: String, index: true},
     twitterId  : {type: String, index: true},
-    facebookId : {type: String, index: true}
+    facebookId : {type: String, index: true},
+    yahooId    : {type: String, index: true},
+    
+    sessionId  : String,
+    password   : String
+});
+
+var SessionsSchema = new Schema({
+    sessionId : {type: String, unique: true, index: true},
+    userId    : ObjectId
 });
 
 // TODO: Make this schema as a embedded doc in the "Users" doc
@@ -56,11 +68,13 @@ var UsersToPuzzlesSchema = new Schema({
 mongoose.model('Users', UsersSchema);
 mongoose.model('Pieces', PiecesSchema);
 mongoose.model('Puzzles', PuzzlesSchema);
+mongoose.model('Sessions', SessionsSchema);
 mongoose.model('UsersToPuzzles', UsersToPuzzlesSchema);
 
 module.exports = {
     Users: mongoose.model('Users'),
     Pieces: mongoose.model('Pieces'),
     Puzzles: mongoose.model('Puzzles'),
+    Sessions: mongoose.model('Sessions'),
     UsersToPuzzles: mongoose.model('UsersToPuzzles')
 };

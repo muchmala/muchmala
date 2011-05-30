@@ -67,13 +67,14 @@ var UserView = Backbone.View.extend({
     
     initialize: function() {
         var userNameDialog = new Puzz.Views.UserNameDialog(this.model);
-        var authDialog = new Puzz.Views.AuthDialog();
+        var signupDialog = new Puzz.Views.SignupDialog(this.model);
+        var authDialog = new Puzz.Views.AuthDialog(this.model, signupDialog);
         
         this.el.find('.name').click(function() {
             if(!userNameDialog.shown) userNameDialog.show();
         });
         this.el.find('.auth').click(function() {
-            if(!authDialog.shown && $(this).attr('href') != '/logout') {
+            if(!authDialog.shown && !signupDialog.shown) {
                 authDialog.show();
             } 
         });
@@ -87,6 +88,14 @@ var UserView = Backbone.View.extend({
         this.model.bind('change', function() {
             self.el.find('.num').text(self.model.get('score'));
             self.el.find('.name').text(self.model.get('name'));
+            
+            if (self.model.get('anonymous')) {
+                self.el.find('.auth').show();
+                self.el.find('.logout').hide();
+            } else {
+                self.el.find('.auth').hide();
+                self.el.find('.logout').show();
+            }
         });
         
         this.model.bind('change:score', function() {
