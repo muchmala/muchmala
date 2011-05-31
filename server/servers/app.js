@@ -24,7 +24,7 @@ db.connect(function(err) {
     socket.on('connection', function(client) {
         client.on('message', function(message) {
             message = JSON.parse(message);
-            
+
             if (!_.isUndefined(message.action) && message.action == 'initialize') {
                 addPlayer(client, message.data);
             }

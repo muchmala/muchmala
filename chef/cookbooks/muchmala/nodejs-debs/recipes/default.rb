@@ -1,6 +1,6 @@
 #
 # Author:: George Miroshnykov (george.miroshnykov@gmail.com)
-# Cookbook Name:: muchmala
+# Cookbook Name:: nodejs-debs
 # Recipe:: default
 #
 # Copyright 2011, George Miroshnykov
@@ -18,16 +18,19 @@
 # limitations under the License.
 #
 
-include_recipe "apt"
-include_recipe "build-essential"
-include_recipe "ant"
-#include_recipe "nodejs"
-#include_recipe "nodejs::npm"
-include_recipe "mongodb-debs"
-include_recipe "redis"
+include_recipe "nodejs-debs::repo"
 
-include_recipe "nodejs-debs"
-include_recipe "private-npm-registry"
-include_recipe "node-canvas-deps"
+package "nodejs-dev"
 
-package "supervisor"
+link "/usr/bin/node" do
+  to "/usr/bin/nodejs"
+end
+
+link "/usr/bin/node-waf" do
+  to "/usr/bin/nodejs-waf"
+end
+
+execute "install npm" do
+  command "curl http://npmjs.org/install.sh | clean=yes sh"
+  not_if {File.exists?("/usr/bin/npm")}
+end

@@ -1,6 +1,6 @@
 #
 # Author:: George Miroshnykov (george.miroshnykov@gmail.com)
-# Cookbook Name:: muchmala
+# Cookbook Name:: nodejs-debs
 # Recipe:: default
 #
 # Copyright 2011, George Miroshnykov
@@ -18,16 +18,24 @@
 # limitations under the License.
 #
 
-include_recipe "apt"
-include_recipe "build-essential"
-include_recipe "ant"
-#include_recipe "nodejs"
-#include_recipe "nodejs::npm"
-include_recipe "mongodb-debs"
-include_recipe "redis"
+return if node[:platform] != "ubuntu"
 
-include_recipe "nodejs-debs"
-include_recipe "private-npm-registry"
-include_recipe "node-canvas-deps"
+execute "request ppa key" do
+  command "gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C7917B12"
+  not_if "gpg --list-keys C7917B12"
+end
 
-package "supervisor"
+execute "install ppa key" do
+  command "gpg -a --export C7917B12 | apt-key add -"
+  not_if "apt-key list | grep C7917B12"
+end
+
+template "/etc/apt/sources.list.d/nodejs.list" do
+  mode 0644
+end
+
+execute "update apt" do
+  command "apt-get update"
+  subscribes :run, resources(:template => "/etc/apt/sources.list.d/nodejs.list"), :immediately
+  action :nothing
+end
