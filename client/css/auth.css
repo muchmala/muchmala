@@ -121,8 +121,17 @@
     cursor:pointer;
 }
 
+#auth .forgot:hover,
+#auth .create:hover {
+    text-decoration:none;
+}
+
 #auth .forgot {
     margin-left:2px;
+}
+
+#auth .create {
+    font-size:14px;
 }
 
 #auth .error {

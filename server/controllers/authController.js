@@ -36,7 +36,7 @@ module.exports = function(server) {
                     return;
                 }
                 
-                addPermanentUser(req.cookies.user_id, fields.username, fields.email, fields.password, function() {
+                addPermanentUser(req.cookies.anonymous, fields.username, fields.email, fields.password, function() {
                     req.fields = fields;
                     req.authenticate(['form'], function(error, authenticated) {
                         if (authenticated) {
