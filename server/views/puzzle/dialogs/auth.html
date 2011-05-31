@@ -11,12 +11,12 @@
         <a href="/auth/yahoo" class="yahoo">Yahoo</a>
     </section>
     <p>
-        Or login using your <strong>Muchmala</strong> account:<br/>
+        Or login using your Muchmala account:<br/>
         Don't have a Muchmala account yet? <strong class="create">Sign Up</strong>.
     </p>
-    <form action="/auth/basic" method="post">
+    <form action="/auth/form" method="post">
         <div>
-            Username:<br/>
+            <strong>Username:</strong><br/>
             <div>
                 <span class="error usernameEmpty">Username can't be empty</span>
                 <span class="error usernameIncorrect">Username is incorrect</span>
@@ -25,7 +25,7 @@
             <input type="text" name="username" />
         </div>
         <div>
-            Password:<br/>
+            <strong>Password:</strong><br/>
             <div>
                 <span class="error passwordEmpty">Password can't be empty</span>
             </div>

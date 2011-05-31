@@ -1,7 +1,7 @@
 <div id="signup">
 <form action="/auth/signup" method="post">
     <section>
-        Username:<br/>
+        <strong>Username:</strong><br/>
         * Must be unique. Use only letters, numbers and underscores<br/>
         with minimum of 3 and maximum of 20 characters.
         <div>
@@ -12,8 +12,7 @@
         <input type="text" name="username" />
     </section>
     <section>
-        Email:<br/>
-        * Just in case you will forget your password.
+        <strong>Email (for password recovery):</strong><br/>
         <div>
             <span class="error emailEmpty">Email can't be empty</span>
             <span class="error emailIncorrect">Email is incorrect</span>
@@ -21,14 +20,14 @@
         <input type="text" name="email" />
     </section>
     <section>
-        Password:<br/>
+        <strong>Password:</strong><br/>
         <div>
             <span class="error passwordEmpty">Password can't be empty</span>
         </div>
         <input type="password" name="password" />
     </section>
     <section>
-        Repeat password:<br/>
+        <strong>Repeat password:</strong><br/>
         <div>
             <span class="error repeatEmpty">Forgot to repeat you password</span>
             <span class="error repeatDoesntMatch">Doesn't match to the password above</span>

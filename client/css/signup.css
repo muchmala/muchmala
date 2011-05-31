@@ -44,14 +44,14 @@
     background:url('/img/loader.gif') no-repeat left center;
 }
 
+#signup strong {
+    font-size:14px;
+}
+
 #signup .finish {
     display:none;
     padding:30px;
     line-height:18px;
-}
-
-#signup .finish strong {
-    font-size:14px;
 }
 
 #signup .finish .button {
