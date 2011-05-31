@@ -17,6 +17,7 @@
   , "express" : "2.3.2"
   , "connect-auth" : "~0"
   , "connect-form" : "~0"
+  , "connect-redis" : "~1"
   , "connect" : "~1"
   , "oauth" : "~0"
   , "opts" : "~1"
