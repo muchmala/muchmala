@@ -136,17 +136,7 @@ function MenuDialog(twenty) {
     this.pages.leaders.viewport({position: 'top'});
     this.pages.leaders.viewport('content').scraggable({axis: 'y', containment: 'parent'});
     this.pages.leaders.scrolla({content: this.pages.leaders.viewport('content')});
-    
-    this.pages.about.viewport({position: 'top'});
-    this.pages.about.viewport('content').scraggable({axis: 'y', containment: 'parent'});
-    this.pages.about.scrolla({content: this.pages.about.viewport('content')});
-    
-    this.tabs.about.click(function() {
-        self.pages.about.viewport('width', 415);
-        self.pages.about.viewport('update');
-        self.pages.about.scrolla('update');
-    });
-    
+        
     this.tabs.leaders.click(function() {
         self.pages.leaders.addClass('loading');
         self.twenty.fetch();

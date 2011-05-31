@@ -78,6 +78,8 @@
                 <file name="complete.css"/>
                 <file name="browser.css"/>
                 <file name="create.css"/>
+                <file name="signup.css"/>
+                <file name="forgot.css"/>
                 <file name="auth.css"/>
             </filelist>
         </concat>
