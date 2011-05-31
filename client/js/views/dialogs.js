@@ -346,7 +346,7 @@ AuthDialogProto.login = function() {
             } else if (response == 'failed'){
                 self.element.find('.error.failed').show();
             } else if (response == 'success') {
-                self.user.login();
+                self.user.socket.reconnect();
                 self.hide();
             }
         }
@@ -463,6 +463,7 @@ SignupDialogProto.signup = function() {
             } else {
                 self.element.find('form').hide();
                 self.element.find('.finish').show();
+                self.user.socket.reconnect();
             }
         }
     });

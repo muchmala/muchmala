@@ -48,10 +48,6 @@ Puzz.Models.User = Backbone.IO.Model.extend({
         }
     },
     
-    login: function() {
-        this.socket.reconnect();
-    },
-    
     sync: function(method, model) {
         model.socket.setUserName(model.get('name'));
     }

@@ -52,7 +52,7 @@ Proto.reconnect = function() {
     this.socket.disconnect();
     setTimeout(_.bind(function() {
         this.socket.connect();
-    }, this), 1000);
+    }, this), 500);
 };
 
 Proto.initialize = function(anonymousId, sessionId, puzzleId) {
