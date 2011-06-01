@@ -19,6 +19,12 @@ $(function() {
 
     server.bind('connected', function() {
         server.initialize(userModel.get('aid'), userModel.get('sid'), puzzleModel.get('id'));
+        viewport.loading(0);
+    });
+    
+    server.bind(MESSAGES.noPuzzles, function() {
+        viewport.showNoPuzzles();
+        viewport.loadingComplete();
     });
 
     puzzleModel.once('change', function() {

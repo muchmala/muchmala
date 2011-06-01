@@ -1,12 +1,26 @@
 var db = require('./db');
-var _ = require('../shared/underscore')._;
 var Game = require('./game');
+var _ = require('../shared/underscore')._;
+var MESSAGES = require('../shared/messages');
 
 function Games() {
     this.games = {};
 }
 
-Games.prototype.getGame = function(puzzleId, callback) {
+Games.prototype.addPlayer = function(client, anonymousId, sessionId, puzzleId) {
+    this._getGame(puzzleId, (function(game) {
+        if (!game) {
+            client.send(MESSAGES.noPuzzles);
+            return;
+        }
+        
+        this._getUser(anonymousId, sessionId, function(user) {
+            game.addPlayer(client, user);
+        });
+    }).bind(this));
+};
+
+Games.prototype._getGame = function(puzzleId, callback) {
     puzzleId = puzzleId || 'last';
     
     if (!_.isUndefined(this.games[puzzleId])) {
@@ -14,7 +28,11 @@ Games.prototype.getGame = function(puzzleId, callback) {
         return;
     }
     
-    getPuzzle(puzzleId, (function(puzzle) {
+    this._getPuzzle(puzzleId, (function(puzzle) {
+        if (!puzzle) {
+            callback(false);
+            return;
+        }
         if (_.isUndefined(this.games[puzzle.id])) {
             this.games[puzzle.id] = new Game(puzzle);
         }
@@ -22,13 +40,7 @@ Games.prototype.getGame = function(puzzleId, callback) {
     }).bind(this));
 };
 
-Games.prototype.addPlayer = function(client, anonymousId, sessionId, puzzleId) {
-    this.getGame(puzzleId, function(game) {
-        game.addPlayer(client, anonymousId, sessionId);
-    });
-};
-
-function getPuzzle(puzzleId, callback) {
+Games.prototype._getPuzzle = function(puzzleId, callback) {
     if (puzzleId == 'last') {
         db.Puzzles.last(function(puzzle) {
             callback(puzzle);
@@ -44,6 +56,43 @@ function getPuzzle(puzzleId, callback) {
             callback(puzzle);
         });
     });
-}
+};
+
+Games.prototype._getUser = function(userId, sessionId, callback) {
+    if (userId == null && sessionId == null) {
+        addAnonymous();
+        return;
+    }
+    
+    if (sessionId) {
+        db.Sessions.findUserId(sessionId, function(foundUserId) {
+            if (foundUserId) {
+                db.Users.getPermanent(foundUserId, processUser);
+            } else if (userId) {
+                db.Users.getAnonymous(userId, processUser);
+            } else {
+                addAnonymous();
+            }
+        });
+    } else if (userId) {
+        db.Users.getAnonymous(userId, processUser);
+    } else {
+        addAnonymous();
+    }
+    
+    function addAnonymous() {
+        db.Users.addAnonymous(function(user) {
+            callback(user);
+        });
+    }
+     
+    function processUser(user) {
+        if (user) {
+            callback(user);
+        } else {
+            addAnonymous();
+        }
+    }
+};
 
 module.exports = Games;
