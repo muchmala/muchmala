@@ -20,52 +20,47 @@ function Game(puzzle) {
     }, 60000);
 }
 
-Game.prototype.addPlayer = function(client, userId, sessionId) {
+Game.prototype.addPlayer = function(client, user) {
     var self = this;
-    
-    getUser(userId, sessionId, function(user) {
-        client.setUserId(userId);
+    var player = new Player(client, self.puzzle, user);
 
-        var player = new Player(client, self.puzzle, user);
-    
-        player.on('userNameChanged', function() {
-            self.broadcastLeadersBoard();
+    player.on('userNameChanged', function() {
+        self.broadcastLeadersBoard();
+    });
+    player.on('scoreChanged', function() {
+        self.broadcastLeadersBoard();
+    });
+    player.on('pieceUnlocked', function(coords) {
+        self.broadcastUnlockPiece(coords, user.name);
+    });
+    player.on('pieceLocked', function(coords) {
+        self.broadcastLockPiece(coords, user.name);
+    });
+    player.on('piecesSwapped', function(coords) {
+        self.broadcastSwapPieces(coords);
+        self.broadcastUnlockPiece(coords[0], user.name);
+        self.puzzle.addSwap(function() {
+            self.broadcastPuzzleData();
         });
-        player.on('scoreChanged', function() {
-            self.broadcastLeadersBoard();
-        });
-        player.on('pieceUnlocked', function(coords) {
-            self.broadcastUnlockPiece(coords, user.name);
-        });
-        player.on('pieceLocked', function(coords) {
-            self.broadcastLockPiece(coords, user.name);
-        });
-        player.on('piecesSwapped', function(coords) {
-            self.broadcastSwapPieces(coords);
-            self.broadcastUnlockPiece(coords[0], user.name);
-            self.puzzle.addSwap(function() {
-                self.broadcastPuzzleData();
-            });
-        });
-    
-        self.channel.add(client);
-    
-        client.onDisconnect(function() {
-            //@Todo: remove
-            self.channel.remove(client);
-            player.unlockSelectedPiece();
-            user.online = false;
-            user.save(function() {
-                self.broadcastPuzzleData();
-                self.broadcastLeadersBoard();
-            });
-        });
-                
-        user.online = true;
+    });
+
+    self.channel.add(client);
+
+    client.onDisconnect(function() {
+        //@Todo: remove
+        self.channel.remove(client);
+        player.unlockSelectedPiece();
+        user.online = false;
         user.save(function() {
             self.broadcastPuzzleData();
             self.broadcastLeadersBoard();
         });
+    });
+            
+    user.online = true;
+    user.save(function() {
+        self.broadcastPuzzleData();
+        self.broadcastLeadersBoard();
     });
 };
 
@@ -138,43 +133,5 @@ Game.prototype.getLeadersBoardData = function(callback) {
         });
     });
 };
-
-function getUser(userId, sessionId, callback) {
-    if (userId == null && sessionId == null) {
-        addAnonymous();
-        return;
-    }
-    
-    if (sessionId) {
-        db.Sessions.findUserId(sessionId, function(foundUserId) {
-            console.log('asdasd', foundUserId, userId);
-            if (foundUserId) {
-                db.Users.getPermanent(foundUserId, processUser);
-            } else if (userId) {
-                db.Users.getAnonymous(userId, processUser);
-            } else {
-                addAnonymous();
-            }
-        });
-    } else if (userId) {
-        db.Users.getAnonymous(userId, processUser);
-    } else {
-        addAnonymous();
-    }
-    
-    function addAnonymous() {
-        db.Users.addAnonymous(function(user) {
-            callback(user);
-        });
-    }
-     
-    function processUser(user) {
-        if (user) {
-            callback(user);
-            return;
-        }
-        addAnonymous();
-    }
-}
 
 module.exports = Game;

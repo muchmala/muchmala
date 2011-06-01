@@ -565,6 +565,23 @@ CreatePuzzleDialogProto.submit = function() {
     });
 };
 
+function NoPuzzlesDialog(create) {
+    NoPuzzlesDialog.superproto.constructor.call(this);
+    this.element.append($('#noPuzzles').show());
+    this.element.addClass('green');
+    
+    var self = this;
+    
+    this.element.find('.button.big').click(function() {
+        self.once('hidden', function() {
+            create.show();
+        });
+        self.hide();
+    });
+}
+
+Puzz.Utils.inherit(NoPuzzlesDialog, Dialog);
+
 Puzz.TimeHelper = {
     MONTH: 60*60*24*30,
     DAY: 60*60*24,
@@ -631,5 +648,6 @@ Puzz.Views.CompleteDialog = CompleteDialog;
 Puzz.Views.CreatePuzzleDialog = CreatePuzzleDialog;
 Puzz.Views.AuthDialog = AuthDialog;
 Puzz.Views.SignupDialog = SignupDialog;
+Puzz.Views.NoPuzzlesDialog = NoPuzzlesDialog;
 
 })();

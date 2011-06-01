@@ -10,8 +10,9 @@ function Viewport(puzzle, user, leaders, twenty) {
     
     this.menu = new Puzz.Views.MenuDialog(twenty);
     this.create = new Puzz.Views.CreatePuzzleDialog();
-    
+    this.noPuzzles = new Puzz.Views.NoPuzzlesDialog(this.create);
     this.complete = new Puzz.Views.CompleteDialog(puzzle, leaders);
+    
     this.panel = new Puzz.Views.Panel({
         leaders: leaders, user: user,
         menu: this.menu, puzzle: puzzle,
@@ -148,6 +149,10 @@ Proto.blowScore = function(x, y, score) {
     }, 700, function() {
         score.remove();
     });
+};
+
+Proto.showNoPuzzles = function() {
+    this.noPuzzles.show();
 };
 
 window.Puzz.Views.Viewport = Viewport;

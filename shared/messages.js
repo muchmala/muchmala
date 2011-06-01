@@ -3,6 +3,7 @@
 ns.userData = 'userData';
 ns.puzzleData = 'puzzleData';
 ns.piecesData = 'piecesData';
+ns.noPuzzles = 'noPuzzles';
 
 ns.initialize = 'initialize';
 ns.initialized = 'initialized';
