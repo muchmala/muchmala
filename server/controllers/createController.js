@@ -63,8 +63,7 @@ module.exports = function(server) {
 };
 
 function buildPuzzle(options, onSuccess, onError) {
-    //var builder = child.spawn('node', [
-    var builder = child.spawn('/home/borbit/repositories/nave/installed/0.4.8/bin/node', [
+    var builder = child.spawn('node', [
         __dirname + '/../scripts/createPieces.js',
         '-i', options.imgPath, 
         '-n', options.name,
