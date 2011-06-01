@@ -147,7 +147,6 @@ function getUser(userId, sessionId, callback) {
     
     if (sessionId) {
         db.Sessions.findUserId(sessionId, function(foundUserId) {
-            console.log('asdasd', foundUserId, userId);
             if (foundUserId) {
                 db.Users.getPermanent(foundUserId, processUser);
             } else if (userId) {
