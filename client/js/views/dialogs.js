@@ -31,7 +31,7 @@ DialogProto.show = function() {
 	this.element.css('margin-left', -Math.floor(this.element.outerWidth() / 2));
     this.element.css('left', '50%').show();
 
-    this.element.animate({top: '50%'}, 100, _.bind(function() {
+    this.element.animate({top: '50%'}, 100, 'swing', _.bind(function() {
         this.shown = true;
         this.trigger('shown');
     }, this));

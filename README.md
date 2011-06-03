@@ -38,20 +38,24 @@ Installation (Vagrant)
 
         npm install
 
-7. Install jake globally.
+7. Install stylus globally.
+
+        sudo npm install stylus -g
+                
+8. Install jake globally.
 
         sudo npm install jake -g
 
-8. Generate and install nginx and supervisor configs.
+9. Generate and install nginx and supervisor configs.
 
         sudo jake install
 
-9. Put some big image into project directory. Call it something like `puzzle.jpg`.
-10. Generate the first puzzle using that image.
+10. Put some big image into project directory. Call it something like `puzzle.jpg`.
+11. Generate the first puzzle using that image.
 
         bin/muchmala-generator -i puzzle.jpg
 
-11. Start all services using (don't forget the colon at the end).
+12. Start all services using (don't forget the colon at the end).
 
         sudo supervisorctl start muchmala:
 

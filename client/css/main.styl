@@ -1,0 +1,139 @@
+body
+    overflow hidden
+    font-size 14px
+    font-family helvetica
+
+input
+    font-family helvetica
+    
+#viewport
+    position absolute !important
+    overflow visible !important
+    height 100%
+    width 100%
+
+.viewportContent
+    z-index 1000
+
+.viewportContent canvas
+    position absolute
+    
+.button
+    display inline-block
+    padding 0 10px
+    height 14px
+    line-height 12px
+    font-size 10px
+    color #000
+    cursor pointer
+    text-align center
+    background #fff
+
+    box-shadow 0 0 2px #000
+    border-radius 7px
+    vertical-gradient(rgb(180,180,180), rgb(255,255,255))
+    
+.button.highlight
+    color #fff
+    background rgb(255,0,0)
+    vertical-gradient(rgb(150,0,0), rgb(255,0,0))
+    
+.button:hover
+    color #000
+    vertical-gradient(rgb(210,210,210), rgb(255,255,255))
+
+.button.middle
+    padding 0 12px
+    height 18px
+    line-height 16px
+    border-radius 9px
+
+.button.big
+    padding 0 15px
+    height 30px
+    line-height 30px
+    font-size 14px
+    font-weight bold
+    border-radius 15px
+    vertical-gradient(rgb(255,255,0), rgb(255,255,255))
+    
+.button.big:hover
+    vertical-gradient(rgb(255,255,100), rgb(255,255,255))
+
+#selected
+    display none
+    position absolute
+    z-index 1002
+    right 5px
+    bottom 5px
+    height 66px
+    width 66px
+    background-repeat no-repeat
+    background-position top left
+    opacity 0.7
+
+#selected._0000
+    background-position -0px -0px
+#selected._1000
+    background-position -132px -0px
+#selected._0010
+    background-position -0px -66px
+#selected._1110
+    background-position -132px -66px
+#selected._1101
+    background-position -0px -132px
+#selected._1100
+    background-position -132px -132px
+#selected._0110
+    background-position -0px -198px
+#selected._0101
+    background-position -132px -198px
+#selected._1111
+    background-position -66px -0px
+#selected._0100
+    background-position -198px -0px
+#selected._0001
+    background-position -66px -66px
+#selected._0111
+    background-position -198px -66px
+#selected._1011
+    background-position -66px -132px
+#selected._0011
+    background-position -198px -132px
+#selected._1001
+    background-position -66px -198px
+#selected._1010
+    background-position -198px -198px
+
+viewport .tooltip
+    display inline-block
+    position absolute
+    z-index 9999
+    font-size 10px
+    background #ff7
+    height 18px
+    max-width 70px
+    margin-top -9px
+    line-height 16px
+    text-align center
+    box-shadow 5px 2px 10px rgba(0, 0, 0, 0.5)
+
+#viewport .tooltip span
+    display inline-block
+    overflow hidden
+    max-width 62px
+    margin 0 4px
+
+viewport .score
+    display inline-block
+    position absolute
+    z-index 9999
+    margin -50px 0 0 -50px
+    width 100px
+    height 100px
+    line-height 90px
+    color #fff
+    font-size 30px
+    font-weight bold
+    text-align center
+    text-shadow 0 0 1px #000, 0 0 1px #000, 0 0 1px #000, 0 0 1px #000

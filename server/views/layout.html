@@ -3,21 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Massively Multiplayer Online Puzzle.</title>
-    <% if (config.production) { %>
-    <link rel="stylesheet" href="<%=config.STATIC_URL%>/<%=config.version%>/css/minified.css" />
-    <% } else { %>
-    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/reset.css" />
-    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/main.css" />
-    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/panel.css" />
-    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/dialog.css" />
-    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/menu.css" />
-    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/complete.css" />
-    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/browser.css" />
-    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/create.css" />
-    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/signup.css" />
-    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/forgot.css" />
-    <link rel="stylesheet" href="<%=config.STATIC_URL%>/css/auth.css" />
-    <% } %>
+    <link rel="stylesheet" href="<%=(config.STATIC_URL + (config.production ? '/' + config.version : '') + '/css/styles.css')%>" />
     <!--[if lte IE 8]>
     <script>
         document.createElement('nav');

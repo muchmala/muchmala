@@ -163,7 +163,7 @@ file('proxy.json', ['config/proxy.json.in'].concat(configFiles), function() {
 desc('upload static files to S3');
 task('static-upload', [], function() {
     var uploadFiles = [
-        ['client/css/minified.css', db.staticVersion + '/css/minified.css'],
+        ['client/css/styles.css', db.staticVersion + '/css/styles.css'],
         ['client/js/minified.js',   db.staticVersion + '/js/minified.js']
     ];
 
@@ -220,7 +220,112 @@ task('static-upload', [], function() {
     );
 }, true);
 
+//
+// JAVASCRIPT FILES COMPRESSION
+//
+var jsDir = 'client/js/';
+var uncompressedJsFiles = [
+    jsDir + 'jquery/jquery.scraggable/jquery.scraggable.js',
+    jsDir + 'jquery/jquery.viewport/jquery.viewport.js',
+    jsDir + 'jquery/jquery.scrolla/jquery.scrolla.js',
+    jsDir + 'jquery/jquery.cookie.js',
+    
+    'shared/flow.js',
+    'shared/messages.js',
+    
+    jsDir + 'utils.js',
+    jsDir + 'third/aim.js',
+    jsDir + 'backbone/backbone.js',
+    jsDir + 'backbone/backbone.io.js',
+    jsDir + 'loader.js',
+    jsDir + 'storage.js',
+    jsDir + 'server.js',
+    jsDir + 'models/user.js',
+    jsDir + 'models/puzzle.js',
+    jsDir + 'collections/pieces.js',
+    jsDir + 'collections/leaders.js',
+    jsDir + 'collections/twenty.js',
+    jsDir + 'views/puzzle.js',
+    jsDir + 'views/piece.js',
+    jsDir + 'views/viewport.js',
+    jsDir + 'views/dialogs.js',
+    jsDir + 'views/panel.js',
+    jsDir + 'app.js'
+];
 
+var compressedJsFiles = [
+    jsDir + 'socket.io/socket.io.min.js',
+    jsDir + 'jquery/jquery.min.js',
+    jsDir + 'jquery/jquery-ui.js',
+    'shared/underscore.js'
+];
+
+var resultJsFile = jsDir + 'minified.js';
+
+var parser = require('uglify-js').parser;
+var uglify = require('uglify-js').uglify;
+
+desc('compress JavaScript files');
+task('compressjs', [resultJsFile], function() {
+    console.log('DONE');
+    complete();
+});
+
+file(resultJsFile, uncompressedJsFiles, function() {
+    var codeToCompress = '';
+    var compressdCode = '';
+    
+    uncompressedJsFiles.forEach(function(filePath) {
+        codeToCompress += fs.readFileSync(filePath).toString();
+    });
+    
+    compressedJsFiles.forEach(function(filePath) {
+        compressdCode += fs.readFileSync(filePath).toString();
+    });
+    
+    var ast = parser.parse(codeToCompress);
+    ast = uglify.ast_mangle(ast);
+    ast = uglify.ast_squeeze(ast);
+    
+    fs.writeFileSync(resultJsFile, compressdCode + uglify.gen_code(ast));
+});
+
+//
+// STYLUS
+//
+var inputFile = 'client/css/styles.styl';
+var stylusUrl = 'server/scripts/stylusUrl.js';
+
+desc('Run stylus with "watch" option');
+task('stylus-watch', [], function() {
+    runStylus(true);
+});
+
+desc('Run stylus to render CSS once');
+task('stylus-render', [], function() {
+    runStylus(false, function() {
+        console.log('CSS is rendered');
+        complete();
+    });
+});
+
+function runStylus(watch, callback) {
+    var command = 'stylus';
+    
+    if (watch) {
+        command += ' --watch';
+    }
+    
+    command += ' --compress';
+    command += ' --include client/css';
+    command += ' --use ' + stylusUrl;
+    command += ' ' + inputFile;
+
+    exec(command, function(error) {
+        if (error) throw error;
+        if (callback) callback();
+    });
+}
 
 //
 // helpers

@@ -1,0 +1,89 @@
+helvetica = 'Helvetica Neue', Helvetica, sans-serif
+georgia = Georgia, "Times New Roman"
+arial = Arial
+
+vendor(prop, args)
+    -webkit-{prop} args
+    -moz-{prop} args
+    {prop} args
+
+border-radius()
+    vendor('border-radius', arguments)
+
+box-shadow()
+    vendor('box-shadow', arguments)
+    
+vertical-gradient(startColor, finishColor)
+    background-image s('-webkit-gradient(linear, left bottom, left top, color-stop(0, %s), color-stop(1, %s))', startColor, finishColor)
+    background-image s('-moz-linear-gradient(center bottom, %s 0%, %s 100%)', startColor, finishColor)
+    background-image s('-o-linear-gradient(center bottom, %s 0%, %s 100%)', startColor, finishColor)
+    
+horizontal-gradient(startColor, finishColor)
+    background-image: s('-webkit-gradient(linear, right bottom, left bottom, color-stop(0, %s), color-stop(1, %s))', startColor, finishColor)
+    background-image: s('-moz-linear-gradient(right center, %s 0%, %s 100%)', startColor, finishColor)
+    background-image: s('-o-linear-gradient(right center, %s 0%, %s 100%)', startColor, finishColor)
+
+@css {
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+    background: transparent;
+}
+body {
+    line-height: 1;
+}
+ol, ul {
+    list-style: none;
+}
+blockquote, q {
+    quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+
+/* remember to define focus styles! */
+:focus {
+    outline: 0;
+}
+
+/* remember to highlight inserts somehow! */
+ins {
+    text-decoration: none;
+}
+del {
+    text-decoration: line-through;
+}
+
+/* tables still need 'cellspacing="0"' in the markup */
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+}
+
+@import main
+@import panel
+@import dialog
+@import menu
+@import complete
+@import browser
+@import create
+@import signup
+@import forgot
+@import auth
+@import bg

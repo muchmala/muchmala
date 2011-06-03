@@ -72,3 +72,11 @@ autorestart=false
 autostart=true
 autorestart=true
 <% } %>
+
+<% if (config.DEV) { %>
+[program:stylus]
+command=jake stylus-watch
+directory=<%= root %>
+autostart=false
+autorestart=false
+<% } %>
