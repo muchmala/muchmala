@@ -53,7 +53,8 @@ Installation (Vagrant)
 10. Put some big image into project directory. Call it something like `puzzle.jpg`.
 11. Generate the first puzzle using that image.
 
-        bin/muchmala-generator -i puzzle.jpg
+        bin/muchmala-covers
+        bin/muchmala-puzzle -i puzzle.jpg
 
 12. Start all services using (don't forget the colon at the end).
 

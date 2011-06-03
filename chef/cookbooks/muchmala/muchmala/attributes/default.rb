@@ -19,6 +19,6 @@
 #
 
 default.nodejs[:version] = "0.4.8"
-default.nodejs[:npm] = "1.0.6"
+default.nodejs[:npm] = "1.0.8"
 
 default['java']['install_flavor'] = "sun"
