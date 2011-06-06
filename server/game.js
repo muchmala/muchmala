@@ -47,17 +47,16 @@ Game.prototype.addPlayer = function(client, user) {
     self.channel.add(client);
 
     client.onDisconnect(function() {
-        //@Todo: remove
         self.channel.remove(client);
         player.unlockSelectedPiece();
-        user.online = false;
+        user.online -= 1;
         user.save(function() {
             self.broadcastPuzzleData();
             self.broadcastLeadersBoard();
         });
     });
             
-    user.online = true;
+    user.online += 1;
     user.save(function() {
         self.broadcastPuzzleData();
         self.broadcastLeadersBoard();

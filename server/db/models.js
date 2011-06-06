@@ -38,7 +38,7 @@ var UsersSchema = new Schema({
     name    : {type: String, unique: true, index: true},
     created : {type: Date, 'default': Date.now, index: true},
     score   : {type: Number, 'default': 0},
-    online  : {type: Boolean, 'default': false},
+    online  : {type: Number, 'default': 0},
     email   : {type: String, index: true},
     anonymous  : {type: Boolean, 'default': true},
     
