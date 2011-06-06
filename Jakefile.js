@@ -161,7 +161,7 @@ file('proxy.json', ['config/proxy.json.in'].concat(configFiles), function() {
 
 
 desc('upload static files to S3');
-task('static-upload', [], function() {
+task('static-upload', ['stylus-render'], function() {
     var uploadFiles = [
         ['client/css/styles.css', db.staticVersion + '/css/styles.css'],
         ['client/js/minified.js',   db.staticVersion + '/js/minified.js']
@@ -229,10 +229,10 @@ var uncompressedJsFiles = [
     jsDir + 'jquery/jquery.viewport/jquery.viewport.js',
     jsDir + 'jquery/jquery.scrolla/jquery.scrolla.js',
     jsDir + 'jquery/jquery.cookie.js',
-    
+
     'shared/flow.js',
     'shared/messages.js',
-    
+
     jsDir + 'utils.js',
     jsDir + 'third/aim.js',
     jsDir + 'backbone/backbone.js',
@@ -274,19 +274,19 @@ task('compressjs', [resultJsFile], function() {
 file(resultJsFile, uncompressedJsFiles, function() {
     var codeToCompress = '';
     var compressdCode = '';
-    
+
     uncompressedJsFiles.forEach(function(filePath) {
         codeToCompress += fs.readFileSync(filePath).toString();
     });
-    
+
     compressedJsFiles.forEach(function(filePath) {
         compressdCode += fs.readFileSync(filePath).toString();
     });
-    
+
     var ast = parser.parse(codeToCompress);
     ast = uglify.ast_mangle(ast);
     ast = uglify.ast_squeeze(ast);
-    
+
     fs.writeFileSync(resultJsFile, compressdCode + uglify.gen_code(ast));
 });
 
@@ -311,11 +311,11 @@ task('stylus-render', [], function() {
 
 function runStylus(watch, callback) {
     var command = 'stylus';
-    
+
     if (watch) {
         command += ' --watch';
     }
-    
+
     command += ' --compress';
     command += ' --include client/css';
     command += ' --use ' + stylusUrl;

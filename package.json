@@ -28,5 +28,6 @@
   , "socket.io-cluster" : "~0"
   , "http-proxy" : "~0"
   , "uglify-js" : "~1"
+  , "stylus" : "~0"
   }
 }

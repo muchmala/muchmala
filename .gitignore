@@ -1,6 +1,6 @@
 .vagrant
 config.local.js
-client/css/minified.css
+client/css/styles.css
 client/js/minified.js
 client/img/puzzles/
 utils.db

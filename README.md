@@ -38,30 +38,27 @@ Installation (Vagrant)
 
         npm install
 
-7. Install stylus globally.
+7. Install jake and stylus globally.
 
-        sudo npm install stylus -g
-                
-8. Install jake globally.
+        sudo npm install -g jake stylus
 
-        sudo npm install jake -g
-
-9. Generate and install nginx and supervisor configs.
+8. Generate and setup nginx, supervisor and other configs.
 
         sudo jake install
 
-10. Put some big image into project directory. Call it something like `puzzle.jpg`.
-11. Generate the first puzzle using that image.
+9. Put some big image into project directory. Call it something like `puzzle.jpg`.
+10. Generate the first puzzle using that image.
 
         bin/muchmala-covers
         bin/muchmala-puzzle -i puzzle.jpg
 
-12. Start all services using (don't forget the colon at the end).
+11. Finally, start all services.
 
-        sudo supervisorctl start muchmala:
+        sudo jake start
 
 Vagrant is pre-configured to give your VM an IP address of 33.33.33.15.
-This way you can now check if Muchmala is running by opening `http://33.33.33.15/` in your browser.
+During step 3 you assigned couple of domain names to that address,
+so now you can check if Muchmala is running by opening `http://muchmala.dev/` in your browser.
 
 Installation (AWS)
 ------------------
@@ -99,7 +96,7 @@ TODO: automate all this stuff.
 9. Install required node modules.
 
         npm install
-        sudo npm install jake -g
+        sudo npm install jake stylus -g
 
 10. Create S3 bucket with the name like `static.muchmala.com` for JS/CSS/images, including puzzles images.
 11. Create `config.local.js` that should look like this:
@@ -143,12 +140,11 @@ TODO: automate all this stuff.
 
 15. Generate production CSS/JS and upload them to S3, together with puzzle images.
 
-        ant
         jake static-upload
 
 16. Start all services using (don't forget the colon at the end).
 
-        sudo supervisorctl start muchmala:
+        sudo jake start
 
 You can now check if Muchmala is running by navigating to EC2's hostname in your browser.
 

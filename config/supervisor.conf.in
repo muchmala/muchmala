@@ -15,7 +15,7 @@ for (i = config.APP_SERVERS_COUNT; i--; ) {
 %>
 
 [group:muchmala]
-programs=<%=programs%>proxy
+programs=<%=programs%>proxy<% if (config.DEV) { %>,stylus<% } %>
 
 <%
 for (i = config.IO_SERVERS.length; i--; ) {
