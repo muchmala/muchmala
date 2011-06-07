@@ -1,4 +1,4 @@
-var db = require('../db');
+var db = require('muchmala-common').db;
 
 module.exports = function(server) {
     server.post('/auth/signup', function(req, res) {

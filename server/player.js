@@ -1,8 +1,9 @@
-var db = require('./db');
 var EventEmitter = require('events').EventEmitter
+var db = require('muchmala-common').db;
+var _ = require('underscore');
+var flow = require('flow');
+
 var MESSAGES = require('../shared/messages');
-var _ = require('../shared/underscore')._;
-var flow = require('../shared/flow');
 
 function Player(client, puzzle, user) {
     this.client = client;

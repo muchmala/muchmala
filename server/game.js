@@ -1,9 +1,11 @@
-var db = require('./db');
-var MESSAGES = require('../shared/messages');
-var _ = require('../shared/underscore')._;
-var flow = require('../shared/flow');
+var db = require('muchmala-common').db;
+var _ = require('underscore');
+var flow = require('flow');
+
 var Channel = require('./channel');
 var Player = require('./player');
+
+var MESSAGES = require('../shared/messages');
 
 function Game(puzzle) {
     this.channel = new Channel(puzzle);

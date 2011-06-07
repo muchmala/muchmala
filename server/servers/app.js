@@ -1,12 +1,16 @@
-var db = require('../db');
 var io = require('socket.io-cluster');
-var _ = require('../../shared/underscore')._;
+var db = require('muchmala-common').db;
+var _ = require('underscore');
 
 var Games = require('../games');
 var Client = require('../client');
 var config = require('../../config');
 
-db.connect(function(err) {
+db.connect({
+    user: config.MONGODB_USER,
+    host: config.MONGODB_HOST,
+    database: config.MONGODB_DATABASE
+}, function(err) {
     if (err) {
         throw err;
     }

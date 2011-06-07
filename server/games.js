@@ -1,6 +1,8 @@
-var db = require('./db');
+var db = require('muchmala-common').db;
+var _ = require('underscore');
+
 var Game = require('./game');
-var _ = require('../shared/underscore')._;
+
 var MESSAGES = require('../shared/messages');
 
 function Games() {

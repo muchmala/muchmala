@@ -1,4 +1,4 @@
-var _ = require('../../shared/underscore')._;
+var _ = require('underscore');
 var child = require('child_process');
 var fs = require('fs');
 

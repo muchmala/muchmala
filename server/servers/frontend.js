@@ -4,7 +4,7 @@ var auth = require('connect-auth');
 var form = require('connect-form');
 var RedisStore = require('connect-redis');
 
-var db = require('../db');
+var db = require('muchmala-common').db;
 var controllers = require('../controllers');
 var formStrategy = require('../controllers/formAuthStrategy');
 
@@ -24,7 +24,11 @@ opts.parse([
 
 var port = opts.get('port') || config.HTTP_PORT;
 
-db.connect(function() {});
+db.connect({
+    user: config.MONGODB_USER,
+    host: config.MONGODB_HOST,
+    database: config.MONGODB_DATABASE
+}, function() {});
 
 server.set('view engine', 'html');
 server.set('views', __dirname + '/../views');

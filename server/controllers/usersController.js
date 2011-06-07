@@ -1,5 +1,5 @@
-var db = require('../db');
-var _ = require('../../shared/underscore')._;
+var db = require('muchmala-common').db;
+var _ = require('underscore');
 
 module.exports = function(server) {
     server.get('/users/toptwenty', function(req, res) {
