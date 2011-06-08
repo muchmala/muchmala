@@ -7,7 +7,12 @@ Vagrant::Config.run do |config|
   config.vm.share_folder("v-root", "/opt/muchmala", ".")
 
   config.vm.provision :chef_solo do |chef|
-    chef.cookbooks_path = ["chef/cookbooks/muchmala", "chef/cookbooks/opscode", "chef/cookbooks/mdxp", "chef/cookbooks/laggyluke"]
+    chef.cookbooks_path = [
+        "chef/cookbooks/muchmala",
+        "chef/cookbooks/opscode",
+        "chef/cookbooks/mdxp",
+        "chef/cookbooks/laggyluke"
+    ]
     chef.add_recipe "muchmala"
     chef.add_recipe "muchmala::vagrant"
   end
